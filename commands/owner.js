@@ -825,6 +825,9 @@ async function handleButton(interaction, customId) {
     }
     const filter = parts[2] || 'default';
     const currentPage = parseInt(action, 10) || 0;
+    // Defer update quickly to avoid interaction timeout while we build invites
+    try { if (global && typeof global.safeDefer === 'function') await global.safeDefer(interaction); } catch (e) {}
+
     // compute page bounds using a fresh guild list
     const guilds = [...interaction.client.guilds.cache.values()];
     const totalPages = Math.max(1, Math.ceil(guilds.length / PAGE_SIZE));
@@ -851,6 +854,13 @@ async function handleButton(interaction, customId) {
       new ButtonBuilder().setCustomId(`guildlist_goto:${clampedPage}:${filter}`).setLabel('Specific Page').setStyle(ButtonStyle.Secondary).setDisabled(totalPages <= 1),
       new ButtonBuilder().setCustomId(`guildlist_next:${clampedPage}:${filter}`).setLabel('Next').setStyle(ButtonStyle.Primary).setDisabled(clampedPage >= totalPages - 1)
     );
+    // If possible, edit the original message directly after deferring the interaction
+    try {
+      if (interaction.message && typeof interaction.message.edit === 'function') {
+        await interaction.message.edit({ embeds: [embed], components: [selectRow, navRow] }).catch(() => {});
+        return null;
+      }
+    } catch (e) {}
 
     if (global && typeof global.safeUpdate === 'function') return global.safeUpdate(interaction, { embeds: [embed], components: [selectRow, navRow] });
     return global.safeUpdate(interaction, { embeds: [embed], components: [selectRow, navRow] });
@@ -937,6 +947,8 @@ async function handleButton(interaction, customId) {
 
 async function handleSelect(interaction) {
   if (interaction.user.id !== OWNER_ID) return interaction.reply({ content: 'You are not permitted to use this.', ephemeral: true });
+  // acknowledge quickly to avoid timeout while we build invites
+  try { if (global && typeof global.safeDefer === 'function') await global.safeDefer(interaction); } catch (e) {}
   const selected = (interaction.values && interaction.values[0]) || 'default';
   const { embed, totalPages, page } = await buildGuildListEmbedAndMeta(interaction.client, 0, selected);
   const { ActionRowBuilder, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder } = require('discord.js');
@@ -955,6 +967,13 @@ async function handleSelect(interaction) {
     new ButtonBuilder().setCustomId(`guildlist_goto:${page}:${selected}`).setLabel('Specific Page').setStyle(ButtonStyle.Secondary).setDisabled(totalPages <= 1),
     new ButtonBuilder().setCustomId(`guildlist_next:${page}:${selected}`).setLabel('Next').setStyle(ButtonStyle.Primary).setDisabled(page >= totalPages - 1)
   );
+  // Edit the original message directly if possible (we deferred earlier)
+  try {
+    if (interaction.message && typeof interaction.message.edit === 'function') {
+      await interaction.message.edit({ embeds: [embed], components: [selectRow, navRow] }).catch(() => {});
+      return null;
+    }
+  } catch (e) {}
 
   if (global && typeof global.safeUpdate === 'function') return global.safeUpdate(interaction, { embeds: [embed], components: [selectRow, navRow] });
   return global.safeUpdate(interaction, { embeds: [embed], components: [selectRow, navRow] });
@@ -963,6 +982,7 @@ async function handleSelect(interaction) {
 async function handleModal(interaction) {
   const parts = interaction.customId.split(':');
   const filter = parts[1] || 'default';
+  const originalMessageId = parts[2] || '';
   if (interaction.user.id !== OWNER_ID) return interaction.reply({ content: 'You are not permitted to use this.', ephemeral: true });
   const pageStr = interaction.fields.getTextInputValue('page_number') || '';
   const requested = parseInt(pageStr, 10);
@@ -970,6 +990,8 @@ async function handleModal(interaction) {
     return interaction.reply({ content: 'Invalid page number.', ephemeral: true });
   }
   const pageIndex = requested - 1;
+  // Defer reply so we have time to fetch and edit the original message
+  try { await interaction.deferReply({ ephemeral: true }); } catch (e) {}
   const { embed, totalPages, page: clampedPage } = await buildGuildListEmbedAndMeta(interaction.client, pageIndex, filter);
   const { ActionRowBuilder, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder } = require('discord.js');
   const select = new StringSelectMenuBuilder()
@@ -988,8 +1010,15 @@ async function handleModal(interaction) {
     new ButtonBuilder().setCustomId(`guildlist_next:${clampedPage}:${filter}`).setLabel('Next').setStyle(ButtonStyle.Primary).setDisabled(clampedPage >= totalPages - 1)
   );
 
-  if (global && typeof global.safeUpdate === 'function') return global.safeUpdate(interaction, { embeds: [embed], components: [selectRow, navRow] });
-  return global.safeUpdate(interaction, { embeds: [embed], components: [selectRow, navRow] });
+  // Try to edit the original message if we have its id (modal can't directly update original message)
+  try {
+    if (originalMessageId && interaction.channel) {
+      const target = await interaction.channel.messages.fetch(originalMessageId).catch(() => null);
+      if (target) await target.edit({ embeds: [embed], components: [selectRow, navRow] }).catch(() => {});
+    }
+  } catch (e) {}
+
+  return interaction.editReply({ content: `Jumped to page ${clampedPage + 1}`, ephemeral: true });
 }
 
 module.exports = { list, execute, handleButton, handleSelect, handleModal };

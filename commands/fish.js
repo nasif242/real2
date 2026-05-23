@@ -298,6 +298,15 @@ module.exports = {
     }
 
     if (outcome === 'The fish got away!') {
+      // Try to edit the original message to remove the button first
+      try {
+        if (state.message && typeof state.message.edit === 'function') {
+          await state.message.edit({ embeds: [embed], components: [] }).catch(() => {});
+          try { await interaction.deferUpdate().catch(() => {}); } catch (e) {}
+          return null;
+        }
+      } catch (e) {}
+
       if (global && typeof global.safeUpdate === 'function') return global.safeUpdate(interaction, { embeds: [embed], components: [] });
       return global.safeUpdate(interaction, { embeds: [embed], components: [] });
     }
@@ -435,6 +444,15 @@ module.exports = {
     embed.addFields({ name: 'Loot', value: lootLines.join('\n') });
     user.totalFishCaught = (user.totalFishCaught || 0) + 1;
     await user.save();
+
+    // Try to edit the original message to remove the button first
+    try {
+      if (state.message && typeof state.message.edit === 'function') {
+        await state.message.edit({ embeds: [embed], components: [] }).catch(() => {});
+        try { await interaction.deferUpdate().catch(() => {}); } catch (e) {}
+        return null;
+      }
+    } catch (e) {}
 
     if (global && typeof global.safeUpdate === 'function') return global.safeUpdate(interaction, { embeds: [embed], components: [] });
     return global.safeUpdate(interaction, { embeds: [embed], components: [] });

@@ -59,7 +59,7 @@ const CHEST_ITEMS = chests.reduce((map, chest) => {
 const SHOP_ITEMS = {
   'reset token': { name: 'Reset Token', cost: 500, type: 'item' },
   'god token': { name: 'God Token', cost: 2700, type: 'item', itemId: 'god_token' },
-  'cola': { name: 'Cola', cost: 204, type: 'item', itemId: 'cola' },
+  'cola': { name: 'Cola', cost: 75, type: 'item', itemId: 'cola' },
   'basic rod': { name: 'Basic Rod', cost: 500, type: 'rod', rod: rods.find(r => r.id === 'basic_rod') },
   ...CHEST_ITEMS
 };

@@ -4,13 +4,13 @@ const User = require('../models/User');
 const { levelers } = require('../data/levelers');
 
 const SELL_PRICES = {
-  D: 10,
-  C: 10,
-  B: 25,
-  A: 50,
-  S: 200,
-  SS: 750,
-  UR: 2500
+  D: 1,
+  C: 3,
+  B: 5,
+  A: 10,
+  S: 25,
+  SS: 100,
+  UR: 250
 };
 
 // Fuzzy search for levelers

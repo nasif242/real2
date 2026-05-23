@@ -110,6 +110,12 @@ function findMatchingOwnedCards(query, user) {
 
 const MAX_CARD_SELL = 20;
 
+function getSellPriceForRank(rank) {
+  const r = String(rank || '').toUpperCase();
+  const map = { D: 1, C: 3, B: 5, A: 10, S: 25, SS: 100, UR: 250 };
+  return map[r] || 0;
+}
+
 function buildSellPlan(user, requests) {
   const actions = [];
   let total = 0;
@@ -154,7 +160,7 @@ function buildSellPlan(user, requests) {
             return false;
           });
         for (const card of matches) {
-          const price = (card.rank === 'D' ? 10 : card.rank === 'C' ? 10 : card.rank === 'B' ? 25 : card.rank === 'A' ? 50 : card.rank === 'S' ? 200 : card.rank === 'SS' ? 750 : card.rank === 'UR' ? 2500 : 0);
+          const price = getSellPriceForRank(card.rank);
           if (price <= 0) continue;
           actions.push({ type: 'card', card, price });
           total += price;
@@ -172,7 +178,7 @@ function buildSellPlan(user, requests) {
           .filter(Boolean)
           .filter(c => !c.ship && String(c.rank).toUpperCase() === String(wantedRank).toUpperCase());
         for (const card of matches) {
-          const price = (card.rank === 'D' ? 10 : card.rank === 'C' ? 10 : card.rank === 'B' ? 25 : card.rank === 'A' ? 50 : card.rank === 'S' ? 200 : card.rank === 'SS' ? 750 : card.rank === 'UR' ? 2500 : 0);
+          const price = getSellPriceForRank(card.rank);
           if (price <= 0) continue;
           actions.push({ type: 'card', card, price });
           total += price;
@@ -195,7 +201,7 @@ function buildSellPlan(user, requests) {
       }
       const cardMatches = findMatchingOwnedCards(request.query, user);
       for (const card of cardMatches) {
-        const price = (card.rank === 'D' ? 10 : card.rank === 'C' ? 10 : card.rank === 'B' ? 25 : card.rank === 'A' ? 50 : card.rank === 'S' ? 200 : card.rank === 'SS' ? 750 : card.rank === 'UR' ? 2500 : 0);
+        const price = getSellPriceForRank(card.rank);
         if (price <= 0) continue;
         actions.push({ type: 'card', card, price });
         total += price;
@@ -238,11 +244,11 @@ function buildSellPlan(user, requests) {
     const cardMatches = findMatchingOwnedCards(request.query, user);
     if (!cardMatches.length) continue;
     // If no explicit amount provided, default to selling all matching cards
-    const requested = (request.amount === null || request.amount === undefined) ? cardMatches.length : Math.max(0, Number(request.amount) || 0);
+      const requested = (request.amount === null || request.amount === undefined) ? cardMatches.length : Math.max(0, Number(request.amount) || 0);
     let remaining = Math.min(requested, cardMatches.length);
     for (const card of cardMatches) {
       if (remaining <= 0) break;
-      const price = (card.rank === 'D' ? 10 : card.rank === 'C' ? 10 : card.rank === 'B' ? 25 : card.rank === 'A' ? 50 : card.rank === 'S' ? 200 : card.rank === 'SS' ? 750 : card.rank === 'UR' ? 2500 : 0);
+      const price = getSellPriceForRank(card.rank);
       if (price <= 0) continue;
       actions.push({ type: 'card', card, price });
       total += price;

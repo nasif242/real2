@@ -38,19 +38,38 @@ async function safeReply(interaction, payload) {
 async function safeUpdate(interaction, payload) {
   try {
     const cleaned = cleanPayload(payload) || {};
-    if (typeof interaction.update === 'function') {
+    // If interaction already deferred or replied, prefer editReply/followUp
+    if (interaction.deferred || interaction.replied) {
+      if (typeof interaction.editReply === 'function') {
+        return interaction.editReply(cleaned).catch(async (e) => {
+          if (e && e.code === 10062) return null;
+          try { return interaction.followUp ? interaction.followUp(cleaned) : null; } catch (e2) { return null; }
+        });
+      }
+      if (typeof interaction.followUp === 'function') {
+        return interaction.followUp(cleaned).catch(() => null);
+      }
+    }
+
+    // If we can directly update the original message for a component interaction
+    if (typeof interaction.update === 'function' && !interaction.deferred && !interaction.replied) {
       return interaction.update(cleaned).catch(async (e) => {
-        // ignore expired/unknown interaction errors
         if (e && e.code === 10062) return null;
-        try { return interaction.reply(cleaned); } catch (e2) { return null; }
+        try { return interaction.reply ? interaction.reply(cleaned) : null; } catch (e2) {
+          try { return interaction.followUp ? interaction.followUp(cleaned) : null; } catch (e3) { return null; }
+        }
       });
     }
+
     if (typeof interaction.editReply === 'function') {
       return interaction.editReply(cleaned).catch(async (e) => {
         if (e && e.code === 10062) return null;
-        try { return interaction.reply(cleaned); } catch (e2) { return null; }
+        try { return interaction.reply ? interaction.reply(cleaned) : null; } catch (e2) {
+          try { return interaction.followUp ? interaction.followUp(cleaned) : null; } catch (e3) { return null; }
+        }
       });
     }
+
     return safeReply(interaction, cleaned);
   } catch (err) {
     console.error('safeUpdate error', err);
