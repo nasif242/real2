@@ -99,11 +99,11 @@ module.exports = {
       if (user.pullsRemaining > 0 && message) {
         const row = new ActionRowBuilder().addComponents(
           new ButtonBuilder()
-            .setCustomId('reset_confirm:yes')
+            .setCustomId(`reset_confirm:${userId}:yes`)
             .setLabel('Yes, Use Token')
             .setStyle(ButtonStyle.Danger),
           new ButtonBuilder()
-            .setCustomId('reset_confirm:no')
+            .setCustomId(`reset_confirm:${userId}:no`)
             .setLabel('Cancel')
             .setStyle(ButtonStyle.Secondary)
         );
@@ -179,7 +179,13 @@ module.exports = {
     return interaction.reply({ content: reply, ephemeral: true });
   },
 
-  async handleButton(interaction, action) {
+  async handleButton(interaction, rawArg) {
+    const parts = rawArg.split(':');
+    const ownerId = parts.length >= 2 ? parts[0] : null;
+    const action = parts.length >= 2 ? parts[1] : parts[0];
+    if (ownerId && interaction.user.id !== ownerId) {
+      return interaction.reply({ content: 'This confirmation is not for you.', ephemeral: true });
+    }
     const userId = interaction.user.id;
     const confirmed = action === 'yes';
 

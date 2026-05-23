@@ -375,7 +375,7 @@ async function main() {
 
         // handle reset token confirmation
         if (action === 'reset_confirm') {
-          return resetCmd.handleButton(interaction, cardId);
+          return resetCmd.handleButton(interaction, interaction.customId.split(':').slice(1).join(':'));
         }
 
         // handle infinite sail interactions
@@ -408,12 +408,12 @@ async function main() {
 
         // handle stock button purchases
         if (action === 'stock_buy') {
-          return stockCmd.handleButton(interaction, cardId);
+          return stockCmd.handleButton(interaction, interaction.customId);
         }
 
         // handle stock page navigation
         if (action === 'stock_page') {
-          return stockCmd.handleButton(interaction, cardId);
+          return stockCmd.handleButton(interaction, interaction.customId);
         }
 
         if (action === 'trivia_answer' || action === 'trivia_continue') {
@@ -448,7 +448,7 @@ async function main() {
 
         // handle bounty interactions
         if (action === 'bounty') {
-          return require('./commands/bounty').handleButton(interaction, cardId);
+          return require('./commands/bounty').handleButton(interaction, `${cardId}:${interaction.customId.split(':').slice(2).join(':')}`);
         }
 
         // handle team autoteam

@@ -46,9 +46,9 @@ function chooseQuestions(category) {
   return shuffle(validQuestions).slice(0, Math.min(QUESTION_COUNT, validQuestions.length));
 }
 
-function buildDifficultySelectRow() {
+function buildDifficultySelectRow(userId) {
   const menu = new StringSelectMenuBuilder()
-    .setCustomId('trivia_diff')
+    .setCustomId(`trivia_diff:${userId}`)
     .setPlaceholder('Options')
     .setMinValues(1)
     .setMaxValues(1)
@@ -254,7 +254,7 @@ module.exports = {
     user.triviaCooldownUntil = new Date(Date.now() + COOLDOWN_MS);
     await user.save();
 
-    const selectRow = buildDifficultySelectRow();
+    const selectRow = buildDifficultySelectRow(userId);
     const embed = new EmbedBuilder()
       .setDescription('**Choose a difficulty**')
       .setColor('#ffffff');
@@ -270,6 +270,11 @@ module.exports = {
     const selected = interaction.values && interaction.values[0];
     if (!selected || !['normal', 'hard'].includes(selected)) {
       return interaction.reply({ content: 'Invalid difficulty selection.', ephemeral: true });
+    }
+
+    const [, ownerId] = interaction.customId.split(':');
+    if (ownerId && interaction.user.id !== ownerId) {
+      return interaction.reply({ content: 'This trivia menu is not for you.', ephemeral: true });
     }
 
     const userId = interaction.user.id;

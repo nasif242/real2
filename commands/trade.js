@@ -157,11 +157,19 @@ module.exports = {
       return null;
     }
 
+    // Leveler class keywords matching feed command conventions
+    const LEVELER_CLASSES = new Set(['str', 'qck', 'int', 'psy', 'dex', 'all']);
+
     function parseTradeItem(raw) {
       if (typeof raw === 'string' && raw.startsWith('*')) {
         const amt = parseInt(raw.slice(1).replace(/[^0-9]/g, ''), 10);
         if (isNaN(amt) || amt < 1) return null;
         return { kind: 'beli', amount: amt };
+      }
+
+      // Leveler class shorthand (STR, QCK, INT, PSY, DEX, ALL)
+      if (typeof raw === 'string' && LEVELER_CLASSES.has(raw.toLowerCase())) {
+        return { kind: 'leveler_class', attribute: raw.toUpperCase() };
       }
 
       // Strip optional trailing quantity (e.g. "prp10" → base="prp", qty=10)
@@ -359,6 +367,60 @@ module.exports = {
       session.offered = { levelerId: offered.id };
       session.requested = { levelerId: requested.id };
     }
+    // leveler_class offered for beli: e.g. "trade STR *40 @user"
+    else if (offered.kind === 'leveler_class' && requested.kind === 'beli') {
+      const attr = offered.attribute;
+      // Collect all levelers of this class from the initiator's inventory
+      const isRainbow = l => typeof l.xp === 'object' && l.xp !== null;
+      const matchingLevelers = levelers.filter(l => {
+        if (attr === 'ALL') return true;
+        if (isRainbow(l)) return false;
+        return l.attribute === attr;
+      });
+      const snapshot = [];
+      for (const def of matchingLevelers) {
+        const it = (initiator.items || []).find(i => i.itemId === def.id && (i.quantity || 0) > 0);
+        if (it) snapshot.push({ levelerId: def.id, name: def.name, emoji: def.emoji, qty: it.quantity });
+      }
+      if (!snapshot.length) {
+        const r = `You have no ${attr === 'ALL' ? '' : attr + ' '}levelers to trade.`;
+        if (message) return message.reply(r);
+        return interaction.reply({ content: r, ephemeral: true });
+      }
+      session.type = 'leveler_class_for_beli';
+      session.attribute = attr;
+      session.snapshot = snapshot;
+      session.requested = { beli: requested.amount };
+    }
+    // beli offered for leveler class: e.g. "trade *40 STR @user"
+    else if (offered.kind === 'beli' && requested.kind === 'leveler_class') {
+      const attr = requested.attribute;
+      const isRainbow = l => typeof l.xp === 'object' && l.xp !== null;
+      const matchingLevelers = levelers.filter(l => {
+        if (attr === 'ALL') return true;
+        if (isRainbow(l)) return false;
+        return l.attribute === attr;
+      });
+      const snapshot = [];
+      for (const def of matchingLevelers) {
+        const it = (target.items || []).find(i => i.itemId === def.id && (i.quantity || 0) > 0);
+        if (it) snapshot.push({ levelerId: def.id, name: def.name, emoji: def.emoji, qty: it.quantity });
+      }
+      if (!snapshot.length) {
+        const r = `Target has no ${attr === 'ALL' ? '' : attr + ' '}levelers to trade.`;
+        if (message) return message.reply(r);
+        return interaction.reply({ content: r, ephemeral: true });
+      }
+      if ((initiator.balance || 0) < offered.amount) {
+        const r = `You do not have ¥${offered.amount}.`;
+        if (message) return message.reply(r);
+        return interaction.reply({ content: r, ephemeral: true });
+      }
+      session.type = 'beli_for_leveler_class';
+      session.attribute = attr;
+      session.snapshot = snapshot;
+      session.beli = offered.amount;
+    }
     else {
       const r = 'This combination of trade types is not supported.';
       if (message) return message.reply(r);
@@ -373,6 +435,9 @@ module.exports = {
       if (item.kind === 'leveler') {
         const qtyLabel = item.qty && item.qty > 1 ? `${item.qty}x ` : '';
         return `${qtyLabel}${item.def?.name || item.id} (leveler)`;
+      }
+      if (item.kind === 'leveler_class') {
+        return `All ${item.attribute} levelers`;
       }
       if (item.kind === 'card') {
         const def = item.def || getCardById(item.id) || {};
@@ -394,6 +459,13 @@ module.exports = {
         { name: 'Requested', value: requestedDisplay, inline: true }
       )
       .setFooter({ text: 'Accept to complete the trade. Both users will have items updated.' });
+
+    // For class-based leveler trades, show what's in the snapshot
+    if (session.type === 'leveler_class_for_beli' || session.type === 'beli_for_leveler_class') {
+      const snap = session.snapshot || [];
+      const snapDisplay = snap.map(e => `${e.emoji || ''} **${e.name}** x${e.qty}`).join('\n') || 'None';
+      embed.addFields({ name: `Levelers (${session.attribute})`, value: snapDisplay, inline: false });
+    }
 
     // If this is a card-for-card trade and either side requires shards, show both sides' requirements
     if (session.type === 'card_for_card' && (session.offeredShard?.count > 0 || session.requestedShard?.count > 0)) {
@@ -716,6 +788,73 @@ module.exports = {
           const levDef = levelers.find(l => l.id === levelerId) || { name: levelerId, emoji: '' };
           global.tradeSessions.delete(sessionId);
           return global.safeUpdate(interaction, { content: `Trade completed: **${qty > 1 ? qty + 'x ' : ''}${levDef.emoji} ${levDef.name}** sold for ¥${beli.toLocaleString()}.`, embeds: [], components: [] });
+        }
+
+        if (session.type === 'leveler_class_for_beli') {
+          // initiator gives all class levelers, target pays beli
+          const beli = session.requested.beli;
+          const snapshot = session.snapshot || [];
+          if ((target.balance || 0) < beli) {
+            global.tradeSessions.delete(sessionId);
+            return global.safeUpdate(interaction, { content: 'Buyer no longer has enough Beli. Trade cancelled.', embeds: [], components: [] });
+          }
+          // Verify and transfer all levelers
+          const transferred = [];
+          for (const entry of snapshot) {
+            const sellerItem = (initiator.items || []).find(i => i.itemId === entry.levelerId);
+            if (!sellerItem || (sellerItem.quantity || 0) < entry.qty) continue;
+            sellerItem.quantity -= entry.qty;
+            if (sellerItem.quantity <= 0) initiator.items = initiator.items.filter(i => i.itemId !== entry.levelerId);
+            const buyerItem = (target.items || []).find(i => i.itemId === entry.levelerId);
+            if (buyerItem) buyerItem.quantity = (buyerItem.quantity || 0) + entry.qty;
+            else { target.items = target.items || []; target.items.push({ itemId: entry.levelerId, quantity: entry.qty }); }
+            transferred.push(entry);
+          }
+          if (!transferred.length) {
+            global.tradeSessions.delete(sessionId);
+            return global.safeUpdate(interaction, { content: 'Seller no longer has any of those levelers. Trade cancelled.', embeds: [], components: [] });
+          }
+          target.balance = (target.balance || 0) - beli;
+          initiator.balance = (initiator.balance || 0) + beli;
+          initiator.markModified('items'); target.markModified('items');
+          await initiator.save();
+          await target.save();
+          const listStr = transferred.map(e => `${e.emoji || ''} ${e.name} x${e.qty}`).join(', ');
+          global.tradeSessions.delete(sessionId);
+          return global.safeUpdate(interaction, { content: `Trade completed: ${listStr} sold for ¥${beli.toLocaleString()}.`, embeds: [], components: [] });
+        }
+
+        if (session.type === 'beli_for_leveler_class') {
+          // initiator pays beli, target gives all class levelers
+          const beli = session.beli;
+          const snapshot = session.snapshot || [];
+          if ((initiator.balance || 0) < beli) {
+            global.tradeSessions.delete(sessionId);
+            return global.safeUpdate(interaction, { content: 'Buyer no longer has enough Beli. Trade cancelled.', embeds: [], components: [] });
+          }
+          const transferred = [];
+          for (const entry of snapshot) {
+            const sellerItem = (target.items || []).find(i => i.itemId === entry.levelerId);
+            if (!sellerItem || (sellerItem.quantity || 0) < entry.qty) continue;
+            sellerItem.quantity -= entry.qty;
+            if (sellerItem.quantity <= 0) target.items = target.items.filter(i => i.itemId !== entry.levelerId);
+            const buyerItem = (initiator.items || []).find(i => i.itemId === entry.levelerId);
+            if (buyerItem) buyerItem.quantity = (buyerItem.quantity || 0) + entry.qty;
+            else { initiator.items = initiator.items || []; initiator.items.push({ itemId: entry.levelerId, quantity: entry.qty }); }
+            transferred.push(entry);
+          }
+          if (!transferred.length) {
+            global.tradeSessions.delete(sessionId);
+            return global.safeUpdate(interaction, { content: 'Seller no longer has any of those levelers. Trade cancelled.', embeds: [], components: [] });
+          }
+          initiator.balance = (initiator.balance || 0) - beli;
+          target.balance = (target.balance || 0) + beli;
+          initiator.markModified('items'); target.markModified('items');
+          await initiator.save();
+          await target.save();
+          const listStr = transferred.map(e => `${e.emoji || ''} ${e.name} x${e.qty}`).join(', ');
+          global.tradeSessions.delete(sessionId);
+          return global.safeUpdate(interaction, { content: `Trade completed: ¥${beli.toLocaleString()} for ${listStr}.`, embeds: [], components: [] });
         }
 
         if (session.type === 'leveler_for_leveler') {

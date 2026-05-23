@@ -90,7 +90,7 @@ module.exports = {
         const row = new ActionRowBuilder()
           .addComponents(
             new ButtonBuilder()
-              .setCustomId('team_autoteam')
+              .setCustomId(`team_autoteam:${currentUserId}`)
               .setLabel('Auto team')
               .setStyle(ButtonStyle.Secondary)
               .setEmoji('<:autoteam:1489632891188019342>')
@@ -193,6 +193,9 @@ module.exports = {
 
   async handleButton(interaction, rawAction, cardId) {
     if (rawAction === 'team_autoteam') {
+      if (cardId && interaction.user.id !== cardId) {
+        return interaction.reply({ content: 'This is not your team.', ephemeral: true });
+      }
       const userId = interaction.user.id;
       let user = await User.findOne({ userId });
       if (!user) {
@@ -231,7 +234,7 @@ module.exports = {
       const row = new ActionRowBuilder()
         .addComponents(
           new ButtonBuilder()
-            .setCustomId('team_autoteam')
+            .setCustomId(`team_autoteam:${interaction.user.id}`)
             .setLabel('Auto team')
             .setStyle(ButtonStyle.Secondary)
             .setEmoji('<:autoteam:1489632891188019342>'),

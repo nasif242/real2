@@ -171,9 +171,10 @@ module.exports = {
       .setTimestamp(expiresAt)
       .setAuthor({ name: username, iconURL: avatarUrl });
 
+    const requesterId = message ? message.author.id : interaction.user.id;
     const infoButton = new ActionRowBuilder().addComponents(
       new ButtonBuilder()
-        .setCustomId('bounty:info')
+        .setCustomId(`bounty:info:${requesterId}`)
         .setLabel('View Target Info')
         .setStyle(ButtonStyle.Primary)
     );
@@ -194,7 +195,11 @@ module.exports = {
   },
 
   async handleButton(interaction, rawAction) {
-    if (rawAction === 'info') {
+    const [action, ownerId] = rawAction.split(':');
+    if (ownerId && interaction.user.id !== ownerId) {
+      return interaction.reply({ content: 'This bounty info is not for you.', ephemeral: true });
+    }
+    if (action === 'info') {
       const userId = interaction.user.id;
       const requester = await User.findOne({ userId });
       if (!requester || !requester.activeBountyTarget) {

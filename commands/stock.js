@@ -42,12 +42,12 @@ function buildStockEmbed(stock, countdown, resetTimestamp, hasImage = true) {
   return embed;
 }
 
-function buildStockRow(stock) {
+function buildStockRow(stock, userId) {
   const row = new ActionRowBuilder();
   stock.forEach((pack, index) => {
     row.addComponents(
       new ButtonBuilder()
-        .setCustomId(`stock_buy:${index}`)
+        .setCustomId(`stock_buy:${userId}:${index}`)
         .setLabel(`${index + 1}`)
         .setStyle(pack.quantity > 0 ? ButtonStyle.Primary : ButtonStyle.Secondary)
         .setDisabled(pack.quantity <= 0)
@@ -185,7 +185,7 @@ module.exports = {
       const imageBuffer = await createStockImage(stock);
       const attachment = new AttachmentBuilder(imageBuffer, { name: 'stock.png' });
       const embed = buildStockEmbed(stock, countdown, resetTimestamp, true);
-      const row = buildStockRow(stock);
+      const row = buildStockRow(stock, userId);
       return message.channel.send({ content, embeds: [embed], components: [row], files: [attachment] });
     }
 
@@ -200,7 +200,7 @@ module.exports = {
       console.error('[stock] createStockImage failed:', err && err.message ? err.message : err);
     }
     const embed = buildStockEmbed(stock, countdown, resetTimestamp, !!attachment);
-    const row = buildStockRow(stock);
+    const row = buildStockRow(stock, userId);
 
     // Edit the deferred reply with the stock embed (with or without attachment)
     if (attachment) {
@@ -209,10 +209,15 @@ module.exports = {
     return interaction.editReply({ content, embeds: [embed], components: [row] });
   },
 
-  async handleButton(interaction, buttonIndex) {
+  async handleButton(interaction, fullCustomId) {
     ensureStockUpToDate();
     const globalStock = getCurrentStock().slice(0, 3);
-    const index = Number(buttonIndex);
+    const parts = fullCustomId.split(':');
+    const ownerId = parts[1];
+    const index = Number(parts[2]);
+    if (ownerId && interaction.user.id !== ownerId) {
+      return interaction.reply({ content: 'This stock menu is not for you. Run `op stock` to open your own.', ephemeral: true });
+    }
     if (Number.isNaN(index) || index < 0 || index >= globalStock.length) {
       return interaction.reply({ content: 'Invalid pack selection.', ephemeral: true });
     }
@@ -268,6 +273,7 @@ module.exports = {
 
     const countdown = getStockCountdownString();
     const resetTimestamp = getStockResetTimestamp();
+    const stockOwnerId = ownerId || userId;
     // Acknowledge the button interaction quickly to avoid "Unknown interaction" errors
     try {
       await interaction.deferUpdate();
@@ -285,7 +291,7 @@ module.exports = {
     }
 
     const embed = buildStockEmbed(updatedStock, countdown, resetTimestamp, !!attachment);
-    const row = buildStockRow(updatedStock);
+    const row = buildStockRow(updatedStock, stockOwnerId);
 
     // Try to edit the original message using the bot token (safer than
     // relying on the interaction token which can expire when uploading files).

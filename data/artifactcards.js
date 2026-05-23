@@ -80,7 +80,7 @@ function flattenCards(consolidatedCards) {
       character: card.character,
       alias: card.alias,
       title: card.title,
-      faculty: card.faculty,
+      faculty: card.faculty !== undefined ? card.faculty : null,
       group: card.group,
       rank: card.rank,
       mastery: 1,
