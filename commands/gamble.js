@@ -178,7 +178,7 @@ function crashCurrentMult(startTime) {
 const TOWER_PAYOUTS = [1.3, 1.7, 2.3, 3.2, 5.0];
 
 // Scratch prizes (will be scaled by bet/100)
-const SCRATCH_PRIZE_POOL = [100, 200, 500, 1000, 2500, 5000, 0, 0, 0];
+const SCRATCH_PRIZE_POOL = [100, 100, 200, 200, 500, 500, 1000, 0, 0];
 
 const RED_NUMBERS = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
 
@@ -738,12 +738,11 @@ async function handleSelect(interaction) {
 
   // Roulette spin type (handled separately below)
   if (action === 'gamble_roul') {
-    await interaction.deferUpdate();
-    const session = gambleSessions.get(userId);
-    if (!session) return;
     const choice = interaction.values[0];
     if (choice === 'lucky') {
-      // show modal to pick a lucky number
+      // Must show modal BEFORE any deferUpdate — cannot defer then showModal
+      const session = gambleSessions.get(userId);
+      if (!session) return interaction.reply({ content: 'No active session.', ephemeral: true });
       const modal = new ModalBuilder()
         .setCustomId(`gamble_roul_lucky:${userId}`)
         .setTitle('Pick a lucky number');
@@ -757,6 +756,9 @@ async function handleSelect(interaction) {
       modal.addComponents(row);
       return interaction.showModal(modal);
     }
+    await interaction.deferUpdate();
+    const session = gambleSessions.get(userId);
+    if (!session) return;
     return handleRouletteSpin(interaction, session, choice);
   }
 
@@ -799,7 +801,7 @@ async function handleSelect(interaction) {
 
     const gameNames = { coin: 'Coin Flip', blackjack: 'Blackjack', roulette: 'Roulette', slots: 'Slots', crash: 'Crash', towers: 'Towers', scratch: 'Scratch' };
     const embed = new EmbedBuilder()
-      .setColor('#212120')
+      .setColor('#23272a')
       .setTitle('Casino Rain Dinners: Crocodiles Casino')
       .setDescription(`You selected **${gameNames[game] || game}**.\n\nHow much Beli do you want to bet?`)
       .setThumbnail(interaction.client.user.displayAvatarURL());
@@ -847,7 +849,7 @@ async function startCoinFlip(interaction, session) {
   const buf = await renderCoinCanvas('?', '?', false);
   const att = new AttachmentBuilder(buf, { name: 'coin.png' });
   const embed = new EmbedBuilder()
-    .setColor('#212120')
+    .setColor('#23272a')
     .setTitle(`${GAME_EMOJIS.coin} Coin Flip — Crocodiles Casino`)
     .setDescription(`**Bet:** ${formatBeli(session.bet)}\nPick **Heads** or **Tails**.`)
     .setThumbnail((interaction && interaction.client) ? interaction.client.user.displayAvatarURL() : '')
@@ -873,7 +875,7 @@ async function startBlackjack(interaction, session) {
   const buf = renderBlackjackCanvas(playerHand, dealerHand, false);
   const att = new AttachmentBuilder(buf, { name: 'blackjack.png' });
   const embed = new EmbedBuilder()
-    .setColor('#ffffff')
+    .setColor('#23272a')
     .setTitle(`${GAME_EMOJIS.blackjack} Blackjack — Crocodiles Casino`)
     .setThumbnail((interaction && interaction.client) ? interaction.client.user.displayAvatarURL() : '')
     .setDescription(`**Bet:** ${formatBeli(session.bet)} | **Your hand:** ${handTotal(playerHand)}`)
@@ -890,7 +892,7 @@ async function startBlackjack(interaction, session) {
 async function startRoulette(interaction, session) {
   session.state = { phase: 'picking' };
   const embed = new EmbedBuilder()
-    .setColor('#ffffff')
+    .setColor('#23272a')
     .setTitle(`${GAME_EMOJIS.roulette} Roulette`)
     .setDescription(`**Bet:** ${formatBeli(session.bet)}\nChoose where to place your bet.`);
   const menu = new StringSelectMenuBuilder()
@@ -909,7 +911,7 @@ async function startSlots(interaction, session) {
   // Show spinning message for climax
   await interaction.editReply({
     embeds: [new EmbedBuilder()
-      .setColor('#ffffff')
+      .setColor('#23272a')
       .setTitle('🎰 Slots')
       .setDescription('**Spinning ...**\n\n🎰  🎰  🎰')],
     components: [],
@@ -923,7 +925,7 @@ async function startSlots(interaction, session) {
     const buf = await renderSlotsCanvas(reels, 'none');
     const att = new AttachmentBuilder(buf, { name: 'slots.png' });
     const embed = new EmbedBuilder()
-      .setColor('#ffffff')
+      .setColor('#23272a')
       .setTitle('Slots')
       .setDescription(`**Bet:** ${formatBeli(session.bet)}\n\n**No match. Better luck next time!**`)
       .setImage('attachment://slots.png');
@@ -938,8 +940,8 @@ async function startSlots(interaction, session) {
 
   // Make exact same-card matches more probable than pure RNG
   for (let i = 1; i < 3; i++) {
-    const pSame = 0.35;
-    const pAttr = 0.25;
+    const pSame = 0.18;
+    const pAttr = 0.12;
     if (Math.random() < pSame) {
       reels[i] = reels[0];
     } else if (Math.random() < pAttr) {
@@ -1010,7 +1012,7 @@ async function startSlots(interaction, session) {
   }
   const desc = `**Bet:** ${formatBeli(session.bet)}\n\n${resultLine}${winnings > 0 ? `\n**Won:** ${formatBeli(winnings)}` : ''}${namiBoostLine}${bonusLine}`;
   const embed = new EmbedBuilder()
-    .setColor('#ffffff')
+    .setColor('#23272a')
     .setTitle('Slots')
     .setDescription(desc)
     .setImage('attachment://slots.png');
@@ -1024,7 +1026,7 @@ async function startCrash(interaction, session) {
   const buf = renderCrashCanvas(1.00, false, null);
   const att = new AttachmentBuilder(buf, { name: 'crash.png' });
   const embed = new EmbedBuilder()
-    .setColor('#ffffff')
+    .setColor('#23272a')
     .setTitle(`${GAME_EMOJIS.crash} Crash`)
     .setDescription(`**Bet:** ${formatBeli(session.bet)}\nThe multiplier is climbing — cash out before it crashes!`)
     .setImage('attachment://crash.png');
@@ -1055,7 +1057,7 @@ async function startCrash(interaction, session) {
         const buf2 = renderCrashCanvas(nowMult, false, null);
         const att2 = new AttachmentBuilder(buf2, { name: 'crash.png' });
         const upd = new EmbedBuilder()
-          .setColor('#ffffff')
+          .setColor('#23272a')
           .setTitle('Crash')
           .setDescription(`**Bet:** ${formatBeli(session.bet)}\n\nThe multiplier is climbing — current: ${nowMult.toFixed(2)}×\nCash out before it crashes!`)
           .setImage('attachment://crash.png');
@@ -1073,7 +1075,7 @@ async function startTowers(interaction, session) {
   const buf = renderTowersCanvas(session.state);
   const att = new AttachmentBuilder(buf, { name: 'towers.png' });
   const embed = new EmbedBuilder()
-    .setColor('#ffffff')
+    .setColor('#23272a')
     .setTitle(`${GAME_EMOJIS.towers} Towers`)
     .setDescription(`**Bet:** ${formatBeli(session.bet)}\nPick a safe tile each floor. Reach the top for **${TOWER_PAYOUTS[TOWER_PAYOUTS.length - 1]}×**!\n**Floor 1 — Potential: ${TOWER_PAYOUTS[0]}×**`)
     .setImage('attachment://towers.png');
@@ -1094,7 +1096,7 @@ async function startScratch(interaction, session) {
   const buf = renderScratchCanvas(grid, []);
   const att = new AttachmentBuilder(buf, { name: 'scratch.png' });
   const embed = new EmbedBuilder()
-    .setColor('#ffffff')
+    .setColor('#23272a')
     .setTitle('Scratch Card')
     .setDescription(`**Bet:** ${formatBeli(session.bet)}\nReveal all 9 tiles — match 3 to win!`)
     .setImage('attachment://scratch.png');
@@ -1153,7 +1155,7 @@ async function handleCoinButton(interaction, session, pick) {
   const desc = `**Bet:** ${formatBeli(session.bet)}\n\nYou picked **${pick}** — Result: **${result}**\n`
     + (won ? `**You won ${formatBeli(winnings)}!**${namiBoostLine}` : `**You lost ${formatBeli(session.bet)}.**`);
   const embed = new EmbedBuilder()
-    .setColor('#212120')
+    .setColor('#23272a')
     .setTitle(`${GAME_EMOJIS.coin} Coin Flip`)
     .setDescription(desc)
     .setThumbnail((interaction && interaction.client) ? interaction.client.user.displayAvatarURL() : '')
@@ -1182,7 +1184,7 @@ async function handleBlackjackButton(interaction, session, action) {
     const buf = renderBlackjackCanvas(playerHand, dealerHand, false);
     const att = new AttachmentBuilder(buf, { name: 'blackjack.png' });
     const embed = new EmbedBuilder()
-      .setColor('#ffffff')
+      .setColor('#23272a')
       .setTitle('Blackjack')
       .setDescription(`**Bet:** ${formatBeli(session.bet)} | **Your hand:** ${handTotal(playerHand)}`)
       .setImage('attachment://blackjack.png');
@@ -1239,7 +1241,7 @@ async function finishBlackjack(interaction, session, reason) {
     ? `**Bet:** ${formatBeli(session.bet)}\n\n${outcome}\n**${payoutMult === 1 ? 'Returned:' : 'Won:'}** ${formatBeli(winnings)}${namiBoostLine}`
     : `**Bet:** ${formatBeli(session.bet)}\n\n${outcome}`;
   const embed = new EmbedBuilder()
-    .setColor('#ffffff')
+    .setColor('#23272a')
     .setTitle(`${GAME_EMOJIS.blackjack} Blackjack`)
     .setDescription(desc)
     .setImage('attachment://blackjack.png');
@@ -1287,7 +1289,7 @@ async function handleRouletteSpin(interaction, session, betType) {
   const desc = `**Bet:** ${formatBeli(session.bet)}\n${betLine}\n\n` +
     (won ? `**Won ${formatBeli(winnings)}!** (×${payoutMult})${namiBoostLine}` : `**You lost ${formatBeli(session.bet)}.**`);
   const embed = new EmbedBuilder()
-    .setColor('#ffffff')
+    .setColor('#23272a')
     .setTitle(`${GAME_EMOJIS.roulette} Roulette`)
     .setDescription(desc)
     .setImage('attachment://roulette.png');
@@ -1311,7 +1313,7 @@ async function handleCrashButton(interaction, session) {
     const buf = renderCrashCanvas(parseFloat(crashAt.toFixed(2)), true, null);
     const att = new AttachmentBuilder(buf, { name: 'crash.png' });
     const embed = new EmbedBuilder()
-      .setColor('#ffffff')
+      .setColor('#23272a')
       .setTitle(`${GAME_EMOJIS.crash} Crash`)
       .setDescription(`**Bet:** ${formatBeli(session.bet)}\n\n**Crashed at ${crashAt.toFixed(2)}× before you cashed out!**\n**Lost ${formatBeli(session.bet)}.**`)
       .setImage('attachment://crash.png');
@@ -1337,7 +1339,7 @@ async function handleCrashButton(interaction, session) {
     namiBoostLine = `\n**Nami boost:** +${pct}% (×${session.namiMultiplier.toFixed(2)})`;
   }
   const embed = new EmbedBuilder()
-    .setColor('#ffffff')
+    .setColor('#23272a')
     .setTitle(`${GAME_EMOJIS.crash} Crash`)
     .setDescription(`**Bet:** ${formatBeli(session.bet)}\n\n**Cashed out at ${currentMult.toFixed(2)}×!**\n**Won ${formatBeli(winnings)}!**${namiBoostLine}`)
     .setImage('attachment://crash.png');
@@ -1363,7 +1365,7 @@ async function handleTowerButton(interaction, session, tile) {
       namiBoostLine = `\n**Nami boost:** +${pct}% (×${session.namiMultiplier.toFixed(2)})`;
     }
     const embed = new EmbedBuilder()
-      .setColor('#ffffff')
+      .setColor('#23272a')
       .setTitle(`${GAME_EMOJIS.towers} Towers`)
       .setDescription(`**Bet:** ${formatBeli(session.bet)}\n\n**Cashed out at ${payoutMult}×!**\n**Won ${formatBeli(winnings)}!**${namiBoostLine}`)
       .setImage('attachment://towers.png');
@@ -1384,7 +1386,7 @@ async function handleTowerButton(interaction, session, tile) {
     const buf = renderTowersCanvas(session.state);
     const att = new AttachmentBuilder(buf, { name: 'towers.png' });
     const embed = new EmbedBuilder()
-      .setColor('#ffffff')
+      .setColor('#23272a')
       .setTitle(`${GAME_EMOJIS.towers} Towers`)
       .setDescription(`**Bet:** ${formatBeli(session.bet)}\n\n**Boom! You hit a bomb on floor ${currentFloor + 1}!**\n**Lost ${formatBeli(session.bet)}.**`)
       .setImage('attachment://towers.png');
@@ -1408,7 +1410,7 @@ async function handleTowerButton(interaction, session, tile) {
       namiBoostLine2 = `\n**Nami boost:** +${pct2}% (×${session.namiMultiplier.toFixed(2)})`;
     }
     const embed = new EmbedBuilder()
-      .setColor('#ffffff')
+      .setColor('#23272a')
       .setTitle(`${GAME_EMOJIS.towers} Towers`)
       .setDescription(`**Bet:** ${formatBeli(session.bet)}\n\n**All floors cleared! ${currentPayout}×!**\n**Won ${formatBeli(winnings)}!**${namiBoostLine2}`)
       .setImage('attachment://towers.png');
@@ -1422,7 +1424,7 @@ async function handleTowerButton(interaction, session, tile) {
   const buf = renderTowersCanvas(session.state);
   const att = new AttachmentBuilder(buf, { name: 'towers.png' });
   const embed = new EmbedBuilder()
-    .setColor('#ffffff')
+    .setColor('#23272a')
     .setTitle(`${GAME_EMOJIS.towers} Towers`)
     .setDescription(
       `**Bet:** ${formatBeli(session.bet)}\n**Floor ${currentFloor + 1} cleared!**\n`
@@ -1501,7 +1503,7 @@ async function handleScratchButton(interaction, session, tileIndex) {
       namiBoostLine = `\n**Nami boost:** +${pct}% (×${session.namiMultiplier.toFixed(2)})`;
     }
     const embed = new EmbedBuilder()
-      .setColor('#ffffff')
+      .setColor('#23272a')
       .setTitle(`${GAME_EMOJIS.scratch} Scratch Card`)
       .setDescription(winnings > 0
         ? `**Bet:** ${formatBeli(session.bet)}\n\n**Won ${formatBeli(winnings)}!**${namiBoostLine}`
@@ -1511,7 +1513,7 @@ async function handleScratchButton(interaction, session, tileIndex) {
   }
 
   const embed = new EmbedBuilder()
-    .setColor('#ffffff')
+    .setColor('#23272a')
     .setTitle('Scratch Card')
     .setDescription(`**Bet:** ${formatBeli(session.bet)}\nReveal all tiles — match 3 to win! *(${9 - revealed.length} left)*`)
     .setImage('attachment://scratch.png');
