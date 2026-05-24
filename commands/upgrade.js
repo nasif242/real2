@@ -250,12 +250,8 @@ module.exports = {
 
     ownedEntry.starLevel = nextStar;
 
-    // Special pull ability: if this card reaches max star, immediately grant +1 pull
-    let abilityUnlocked = false;
-    if (nextStar === maxStar && hasMaxStarAbility(cardDef.id)) {
-      user.pullsRemaining = (user.pullsRemaining || 0) + 1;
-      abilityUnlocked = true;
-    }
+    // Track if a pull-per-reset ability was unlocked (bonus applies from next reset onwards)
+    const abilityUnlocked = nextStar === maxStar && hasMaxStarAbility(cardDef.id);
 
     // Star 6: give this card's signature artifact (artifact whose boost targets this character)
     let artifactLine = '';
