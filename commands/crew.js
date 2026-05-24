@@ -133,6 +133,8 @@ module.exports = {
       const firstArg = (args?.[0] || '').toLowerCase();
       sub = firstArg || 'view';
       if (sub === 'colour') sub = 'color';
+      if (sub === 'add') sub = 'invite';
+      if (sub === 'remove') sub = 'kick';
       targetUser = message.mentions.users.first() || null;
     }
 
@@ -235,10 +237,10 @@ module.exports = {
       return interaction.reply({ content: 'Jolly roger updated.', embeds: [embed] });
     }
 
-    // ── ADD ───────────────────────────────────────────────────────────────────
-    if (sub === 'add') {
+    // ── INVITE ────────────────────────────────────────────────────────────────
+    if (sub === 'invite') {
       if (!targetUser) {
-        const content = 'Please mention or specify a user to add.';
+        const content = 'Please mention a user to invite.';
         if (message) return message.reply(content);
         return interaction.reply({ content, ephemeral: true });
       }
@@ -249,7 +251,7 @@ module.exports = {
         return interaction.reply({ content, ephemeral: true });
       }
       if (crew.captainId !== userId) {
-        const content = 'Only the captain can add members.';
+        const content = 'Only the captain can invite members.';
         if (message) return message.reply(content);
         return interaction.reply({ content, ephemeral: true });
       }
@@ -276,7 +278,7 @@ module.exports = {
         return interaction.reply({ content, ephemeral: true });
       }
       const captainName = message ? message.author.username : interaction.user.username;
-      const inviteContent = `**${captainName}** is inviting you to join **${crew.name}**. Do you want to join?`;
+      const inviteContent = `<@${targetUser.id}>, **${captainName}** is inviting you to join **${crew.name}**. Do you want to join?`;
       const inviteRow = new ActionRowBuilder().addComponents(
         new ButtonBuilder()
           .setCustomId(`crew_invite_yes:${crew.crewId}:${targetUser.id}`)
@@ -287,14 +289,18 @@ module.exports = {
           .setLabel('No')
           .setStyle(ButtonStyle.Secondary)
       );
-      if (message) return message.reply({ content: inviteContent, components: [inviteRow] });
+      const channel = message ? message.channel : interaction.channel;
+      if (message) {
+        await message.delete().catch(() => {});
+        return channel.send({ content: inviteContent, components: [inviteRow] });
+      }
       return interaction.reply({ content: inviteContent, components: [inviteRow] });
     }
 
-    // ── REMOVE ────────────────────────────────────────────────────────────────
-    if (sub === 'remove') {
+    // ── KICK ──────────────────────────────────────────────────────────────────
+    if (sub === 'kick') {
       if (!targetUser) {
-        const content = 'Please mention or specify a user to remove.';
+        const content = 'Please mention a user to kick.';
         if (message) return message.reply(content);
         return interaction.reply({ content, ephemeral: true });
       }
@@ -305,12 +311,12 @@ module.exports = {
         return interaction.reply({ content, ephemeral: true });
       }
       if (crew.captainId !== userId) {
-        const content = 'Only the captain can remove members.';
+        const content = 'Only the captain can kick members.';
         if (message) return message.reply(content);
         return interaction.reply({ content, ephemeral: true });
       }
       if (targetUser.id === userId) {
-        const content = "You can't remove yourself. Use `disband` to dissolve the crew.";
+        const content = "You can't kick yourself. Use `disband` to dissolve the crew.";
         if (message) return message.reply(content);
         return interaction.reply({ content, ephemeral: true });
       }
