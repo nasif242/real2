@@ -51,31 +51,32 @@ module.exports = {
       user.lastReset = now;
     }
 
-    // Check if user is in the support server for an extra pull
-    const client = message ? message.client : interaction.client;
-    const inSupportServer = await isInSupportServer(userId, client);
-    const effectivePullLimit = inSupportServer ? PULL_LIMIT + 1 : PULL_LIMIT;
-
-    // Normalize pullsRemaining to a finite integer within [0, effectivePullLimit]
-    if (typeof user.pullsRemaining !== 'number' || !isFinite(user.pullsRemaining)) {
-      user.pullsRemaining = effectivePullLimit;
-    } else {
-      user.pullsRemaining = Math.floor(user.pullsRemaining);
-      if (user.pullsRemaining > effectivePullLimit) user.pullsRemaining = effectivePullLimit;
-      if (user.pullsRemaining < 0) user.pullsRemaining = 0;
-    }
-
     const lastResetBoundary = getPreviousPullResetDate();
+    let effectivePullLimit = PULL_LIMIT;
+    let inSupportServer = false;
+
+    // Only check support-server membership on the first pull after a global reset.
     if (user.lastReset < lastResetBoundary) {
+      const client = message ? message.client : interaction.client;
+      inSupportServer = await isInSupportServer(userId, client);
+      effectivePullLimit = inSupportServer ? PULL_LIMIT + 1 : PULL_LIMIT;
+
       user.pullsRemaining = effectivePullLimit;
       user.lastReset = lastResetBoundary;
       user.supportBonusApplied = inSupportServer;
       await user.save();
-    } else if (inSupportServer && !user.supportBonusApplied) {
-      // User is in the support server but bonus wasn't applied this cycle (e.g. joined after last reset)
-      user.pullsRemaining = Math.min(user.pullsRemaining + 1, effectivePullLimit);
-      user.supportBonusApplied = true;
-      await user.save();
+    } else {
+      // Not a reset boundary — derive effective limit from persisted flag (no membership check)
+      effectivePullLimit = user.supportBonusApplied ? PULL_LIMIT + 1 : PULL_LIMIT;
+
+      // Normalize pullsRemaining to a finite integer within [0, effectivePullLimit]
+      if (typeof user.pullsRemaining !== 'number' || !isFinite(user.pullsRemaining)) {
+        user.pullsRemaining = effectivePullLimit;
+      } else {
+        user.pullsRemaining = Math.floor(user.pullsRemaining);
+        if (user.pullsRemaining > effectivePullLimit) user.pullsRemaining = effectivePullLimit;
+        if (user.pullsRemaining < 0) user.pullsRemaining = 0;
+      }
     }
 
     if (user.pullsRemaining <= 0) {

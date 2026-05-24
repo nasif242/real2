@@ -107,7 +107,7 @@ async function resetPullCounter() {
   const { PULL_LIMIT } = require('../config');
   
   try {
-    await User.updateMany({}, { pullsRemaining: PULL_LIMIT });
+    await User.updateMany({}, { pullsRemaining: PULL_LIMIT, supportBonusApplied: false });
     console.log('Pulls reset');
     // If a client is set and a reset notification channel is configured, post a message
     try {

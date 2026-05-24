@@ -759,7 +759,7 @@ async function execute({ message, args }) {
       const User = require('../models/User');
       const { PULL_LIMIT } = require('../config');
       
-      await User.updateMany({}, { pullsRemaining: PULL_LIMIT });
+      await User.updateMany({}, { pullsRemaining: PULL_LIMIT, supportBonusApplied: false });
       console.log('Pulls reset');
       
       return message.reply(`⏰ Simulated ${amount}${unit.toUpperCase()} passing. Pulls reset!`);
