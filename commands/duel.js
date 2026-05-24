@@ -709,20 +709,8 @@ async function finalizeAction(state, msg, timedOut = false, appliedCut = false) 
     // Apply start-of-turn effects to ALL cards (both teams) unless already applied
     if (!appliedCut) applyGlobalCut(state);
 
-    // Check if current player can act; if not, automatically skip their turn
-    const activeTeam = state.turn === 'player1' ? state.player1Cards : state.player2Cards;
-    if (!canTeamAct(activeTeam)) {
-      appendLog(state, `${state.turn === 'player1' ? state.discordUser1.username : state.discordUser2.username} has no valid moves. Turn skipped.`);
-      return finalizeAction(state, msg, false, true);
-    }
-
-    // Edit the existing message in place so the interaction's original message
-    // is never deleted mid-duel (deletion causes "This interaction failed" on
-    // the deferred component interaction even though the defer was acknowledged).
-    await updateDuelMessage(msg, state);
-    // clear log now that we have shown it on the latest embed
-    state.log = '';
-
+    // Check if opponent's team is already defeated BEFORE updating the embed
+    // so the victory embed replaces the battle embed directly (no "All cards defeated!" flash)
     if (checkTeamDefeated(state.turn === 'player1' ? state.player1Cards : state.player2Cards)) {
       state.finished = true;
       const winnerId = state.turn === 'player1' ? state.player2Id : state.player1Id;
@@ -860,7 +848,22 @@ async function finalizeAction(state, msg, timedOut = false, appliedCut = false) 
         try { await msg.channel.send({ embeds: [victorEmbed] }); } catch {}
       }
       duelStates.delete(msg.id);
+      return;
     }
+
+    // Check if current player can act; if not, automatically skip their turn
+    const activeTeam = state.turn === 'player1' ? state.player1Cards : state.player2Cards;
+    if (!canTeamAct(activeTeam)) {
+      appendLog(state, `${state.turn === 'player1' ? state.discordUser1.username : state.discordUser2.username} has no valid moves. Turn skipped.`);
+      return finalizeAction(state, msg, false, true);
+    }
+
+    // Edit the existing message in place so the interaction's original message
+    // is never deleted mid-duel (deletion causes "This interaction failed" on
+    // the deferred component interaction even though the defer was acknowledged).
+    await updateDuelMessage(msg, state);
+    // clear log now that we have shown it on the latest embed
+    state.log = '';
   }
 }
 

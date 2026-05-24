@@ -6,7 +6,7 @@ const User = require('../models/User');
 const Crew = require('../models/Crew');
 const { cards: allCards } = require('../data/cards');
 
-const CREW_CAP = 25;
+const CREW_CAP = 10;
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -71,11 +71,34 @@ async function buildCrewEmbed(crew, client) {
   const { totalBounty, totalPower } = await computeCrewStats(crew);
   const names = await fetchUsernames(crew.members, client);
   const captainName = names[crew.captainId] || crew.captainId;
-  const crewMembers = crew.members.filter(id => id !== crew.captainId);
 
-  let desc = `**<:captain:1508200434274406470> Captain**\n┗ ${captainName}`;
+  // Fetch global bounty ranks
+  const allUsersSorted = await User.find({}, 'userId bounty').sort({ bounty: -1 });
+  const rankMap = {};
+  allUsersSorted.forEach((u, i) => { rankMap[u.userId] = i + 1; });
+
+  // Fetch member bounties to find vice captain
+  const memberDocs = await User.find({ userId: { $in: crew.members } }, 'userId bounty');
+  const nonCaptainDocs = memberDocs.filter(u => u.userId !== crew.captainId);
+  let viceCaptainId = null;
+  if (nonCaptainDocs.length > 0) {
+    const vc = nonCaptainDocs.reduce((best, u) => (u.bounty ?? 100) > (best.bounty ?? 100) ? u : best);
+    viceCaptainId = vc.userId;
+  }
+
+  const crewMembers = crew.members.filter(id => id !== crew.captainId && id !== viceCaptainId);
+
+  const rankTag = id => rankMap[id] ? ` (#${rankMap[id]})` : '';
+
+  let desc = `**<:captain:1508200434274406470> Captain**\n┗ ${captainName}${rankTag(crew.captainId)}`;
+
+  if (viceCaptainId) {
+    const vcName = names[viceCaptainId] || viceCaptainId;
+    desc += `\n\n**Vice Captain**\n┗ ${vcName}${rankTag(viceCaptainId)}`;
+  }
+
   if (crewMembers.length > 0) {
-    const memberLines = crewMembers.map(id => `┣ ${names[id] || id}`);
+    const memberLines = crewMembers.map(id => `┣ ${names[id] || id}${rankTag(id)}`);
     desc += `\n\n**Members**\n${memberLines.join('\n')}`;
   }
 

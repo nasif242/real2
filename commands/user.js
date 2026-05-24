@@ -1,5 +1,6 @@
 const { EmbedBuilder } = require('discord.js');
 const User = require('../models/User');
+const Crew = require('../models/Crew');
 const { cards: cardDefs } = require('../data/cards');
 
 function parseTargetIdFromArgs(message, args) {
@@ -63,6 +64,9 @@ module.exports = {
 
     const statsValue = `Total Pulls: **${user.totalPulls || 0}**\nUnique Cards: **${uniqueCardsCount}** / ${totalCardsCount}`;
 
+    const crew = await Crew.findOne({ members: targetId });
+    const crewValue = crew ? `**${crew.name}**${crew.captainId === targetId ? ' (Captain)' : ''}` : 'None';
+
     const title = `${username}'s Profile`;
     const embed = new EmbedBuilder()
       .setColor('#FFFFFF')
@@ -70,6 +74,7 @@ module.exports = {
       .setThumbnail(avatarUrl)
       .addFields(
         { name: 'Bounty', value: `<:bounty:1490738541448400976>${user.bounty || 100}`, inline: true },
+        { name: 'Crew', value: crewValue, inline: true },
         { name: '**Rankings**', value: `Wealth: #${wealthRank}\nBounty: #${bountyRank}\nDex: #${dexRank}`, inline: false },
         { name: '**Statistics**', value: statsValue, inline: false }
       );
