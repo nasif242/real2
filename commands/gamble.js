@@ -1581,15 +1581,17 @@ async function handleNamiAbilityButton(interaction, cardId) {
   const owned = user.ownedCards.find(e => e.cardId === cardId);
   if (!owned) {
     return interaction.reply({
-      content: 'Nami boosts the Beli you receive from gambling depending on her star level.',
+      content: 'Nami boosts the Beli you receive from gambling depending on her star level.\n\nExample:\n1 ✮ = 1% beli boost',
       ephemeral: true
     });
   }
 
   const starLevel = owned.starLevel || 0;
   const mult = (1 + starLevel * 0.01).toFixed(2);
+  const pct = (starLevel * 1);
+  const activation = starLevel === 0 ? ' — reach ★1 to activate!' : '.';
   return interaction.reply({
-    content: `Boosts the Beli you get from gambling by **${mult}x**${starLevel === 0 ? ' — reach ★1 to activate!' : '.'}`,
+    content: `Nami boosts the Beli you receive from gambling depending on her star level.\n\nExample:\n1 ✮ = 1% beli boost\n\nCurrent: ${starLevel} ✮ = ${pct}% boost (×${mult})${activation}`,
     ephemeral: true
   });
 }

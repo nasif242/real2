@@ -8,6 +8,8 @@ const getTimeUntilNextPullReset = stockUtils.getTimeUntilNextPullReset;
 const { AttachmentBuilder } = require('discord.js');
 const { generateArtifactImage } = require('../utils/artifactImage');
 const SUPPORT_GUILD_ID = '1322627413234155520';
+const { getMaxStarForRank } = require('../utils/starLevel');
+const SPECIAL_PULL_CARD_IDS = ['4162', '4037', '3786'];
 
 async function isInSupportServer(userId, client) {
   try {
@@ -59,7 +61,20 @@ module.exports = {
     if (user.lastReset < lastResetBoundary) {
       const client = message ? message.client : interaction.client;
       inSupportServer = await isInSupportServer(userId, client);
-      effectivePullLimit = inSupportServer ? PULL_LIMIT + 1 : PULL_LIMIT;
+
+      // Count special max-star cards owned by the user
+      let extrasFromCards = 0;
+      const owned = user.ownedCards || [];
+      for (const cid of SPECIAL_PULL_CARD_IDS) {
+        const entry = owned.find(e => e.cardId === cid);
+        if (entry) {
+          const def = cards.find(c => c.id === cid);
+          const maxStar = def ? getMaxStarForRank(def.rank) : 7;
+          if ((entry.starLevel || 0) >= maxStar) extrasFromCards += 1;
+        }
+      }
+
+      effectivePullLimit = PULL_LIMIT + (inSupportServer ? 1 : 0) + extrasFromCards;
 
       user.pullsRemaining = effectivePullLimit;
       user.lastReset = lastResetBoundary;
@@ -67,7 +82,18 @@ module.exports = {
       await user.save();
     } else {
       // Not a reset boundary — derive effective limit from persisted flag (no membership check)
-      effectivePullLimit = user.supportBonusApplied ? PULL_LIMIT + 1 : PULL_LIMIT;
+      let extrasFromCards = 0;
+      const owned = user.ownedCards || [];
+      for (const cid of SPECIAL_PULL_CARD_IDS) {
+        const entry = owned.find(e => e.cardId === cid);
+        if (entry) {
+          const def = cards.find(c => c.id === cid);
+          const maxStar = def ? getMaxStarForRank(def.rank) : 7;
+          if ((entry.starLevel || 0) >= maxStar) extrasFromCards += 1;
+        }
+      }
+
+      effectivePullLimit = PULL_LIMIT + (user.supportServerMember ? 1 : 0) + extrasFromCards;
 
       // Normalize pullsRemaining to a finite integer within [0, effectivePullLimit]
       if (typeof user.pullsRemaining !== 'number' || !isFinite(user.pullsRemaining)) {
@@ -87,7 +113,39 @@ module.exports = {
       const timeStr = `${hrs}h ${mins}m ${secs}s`;
       const nextEmoji = '<:next:1489374606916714706>';
       const resetTokenEmoji = '<:resettoken:1490738386540171445>';
-      const reply = `you've used all ${effectivePullLimit} pulls. Next reset in \`${timeStr}\`\n\n**Want more pulls?**\n${nextEmoji} [Vote](<https://top.gg/bot/1461800991677481173/vote>) for the bot for ${resetTokenEmoji}Reset token\n${nextEmoji} Join the [Support server](https://discord.gg/z8bDjhYZE5) for 1 Extra pull per reset`;
+
+      // Determine which 'more pulls' options to show
+      const VOTE_COOLDOWN_MS = 12 * 60 * 60 * 1000;
+      const lastVoted = user.lastVoted ? new Date(user.lastVoted).getTime() : 0;
+      const canVoteNow = !user.lastVoted || (Date.now() - lastVoted) >= VOTE_COOLDOWN_MS;
+      const showVote = canVoteNow;
+      const showSupport = !user.supportServerMember;
+
+      // Cards to present for extra pulls
+      const specialCards = SPECIAL_PULL_CARD_IDS.map(id => cards.find(c => c.id === id)).filter(Boolean);
+      const cardLines = [];
+      for (const c of specialCards) {
+        const ownedEntry = (user.ownedCards || []).find(e => e.cardId === c.id);
+        const maxStar = getMaxStarForRank(c.rank);
+        const isMax = ownedEntry && (ownedEntry.starLevel || 0) >= maxStar;
+        if (!isMax) {
+          const emoji = c.emoji ? c.emoji + ' ' : '';
+          cardLines.push(`${nextEmoji} ${emoji}${c.character} \\`${c.id}\\``);
+        }
+      }
+
+      // Build reply
+      let reply = `you've used all ${effectivePullLimit} pulls. Next reset in \`${timeStr}\``;
+      const wantLines = [];
+      if (showVote) wantLines.push(`${nextEmoji} [Vote](<https://top.gg/bot/1461800991677481173/vote>) for the bot for ${resetTokenEmoji}Reset token`);
+      if (showSupport) wantLines.push(`${nextEmoji} Join the [Support server](https://discord.gg/z8bDjhYZE5) for 1 Extra pull per reset`);
+      if (cardLines.length > 0) {
+        wantLines.push('Obtain these cards and upgrade them to Max star level for 1 extra pull each.');
+        wantLines.push(...cardLines);
+      }
+
+      if (wantLines.length > 0) reply += `\n\n**Want more pulls?**\n` + wantLines.join('\n');
+
       if (message) return message.channel.send(reply);
       return interaction.reply({ content: reply, ephemeral: true });
     }

@@ -174,12 +174,42 @@ async function resetPullCounter() {
   // Also reset all users' pull counts in the database
   const User = require('../models/User');
   const { PULL_LIMIT } = require('../config');
+  const { cards } = require('../data/cards');
+  const { getMaxStarForRank } = require('../utils/starLevel');
+  const SPECIAL_PULL_CARD_IDS = ['4162', '4037', '3786'];
   
   try {
-    // Honor supportServerMember: members get one extra pull and have their bonus marked applied
+    // Compute pulls per-user honoring support membership and special max-star card bonuses
     const lastResetBoundary = getPreviousPullResetDate();
-    await User.updateMany({ supportServerMember: true }, { $set: { pullsRemaining: PULL_LIMIT + 1, supportBonusApplied: true, lastReset: lastResetBoundary } });
-    await User.updateMany({ supportServerMember: { $ne: true } }, { $set: { pullsRemaining: PULL_LIMIT, supportBonusApplied: false, lastReset: lastResetBoundary } });
+
+    // Precompute max star needed for special cards
+    const specialMaxStars = {};
+    for (const cid of SPECIAL_PULL_CARD_IDS) {
+      const def = cards.find(c => c.id === cid);
+      specialMaxStars[cid] = def ? getMaxStarForRank(def.rank) : 7;
+    }
+
+    // Iterate users in batches and apply calculated pullsRemaining
+    const batchSize = 200;
+    let bulkOps = [];
+    const cursor = User.find({}, 'userId supportServerMember ownedCards').cursor();
+    for (let user = await cursor.next(); user != null; user = await cursor.next()) {
+      let extras = user.supportServerMember ? 1 : 0;
+      const owned = user.ownedCards || [];
+      for (const cid of SPECIAL_PULL_CARD_IDS) {
+        const entry = owned.find(e => e.cardId === cid);
+        if (entry && (entry.starLevel || 0) >= (specialMaxStars[cid] || 0)) extras += 1;
+      }
+      const newPulls = PULL_LIMIT + extras;
+      bulkOps.push({ updateOne: { filter: { userId: user.userId }, update: { $set: { pullsRemaining: newPulls, supportBonusApplied: !!user.supportServerMember, lastReset: lastResetBoundary } } } });
+      if (bulkOps.length >= batchSize) {
+        await User.bulkWrite(bulkOps, { ordered: false }).catch(() => {});
+        bulkOps = [];
+      }
+    }
+    if (bulkOps.length > 0) {
+      await User.bulkWrite(bulkOps, { ordered: false }).catch(() => {});
+    }
     console.log('Pulls reset');
     // If a client is set and a reset notification channel is configured, post a message
     try {
