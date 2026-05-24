@@ -130,7 +130,7 @@ module.exports = {
         const isMax = ownedEntry && (ownedEntry.starLevel || 0) >= maxStar;
         if (!isMax) {
           const emoji = c.emoji ? c.emoji + ' ' : '';
-          cardLines.push(`${nextEmoji} ${emoji}${c.character} \\`${c.id}\\``);
+          cardLines.push(`${nextEmoji} ${emoji}${c.character} \`${c.id}\``);
         }
       }
 
