@@ -88,11 +88,18 @@ function rollRank() {
 }
 
 function getSlotPool() {
-  return cards.filter(c => !c.ship && !c.artifact && c.emoji && c.character && c.rank && !['D','C'].includes(c.rank));
+  return cards.filter(c => !c.ship && !c.artifact && c.emoji && c.character && c.rank && ['S','SS','UR'].includes(c.rank));
+}
+
+function rollSlotRank() {
+  const r = Math.random() * 100;
+  if (r < 80) return 'S';
+  if (r < 98) return 'SS';
+  return 'UR';
 }
 
 function rollSlotCard() {
-  const rank = rollRank();
+  const rank = rollSlotRank();
   const pool = getSlotPool().filter(c => c.rank === rank);
   if (!pool.length) return getSlotPool()[Math.floor(Math.random() * getSlotPool().length)];
   return pool[Math.floor(Math.random() * pool.length)];
@@ -164,7 +171,7 @@ function rollCrashAt() {
 
 function crashCurrentMult(startTime) {
   const t = (Date.now() - startTime) / 1000;
-  return parseFloat(Math.max(1.00, 1 + t * 0.3 + t * t * 0.02).toFixed(2));
+  return parseFloat(Math.max(1.00, 1 + t * 0.18 + t * t * 0.004).toFixed(2));
 }
 
 // Towers
@@ -180,20 +187,12 @@ const RED_NUMBERS = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
 // ────────────────────────────────────────────
 
 async function renderCoinCanvas(pick, result, done) {
-  const w = 600, h = 220;
+  const w = 600, h = 320;
   const canvas = createCanvas(w, h);
   const ctx = canvas.getContext('2d');
 
-  // blend with embed color
-  ctx.fillStyle = '#ffd500';
+  ctx.fillStyle = '#2b2d31';
   ctx.fillRect(0, 0, w, h);
-
-  ctx.strokeStyle = '#e0e0e0';
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  ctx.moveTo(w / 2, 15);
-  ctx.lineTo(w / 2, h - 15);
-  ctx.stroke();
 
   const won = done && pick === result;
 
@@ -203,18 +202,18 @@ async function renderCoinCanvas(pick, result, done) {
 
   const drawSide = (cx, headerText, labelText, isResult) => {
     ctx.fillStyle = '#aaaaaa';
-    ctx.font = 'bold 12px sans-serif';
+    ctx.font = 'bold 13px sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'alphabetic';
-    ctx.fillText(headerText, cx, 38);
+    ctx.fillText(headerText, cx, 34);
 
-    const r = 68;
-    const cy = h / 2 + 22;
+    const r = 110;
+    const cy = h / 2 + 20;
 
     let fill;
-    if (!isResult) fill = '#cccccc';
-    else if (done) fill = won ? '#ffd700' : '#555555';
-    else fill = '#cccccc';
+    if (!isResult) fill = '#444444';
+    else if (done) fill = won ? '#2a2000' : '#222222';
+    else fill = '#444444';
 
     ctx.beginPath();
     ctx.arc(cx, cy, r, 0, Math.PI * 2);
@@ -222,24 +221,23 @@ async function renderCoinCanvas(pick, result, done) {
     ctx.fill();
 
     ctx.beginPath();
-    ctx.arc(cx, cy, r - 7, 0, Math.PI * 2);
-    ctx.strokeStyle = isResult && done ? (won ? '#b8860b' : '#333333') : '#aaaaaa';
-    ctx.lineWidth = 3;
+    ctx.arc(cx, cy, r - 6, 0, Math.PI * 2);
+    ctx.strokeStyle = isResult && done ? (won ? '#ffd700' : '#555555') : '#555555';
+    ctx.lineWidth = 4;
     ctx.stroke();
 
-    // try to draw emoji image for heads/tails
     const label = String(labelText || '').toLowerCase();
     if ((label === 'heads' || label === 'tails') && (headsImg || tailsImg)) {
       const img = label === 'heads' ? headsImg : tailsImg;
       if (img) {
-        const iw = 56, ih = 56;
+        const iw = 140, ih = 140;
         ctx.drawImage(img, cx - iw / 2, cy - ih / 2, iw, ih);
         return;
       }
     }
 
-    ctx.fillStyle = isResult && done && !won ? '#aaaaaa' : '#ffffff';
-    ctx.font = `bold 16px sans-serif`;
+    ctx.fillStyle = isResult && done && !won ? '#666666' : '#ffffff';
+    ctx.font = `bold 18px sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(labelText, cx, cy);
@@ -478,34 +476,45 @@ function renderTowersCanvas(state) {
 // ────────────────────────────────────────────
 
 function renderBlackjackCanvas(playerHand, dealerHand, revealDealer) {
-  const w = 700, h = 380;
+  const w = 800, h = 480;
   const canvas = createCanvas(w, h);
   const ctx = canvas.getContext('2d');
 
-  ctx.fillStyle = '#0d5c2c';
+  ctx.fillStyle = '#2b2d31';
   ctx.fillRect(0, 0, w, h);
 
-  const cw = 68, ch = 98, cr = 6;
+  const cw = 95, ch = 138, cr = 10;
 
   function drawCard(card, x, y, faceDown) {
-    ctx.fillStyle = faceDown ? '#1a3a7a' : '#ffffff';
+    ctx.shadowColor = 'rgba(0,0,0,0.5)';
+    ctx.shadowBlur = 10;
+    ctx.shadowOffsetY = 4;
+    ctx.fillStyle = faceDown ? '#1e2a4a' : '#f8f8f8';
     ctx.beginPath();
     ctx.roundRect ? ctx.roundRect(x, y, cw, ch, cr) : ctx.rect(x, y, cw, ch);
     ctx.fill();
-    ctx.strokeStyle = '#00000033';
-    ctx.lineWidth = 1;
+    ctx.shadowColor = 'transparent';
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetY = 0;
+    ctx.strokeStyle = faceDown ? '#2a3d6a' : '#cccccc';
+    ctx.lineWidth = 1.5;
     ctx.stroke();
 
     if (!faceDown) {
-      ctx.fillStyle = (card.suit === 'H' || card.suit === 'D') ? '#cc0000' : '#111111';
-      ctx.font = 'bold 15px sans-serif';
+      const isRed = card.suit === 'H' || card.suit === 'D';
+      ctx.fillStyle = isRed ? '#cc2222' : '#111111';
+      ctx.font = 'bold 20px sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(cardLabel(card), x + cw / 2, y + ch / 2);
+      ctx.font = 'bold 13px sans-serif';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
+      ctx.fillText(cardLabel(card), x + 7, y + 7);
       ctx.textBaseline = 'alphabetic';
     } else {
-      ctx.fillStyle = '#7799cc';
-      ctx.font = 'bold 20px sans-serif';
+      ctx.fillStyle = '#4a6aaa';
+      ctx.font = 'bold 26px sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText('?', x + cw / 2, y + ch / 2);
@@ -514,29 +523,30 @@ function renderBlackjackCanvas(playerHand, dealerHand, revealDealer) {
   }
 
   const dTotal = revealDealer ? handTotal(dealerHand) : handTotal([dealerHand[0]]);
-  const dLabel = revealDealer ? `Dealer: ${dTotal}${dTotal > 21 ? '' : ''}` : `Dealer: ${handTotal([dealerHand[0]])} + ?`;
+  const dLabel = revealDealer ? `Dealer: ${dTotal}` : `Dealer: ${handTotal([dealerHand[0]])} + ?`;
 
-  ctx.fillStyle = '#ffffff';
-  ctx.font = 'bold 15px sans-serif';
+  ctx.fillStyle = '#aaaaaa';
+  ctx.font = 'bold 14px sans-serif';
   ctx.textAlign = 'left';
-  ctx.fillText(dLabel, 28, 42);
-  dealerHand.forEach((card, i) => drawCard(card, 28 + i * (cw + 10), 52, !revealDealer && i > 0));
+  ctx.fillText(dLabel, 30, 38);
+  dealerHand.forEach((card, i) => drawCard(card, 30 + i * (cw + 12), 50, !revealDealer && i > 0));
 
   const pTotal = handTotal(playerHand);
-  ctx.fillStyle = '#ffffff';
-  ctx.font = 'bold 15px sans-serif';
-  ctx.fillText(`You: ${pTotal}${pTotal > 21 ? '' : ''}`, 60, 210);
-  playerHand.forEach((card, i) => drawCard(card, 28 + i * (cw + 10), 220));
+  ctx.fillStyle = '#aaaaaa';
+  ctx.font = 'bold 14px sans-serif';
+  ctx.fillText(`You: ${pTotal}`, 30, 248);
+  playerHand.forEach((card, i) => drawCard(card, 30 + i * (cw + 12), 258));
 
   if (revealDealer) {
     const pt = handTotal(playerHand);
     const dt = handTotal(dealerHand);
     let msg = pt > 21 ? 'BUST!' : dt > 21 || pt > dt ? 'YOU WIN!' : pt === dt ? 'PUSH' : 'DEALER WINS';
-    ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 26px sans-serif';
+    const msgColor = (pt > 21 || (pt < dt && dt <= 21)) ? '#ff6b6b' : pt === dt ? '#aaaaaa' : '#69db7c';
+    ctx.fillStyle = msgColor;
+    ctx.font = 'bold 30px sans-serif';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.fillText(msg, w / 2, h - 42);
+    ctx.fillText(msg, w / 2, h - 38);
     ctx.textBaseline = 'alphabetic';
   }
 
@@ -627,7 +637,7 @@ function renderScratchCanvas(grid, revealed) {
   const canvas = createCanvas(w, h);
   const ctx = canvas.getContext('2d');
 
-  ctx.fillStyle = '#ffffff';
+  ctx.fillStyle = '#2b2d31';
   ctx.fillRect(0, 0, w, h);
 
   const tileW = 100, tileH = 90, gap = 15;
@@ -641,8 +651,8 @@ function renderScratchCanvas(grid, revealed) {
     const isRevealed = revealed.includes(i);
     const value = grid[i];
 
-    ctx.fillStyle = isRevealed ? (value > 0 ? '#e8f5e9' : '#f5f5f5') : '#cccccc';
-    ctx.strokeStyle = isRevealed ? (value > 0 ? '#51cf66' : '#cccccc') : '#aaaaaa';
+    ctx.fillStyle = isRevealed ? (value > 0 ? '#1a3a1a' : '#222222') : '#3a3d42';
+    ctx.strokeStyle = isRevealed ? (value > 0 ? '#51cf66' : '#444444') : '#555555';
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.roundRect ? ctx.roundRect(x, y, tileW, tileH, 8) : ctx.rect(x, y, tileW, tileH);
@@ -653,16 +663,16 @@ function renderScratchCanvas(grid, revealed) {
     ctx.textBaseline = 'middle';
     if (isRevealed) {
       if (value > 0) {
-        ctx.fillStyle = '#1a7a3a';
+        ctx.fillStyle = '#69db7c';
         ctx.font = 'bold 13px sans-serif';
         ctx.fillText(`¥${value.toLocaleString()}`, x + tileW / 2, y + tileH / 2);
       } else {
-        ctx.fillStyle = '#aaaaaa';
+        ctx.fillStyle = '#555555';
         ctx.font = 'bold 22px sans-serif';
         ctx.fillText('✗', x + tileW / 2, y + tileH / 2);
       }
     } else {
-      ctx.fillStyle = '#666666';
+      ctx.fillStyle = '#888888';
       ctx.font = 'bold 26px sans-serif';
       ctx.fillText('?', x + tileW / 2, y + tileH / 2);
     }
@@ -863,7 +873,7 @@ async function startBlackjack(interaction, session) {
   const buf = renderBlackjackCanvas(playerHand, dealerHand, false);
   const att = new AttachmentBuilder(buf, { name: 'blackjack.png' });
   const embed = new EmbedBuilder()
-    .setColor('#0d5c2c')
+    .setColor('#ffffff')
     .setTitle(`${GAME_EMOJIS.blackjack} Blackjack — Crocodiles Casino`)
     .setThumbnail((interaction && interaction.client) ? interaction.client.user.displayAvatarURL() : '')
     .setDescription(`**Bet:** ${formatBeli(session.bet)} | **Your hand:** ${handTotal(playerHand)}`)
@@ -896,17 +906,26 @@ async function startRoulette(interaction, session) {
 }
 
 async function startSlots(interaction, session) {
+  // Show spinning message for climax
+  await interaction.editReply({
+    embeds: [new EmbedBuilder()
+      .setColor('#ffffff')
+      .setTitle('🎰 Slots')
+      .setDescription('**Spinning ...**\n\n🎰  🎰  🎰')],
+    components: [],
+    files: []
+  });
+  await new Promise(r => setTimeout(r, 2000));
+
   const pool = getSlotPool();
   if (!pool.length) {
-    // fallback to naive random reels when no pool available
     const reels = [rollSlotCard(), rollSlotCard(), rollSlotCard()];
     const buf = await renderSlotsCanvas(reels, 'none');
     const att = new AttachmentBuilder(buf, { name: 'slots.png' });
-    const desc = `**Bet:** ${formatBeli(session.bet)}\n\n**No match. Better luck next time!**`;
     const embed = new EmbedBuilder()
       .setColor('#ffffff')
       .setTitle('Slots')
-      .setDescription(desc)
+      .setDescription(`**Bet:** ${formatBeli(session.bet)}\n\n**No match. Better luck next time!**`)
       .setImage('attachment://slots.png');
     await setCooldown(session.userId);
     gambleSessions.delete(session.userId);
@@ -919,8 +938,8 @@ async function startSlots(interaction, session) {
 
   // Make exact same-card matches more probable than pure RNG
   for (let i = 1; i < 3; i++) {
-    const pSame = 0.35; // probability to repeat the same exact card
-    const pAttr = 0.25; // probability to pick a card with same attribute
+    const pSame = 0.35;
+    const pAttr = 0.25;
     if (Math.random() < pSame) {
       reels[i] = reels[0];
     } else if (Math.random() < pAttr) {
@@ -944,7 +963,7 @@ async function startSlots(interaction, session) {
 
   if (allSame) {
     payoutMult = 20; matchType = 'jackpot';
-    resultLine = '**JACKPOT! 3-of-a-kind!** Card added to your collection!';
+    resultLine = '**JACKPOT! 3-of-a-kind!**';
   } else if (allAttr) {
     payoutMult = 5; matchType = 'attr3';
     resultLine = `**3 ${attrs[0]} Attribute Match!** ×${payoutMult}`;
@@ -961,10 +980,21 @@ async function startSlots(interaction, session) {
   let bonusLine = '';
   if (allSame) {
     try {
-      await User.updateOne({ userId: session.userId }, {
-        $push: { ownedCards: { cardId: reels[0].id, level: 1, xp: 0, starLevel: 0 } }
-      });
-      bonusLine = `\n**Card won:** ${reels[0].emoji} ${reels[0].character}`;
+      const freshUser = await User.findOne({ userId: session.userId });
+      const alreadyOwns = freshUser && freshUser.ownedCards && freshUser.ownedCards.some(e => e.cardId === reels[0].id);
+      if (alreadyOwns) {
+        const xpGain = 50;
+        await User.updateOne(
+          { userId: session.userId, 'ownedCards.cardId': reels[0].id },
+          { $inc: { 'ownedCards.$.xp': xpGain } }
+        );
+        bonusLine = `\n**Already owned!** ${reels[0].emoji} ${reels[0].character} → converted to **+${xpGain} XP**`;
+      } else {
+        await User.updateOne({ userId: session.userId }, {
+          $push: { ownedCards: { cardId: reels[0].id, level: 1, xp: 0, starLevel: 0 } }
+        });
+        bonusLine = `\n**Card won:** ${reels[0].emoji} ${reels[0].character} added to your collection!`;
+      }
     } catch (e) {}
   }
 
@@ -1031,12 +1061,11 @@ async function startCrash(interaction, session) {
           .setImage('attachment://crash.png');
         await interaction.editReply({ embeds: [upd], components: [row], files: [att2] }).catch(() => {});
       } catch (e) {}
-    }, 400);
+    }, 1000);
     crashIntervals.set(session.userId, iv);
   } catch (e) {}
-
-  return;
 }
+
 
 async function startTowers(interaction, session) {
   const floors = Array.from({ length: 5 }, () => ({ bomb: Math.floor(Math.random() * 4) }));
@@ -1153,7 +1182,7 @@ async function handleBlackjackButton(interaction, session, action) {
     const buf = renderBlackjackCanvas(playerHand, dealerHand, false);
     const att = new AttachmentBuilder(buf, { name: 'blackjack.png' });
     const embed = new EmbedBuilder()
-      .setColor('#0d5c2c')
+      .setColor('#ffffff')
       .setTitle('Blackjack')
       .setDescription(`**Bet:** ${formatBeli(session.bet)} | **Your hand:** ${handTotal(playerHand)}`)
       .setImage('attachment://blackjack.png');
@@ -1210,7 +1239,7 @@ async function finishBlackjack(interaction, session, reason) {
     ? `**Bet:** ${formatBeli(session.bet)}\n\n${outcome}\n**${payoutMult === 1 ? 'Returned:' : 'Won:'}** ${formatBeli(winnings)}${namiBoostLine}`
     : `**Bet:** ${formatBeli(session.bet)}\n\n${outcome}`;
   const embed = new EmbedBuilder()
-    .setColor('#0d5c2c')
+    .setColor('#ffffff')
     .setTitle(`${GAME_EMOJIS.blackjack} Blackjack`)
     .setDescription(desc)
     .setImage('attachment://blackjack.png');
