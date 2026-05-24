@@ -136,10 +136,16 @@ module.exports = {
     }
 
     if (type === 'trivia') {
+      const reply = 'Reset tokens cannot reset the trivia cooldown.';
+      if (message) return message.reply(reply);
+      return interaction.reply({ content: reply, ephemeral: true });
+    }
+
+    if (type === 'gamble' || type === 'gambling' || type === 'casino') {
       user.resetTokens -= 1;
-      user.triviaCooldownUntil = null;
+      user.gambleCooldownUntil = null;
       await user.save();
-      const reply = 'Trivia cooldown reset.';
+      const reply = 'Gambling cooldown reset.';
       if (message) return message.reply(reply);
       return interaction.reply({ content: reply });
     }
@@ -163,7 +169,7 @@ module.exports = {
     }
 
     // Unknown type
-    const reply = 'Unknown reset type. Valid: pull, stock, bounty, trivia, loot, coin, god';
+    const reply = 'Unknown reset type. Valid: pull, stock, bounty, loot, coin, gamble, god';
     if (message) return message.reply(reply);
     return interaction.reply({ content: reply, ephemeral: true });
   },

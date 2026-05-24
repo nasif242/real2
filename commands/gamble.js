@@ -846,8 +846,7 @@ async function handleSelect(interaction) {
       });
     }
 
-    await User.updateOne({ userId }, { $inc: { balance: -bet } });
-    const session = { userId, game, bet, namiMultiplier: getNamiMultiplier(user), state: {} };
+    const session = { userId, game, bet, namiMultiplier: getNamiMultiplier(user), paidSoFar: 0, state: {} };
     gambleSessions.set(userId, session);
 
     switch (game) {
@@ -946,6 +945,7 @@ async function startSlots(interaction, session) {
     const reels = [rollSlotCard(), rollSlotCard(), rollSlotCard()];
     const buf = await renderSlotsCanvas(reels, 'none');
     const att = new AttachmentBuilder(buf, { name: 'slots.png' });
+    await User.updateOne({ userId: session.userId }, { $inc: { balance: -session.bet } });
     const embed = new EmbedBuilder()
       .setColor('#23272a')
       .setTitle('Slots')
@@ -998,8 +998,13 @@ async function startSlots(interaction, session) {
     resultLine = '**No match. Better luck next time!**';
   }
 
-  const winnings = payoutMult > 0 ? Math.floor(session.bet * payoutMult * session.namiMultiplier) : 0;
-  if (winnings > 0) await User.updateOne({ userId: session.userId }, { $inc: { balance: winnings } });
+  let winnings = 0;
+  if (payoutMult > 0) {
+    winnings = Math.floor(session.bet * (payoutMult - 1) * session.namiMultiplier);
+    await User.updateOne({ userId: session.userId }, { $inc: { balance: winnings } });
+  } else {
+    await User.updateOne({ userId: session.userId }, { $inc: { balance: -session.bet } });
+  }
 
   let bonusLine = '';
   if (allSame) {
@@ -1160,8 +1165,9 @@ async function handleButton(interaction) {
 async function handleCoinButton(interaction, session, pick) {
   const result = Math.random() < 0.5 ? 'heads' : 'tails';
   const won = pick === result;
-  const winnings = won ? Math.floor(session.bet * 2 * session.namiMultiplier) : 0;
-  if (won) await User.updateOne({ userId: session.userId }, { $inc: { balance: winnings } });
+  const profit = won ? Math.floor(session.bet * session.namiMultiplier) : 0;
+  if (won) await User.updateOne({ userId: session.userId }, { $inc: { balance: profit } });
+  else await User.updateOne({ userId: session.userId }, { $inc: { balance: -session.bet } });
   await setCooldown(session.userId);
   gambleSessions.delete(session.userId);
 
@@ -1173,7 +1179,7 @@ async function handleCoinButton(interaction, session, pick) {
     namiBoostLine = `\n**Nami boost:** +${pct}% (×${session.namiMultiplier.toFixed(2)})`;
   }
   const desc = `**Bet:** ${formatBeli(session.bet)}\n\nYou picked **${pick}** — Result: **${result}**\n`
-    + (won ? `**You won ${formatBeli(winnings)}!**${namiBoostLine}` : `**You lost ${formatBeli(session.bet)}.**`);
+    + (won ? `**You won ${formatBeli(profit)}!**${namiBoostLine}` : `**You lost ${formatBeli(session.bet)}.**`);
   const embed = new EmbedBuilder()
     .setColor('#23272a')
     .setTitle(`${GAME_EMOJIS.coin} Coin Flip`)
@@ -1187,13 +1193,17 @@ async function handleBlackjackButton(interaction, session, action) {
   const { deck, playerHand, dealerHand } = session.state;
 
   if (action === 'double') {
-    // Can only double on first two cards
     if (playerHand.length !== 2) return;
     const fresh = await User.findOne({ userId: session.userId });
-    if (fresh && (fresh.balance || 0) >= session.bet) {
-      await User.updateOne({ userId: session.userId }, { $inc: { balance: -session.bet } });
-      session.bet *= 2;
+    if (!fresh || (fresh.balance || 0) < session.bet) {
+      return interaction.followUp({
+        content: `You need **${formatBeli(session.bet)}** more Beli to double down.`,
+        ephemeral: true
+      });
     }
+    await User.updateOne({ userId: session.userId }, { $inc: { balance: -session.bet } });
+    session.paidSoFar = (session.paidSoFar || 0) + session.bet;
+    session.bet *= 2;
     playerHand.push(deck.pop());
     return finishBlackjack(interaction, session, handTotal(playerHand) > 21 ? 'bust' : 'stand');
   }
@@ -1245,21 +1255,29 @@ async function finishBlackjack(interaction, session, reason) {
     outcome = '**Dealer wins.**';
   }
 
-  const winnings = payoutMult > 0 ? Math.floor(session.bet * payoutMult * (payoutMult > 1 ? session.namiMultiplier : 1)) : 0;
-  if (winnings > 0) await User.updateOne({ userId: session.userId }, { $inc: { balance: winnings } });
+  let profit = 0;
+  if (payoutMult > 1) {
+    profit = Math.floor(session.bet * (payoutMult - 1) * session.namiMultiplier);
+    await User.updateOne({ userId: session.userId }, { $inc: { balance: profit } });
+  } else if (payoutMult === 0) {
+    const remaining = (session.bet || 0) - (session.paidSoFar || 0);
+    if (remaining > 0) await User.updateOne({ userId: session.userId }, { $inc: { balance: -remaining } });
+  }
   await setCooldown(session.userId);
   gambleSessions.delete(session.userId);
 
   const buf = renderBlackjackCanvas(playerHand, dealerHand, true);
   const att = new AttachmentBuilder(buf, { name: 'blackjack.png' });
   let namiBoostLine = '';
-  if (winnings > 0 && session.namiMultiplier && session.namiMultiplier > 1) {
+  if (profit > 0 && session.namiMultiplier && session.namiMultiplier > 1) {
     const pct = ((session.namiMultiplier - 1) * 100).toFixed(2);
     namiBoostLine = `\n**Nami boost:** +${pct}% (×${session.namiMultiplier.toFixed(2)})`;
   }
-  const desc = payoutMult > 0
-    ? `**Bet:** ${formatBeli(session.bet)}\n\n${outcome}\n**${payoutMult === 1 ? 'Returned:' : 'Won:'}** ${formatBeli(winnings)}${namiBoostLine}`
-    : `**Bet:** ${formatBeli(session.bet)}\n\n${outcome}`;
+  const desc = payoutMult > 1
+    ? `**Bet:** ${formatBeli(session.bet)}\n\n${outcome}\n**Won:** ${formatBeli(profit)}${namiBoostLine}`
+    : payoutMult === 1
+      ? `**Bet:** ${formatBeli(session.bet)}\n\n${outcome}`
+      : `**Bet:** ${formatBeli(session.bet)}\n\n${outcome}\n**Lost:** ${formatBeli(session.bet)}`;
   const embed = new EmbedBuilder()
     .setColor('#23272a')
     .setTitle(`${GAME_EMOJIS.blackjack} Blackjack`)
@@ -1289,8 +1307,13 @@ async function handleRouletteSpin(interaction, session, betType) {
     if (luckyNum === number) { won = true; payoutMult = 36; }
   }
 
-  const winnings = won ? Math.floor(session.bet * payoutMult * session.namiMultiplier) : 0;
-  if (winnings > 0) await User.updateOne({ userId: session.userId }, { $inc: { balance: winnings } });
+  let rouProfit = 0;
+  if (won) {
+    rouProfit = Math.floor(session.bet * (payoutMult - 1) * session.namiMultiplier);
+    await User.updateOne({ userId: session.userId }, { $inc: { balance: rouProfit } });
+  } else {
+    await User.updateOne({ userId: session.userId }, { $inc: { balance: -session.bet } });
+  }
   await setCooldown(session.userId);
   gambleSessions.delete(session.userId);
 
@@ -1301,13 +1324,13 @@ async function handleRouletteSpin(interaction, session, betType) {
     ? `**Your lucky number:** ${luckyNum} — **Ball landed on:** ${number}`
     : `**Bet type:** ${betType.charAt(0).toUpperCase() + betType.slice(1)} — **Ball landed on:** ${number}`;
   let namiBoostLine = '';
-  if (winnings > 0 && session.namiMultiplier && session.namiMultiplier > 1) {
+  if (won && session.namiMultiplier && session.namiMultiplier > 1) {
     const pct = ((session.namiMultiplier - 1) * 100).toFixed(2);
     namiBoostLine = `\n**Nami boost:** +${pct}% (×${session.namiMultiplier.toFixed(2)})`;
   }
 
   const desc = `**Bet:** ${formatBeli(session.bet)}\n${betLine}\n\n` +
-    (won ? `**Won ${formatBeli(winnings)}!** (×${payoutMult})${namiBoostLine}` : `**You lost ${formatBeli(session.bet)}.**`);
+    (won ? `**Won ${formatBeli(rouProfit)}!** (×${payoutMult})${namiBoostLine}` : `**You lost ${formatBeli(session.bet)}.**`);
   const embed = new EmbedBuilder()
     .setColor('#23272a')
     .setTitle(`${GAME_EMOJIS.roulette} Roulette`)
@@ -1322,6 +1345,7 @@ async function handleCrashButton(interaction, session) {
   const crashed = currentMult >= crashAt;
 
   if (crashed) {
+    await User.updateOne({ userId: session.userId }, { $inc: { balance: -session.bet } });
     await setCooldown(session.userId);
     gambleSessions.delete(session.userId);
     try {
@@ -1340,8 +1364,8 @@ async function handleCrashButton(interaction, session) {
     return interaction.editReply({ embeds: [embed], components: [], files: [att] });
   }
 
-  const winnings = Math.floor(session.bet * currentMult * session.namiMultiplier);
-  await User.updateOne({ userId: session.userId }, { $inc: { balance: winnings } });
+  const crashProfit = Math.floor(session.bet * (currentMult - 1) * session.namiMultiplier);
+  await User.updateOne({ userId: session.userId }, { $inc: { balance: crashProfit } });
   await setCooldown(session.userId);
   gambleSessions.delete(session.userId);
   try {
@@ -1354,14 +1378,14 @@ async function handleCrashButton(interaction, session) {
   const buf = renderCrashCanvas(currentMult, false, currentMult);
   const att = new AttachmentBuilder(buf, { name: 'crash.png' });
   let namiBoostLine = '';
-  if (winnings > 0 && session.namiMultiplier && session.namiMultiplier > 1) {
+  if (crashProfit > 0 && session.namiMultiplier && session.namiMultiplier > 1) {
     const pct = ((session.namiMultiplier - 1) * 100).toFixed(2);
     namiBoostLine = `\n**Nami boost:** +${pct}% (×${session.namiMultiplier.toFixed(2)})`;
   }
   const embed = new EmbedBuilder()
     .setColor('#23272a')
     .setTitle(`${GAME_EMOJIS.crash} Crash`)
-    .setDescription(`**Bet:** ${formatBeli(session.bet)}\n\n**Cashed out at ${currentMult.toFixed(2)}×!**\n**Won ${formatBeli(winnings)}!**${namiBoostLine}`)
+    .setDescription(`**Bet:** ${formatBeli(session.bet)}\n\n**Cashed out at ${currentMult.toFixed(2)}×!**\n**Won ${formatBeli(crashProfit)}!**${namiBoostLine}`)
     .setImage('attachment://crash.png');
   return interaction.editReply({ embeds: [embed], components: [], files: [att] });
 }
@@ -1373,7 +1397,7 @@ async function handleTowerButton(interaction, session, tile) {
   if (tile === 'take') {
     const completedFloor = currentFloor - 1;
     const payoutMult = TOWER_PAYOUTS[Math.max(0, completedFloor)];
-    const winnings = Math.floor(session.bet * payoutMult * session.namiMultiplier);
+    const winnings = Math.floor(session.bet * (payoutMult - 1) * session.namiMultiplier);
     await User.updateOne({ userId: session.userId }, { $inc: { balance: winnings } });
     await setCooldown(session.userId);
     gambleSessions.delete(session.userId);
@@ -1401,6 +1425,7 @@ async function handleTowerButton(interaction, session, tile) {
 
   if (hitBomb) {
     session.state.phase = 'lost';
+    await User.updateOne({ userId: session.userId }, { $inc: { balance: -session.bet } });
     await setCooldown(session.userId);
     gambleSessions.delete(session.userId);
     const buf = renderTowersCanvas(session.state);
@@ -1418,7 +1443,7 @@ async function handleTowerButton(interaction, session, tile) {
 
   if (nextFloor >= floors.length) {
     session.state.phase = 'won';
-    const winnings = Math.floor(session.bet * currentPayout * session.namiMultiplier);
+    const winnings = Math.floor(session.bet * (currentPayout - 1) * session.namiMultiplier);
     await User.updateOne({ userId: session.userId }, { $inc: { balance: winnings } });
     await setCooldown(session.userId);
     gambleSessions.delete(session.userId);
@@ -1439,7 +1464,7 @@ async function handleTowerButton(interaction, session, tile) {
 
   session.state.currentFloor = nextFloor;
   const nextPayout = TOWER_PAYOUTS[nextFloor];
-  const currentWinnings = Math.floor(session.bet * currentPayout * session.namiMultiplier);
+  const currentWinnings = Math.floor(session.bet * (currentPayout - 1) * session.namiMultiplier);
 
   const buf = renderTowersCanvas(session.state);
   const att = new AttachmentBuilder(buf, { name: 'towers.png' });
@@ -1512,22 +1537,23 @@ async function handleScratchButton(interaction, session, tileIndex) {
       else if (cnt >= 2) bestPrize = Math.max(bestPrize, parseInt(val, 10));
     }
 
-    const winnings = Math.floor(bestPrize * session.namiMultiplier);
-    if (winnings > 0) await User.updateOne({ userId: session.userId }, { $inc: { balance: winnings } });
+    const rawPrize = Math.floor(bestPrize * session.namiMultiplier);
+    const scratchNet = rawPrize - session.bet;
+    await User.updateOne({ userId: session.userId }, { $inc: { balance: scratchNet } });
     await setCooldown(session.userId);
     gambleSessions.delete(session.userId);
 
     let namiBoostLine = '';
-    if (winnings > 0 && session.namiMultiplier && session.namiMultiplier > 1) {
+    if (rawPrize > 0 && session.namiMultiplier && session.namiMultiplier > 1) {
       const pct = ((session.namiMultiplier - 1) * 100).toFixed(2);
       namiBoostLine = `\n**Nami boost:** +${pct}% (×${session.namiMultiplier.toFixed(2)})`;
     }
     const embed = new EmbedBuilder()
       .setColor('#23272a')
       .setTitle(`${GAME_EMOJIS.scratch} Scratch Card`)
-      .setDescription(winnings > 0
-        ? `**Bet:** ${formatBeli(session.bet)}\n\n**Won ${formatBeli(winnings)}!**${namiBoostLine}`
-        : `**Bet:** ${formatBeli(session.bet)}\n\n**No 3-of-a-kind match. Better luck next time!**`)
+      .setDescription(rawPrize > 0
+        ? `**Bet:** ${formatBeli(session.bet)}\n\n**Matched! Prize: ${formatBeli(rawPrize)}**${namiBoostLine}\n**Net:** ${scratchNet >= 0 ? '+' : ''}${formatBeli(scratchNet)}`
+        : `**Bet:** ${formatBeli(session.bet)}\n\n**No match. Lost ${formatBeli(session.bet)}.**`)
       .setImage('attachment://scratch.png');
     return interaction.editReply({ embeds: [embed], components: [], files: [att] });
   }
