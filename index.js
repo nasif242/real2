@@ -265,6 +265,9 @@ async function main() {
         if (action === 'marketcancel') {
           return await marketListingsCmd.handleSelect(interaction);
         }
+        if (action === 'inv_category') {
+          return await require('./commands/inventory').handleSelect(interaction);
+        }
       }
 
       if (interaction.isChatInputCommand()) {

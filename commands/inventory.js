@@ -1,4 +1,4 @@
-const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder } = require('discord.js');
 const User = require('../models/User');
 const { levelers } = require('../data/levelers');
 const { rods } = require('../data/rods');
@@ -134,30 +134,28 @@ function buildNavRow(viewerId, targetId, currentPage, totalPages, category) {
   return new ActionRowBuilder().addComponents(
     new ButtonBuilder()
       .setCustomId(`inv_prev_${viewerId}_${targetId}_${category}`)
-      .setLabel('◀')
+      .setLabel('Previous')
       .setStyle(ButtonStyle.Secondary)
       .setDisabled(currentPage === 0),
     new ButtonBuilder()
       .setCustomId(`inv_next_${viewerId}_${targetId}_${category}`)
-      .setLabel('▶')
+      .setLabel('Next')
       .setStyle(ButtonStyle.Secondary)
       .setDisabled(currentPage >= totalPages - 1)
   );
 }
 
-function buildCategoryRow(viewerId, targetId, category) {
+function buildCategoryDropdown(viewerId, targetId, category) {
   const cats = [
-    { id: 'items', label: '📦 Items' },
-    { id: 'levelers', label: '🔺 Levelers' },
-    { id: 'packs', label: '🗂️ Packs' }
+    { value: 'items', label: '📦 Items', description: 'View your regular items' },
+    { value: 'levelers', label: '🔺 Levelers', description: 'View your leveler items' },
+    { value: 'packs', label: '🗂️ Packs', description: 'View your card packs' }
   ];
   return new ActionRowBuilder().addComponents(
-    cats.map(c =>
-      new ButtonBuilder()
-        .setCustomId(`inv_cat_${viewerId}_${targetId}_${c.id}`)
-        .setLabel(c.label)
-        .setStyle(c.id === category ? ButtonStyle.Primary : ButtonStyle.Secondary)
-    )
+    new StringSelectMenuBuilder()
+      .setCustomId(`inv_category:${viewerId}:${targetId}`)
+      .setPlaceholder(`Viewing: ${cats.find(c => c.value === category)?.label || '📦 Items'}`)
+      .addOptions(cats.map(c => ({ label: c.label, description: c.description, value: c.value, default: c.value === category })))
   );
 }
 
@@ -195,10 +193,35 @@ module.exports = {
     const viewerId = message ? message.author.id : interaction.user.id;
     const { embed, totalPages, currentPage } = buildInventoryEmbed(user, username, avatarUrl, 0, 'items');
     const navRow = buildNavRow(viewerId, targetId, currentPage, totalPages, 'items');
-    const catRow = buildCategoryRow(viewerId, targetId, 'items');
+    const dropdownRow = buildCategoryDropdown(viewerId, targetId, 'items');
 
-    if (message) return message.channel.send({ embeds: [embed], components: [navRow, catRow] });
-    return interaction.reply({ embeds: [embed], components: [navRow, catRow] });
+    if (message) return message.channel.send({ embeds: [embed], components: [dropdownRow, navRow] });
+    return interaction.reply({ embeds: [embed], components: [dropdownRow, navRow] });
+  },
+
+  async handleSelect(interaction) {
+    // customId: inv_category:{viewerId}:{targetId}
+    const parts = interaction.customId.split(':');
+    const viewerId = parts[1];
+    const targetId = parts[2] || viewerId;
+    const newCategory = interaction.values[0] || 'items';
+
+    if (interaction.user.id !== viewerId) {
+      return interaction.reply({ content: 'This is not your inventory.', ephemeral: true });
+    }
+
+    const user = await User.findOne({ userId: targetId });
+    if (!user) return interaction.reply({ content: 'User not found.', ephemeral: true });
+
+    const targetUser = await interaction.client.users.fetch(targetId).catch(() => null);
+    const username = targetUser ? targetUser.username : targetId;
+    const avatarUrl = targetUser ? targetUser.displayAvatarURL() : interaction.user.displayAvatarURL();
+
+    const { embed, totalPages, currentPage } = buildInventoryEmbed(user, username, avatarUrl, 0, newCategory);
+    const navRow = buildNavRow(viewerId, targetId, currentPage, totalPages, newCategory);
+    const dropdownRow = buildCategoryDropdown(viewerId, targetId, newCategory);
+
+    return interaction.update({ embeds: [embed], components: [dropdownRow, navRow] });
   },
 
   async handleButton(interaction, customId) {
@@ -246,8 +269,8 @@ module.exports = {
 
     const { embed, totalPages, currentPage: actualPage } = buildInventoryEmbed(user, username, avatarUrl, newPage, newCategory);
     const navRow = buildNavRow(viewerId, targetId, actualPage, totalPages, newCategory);
-    const catRow = buildCategoryRow(viewerId, targetId, newCategory);
+    const dropdownRow = buildCategoryDropdown(viewerId, targetId, newCategory);
 
-    return interaction.update({ embeds: [embed], components: [navRow, catRow] });
+    return interaction.update({ embeds: [embed], components: [dropdownRow, navRow] });
   }
 };

@@ -64,7 +64,7 @@ const COMMAND_CATEGORIES = {
       { name: 'claim [amount]', desc: 'Claim earnings from your active ship' },
       { name: 'rob [@user]', desc: 'Attempt to rob another player' },
       { name: 'loot', desc: 'Attempt to loot a random pirate ship' },
-      { name: 'bet <amount> <guess>', desc: 'Bet Beli on a coin flip (heads or tails)' }
+      { name: 'gamble', desc: 'Lots fun little gambling minigames' }
     ]
   },
   activities: {
