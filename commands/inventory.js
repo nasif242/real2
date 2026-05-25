@@ -146,16 +146,45 @@ function buildNavRow(viewerId, targetId, currentPage, totalPages, category) {
 }
 
 function buildCategoryDropdown(viewerId, targetId, category) {
+  // Separate the raw numeric IDs for custom emojis so Discord's API can parse them natively
   const cats = [
-    { value: 'items', label: '<:PurpleShard:1494106958582776008> Items', description: 'View your regular items' },
-    { value: 'levelers', label: '<:rainbowrobberpenguin:1490356754691784754> Levelers', description: 'View your leveler items' },
-    { value: 'packs', label: '<:CrossGuild:1480010003896340482> Packs', description: 'View your card packs' }
+    { 
+      value: 'items', 
+      label: 'Items', 
+      description: 'View your regular items', 
+      emoji: '1494106958582776008' 
+    },
+    { 
+      value: 'levelers', 
+      label: 'Levelers', 
+      description: 'View your leveler items', 
+      emoji: '1490356754691784754' 
+    },
+    { 
+      value: 'packs', 
+      label: 'Packs', 
+      description: 'View your card packs', 
+      emoji: '1480010003896340482' 
+    }
   ];
+
+  // Find the currently selected category object for the placeholder text fallback
+  const currentCat = cats.find(c => c.value === category);
+  const placeholderText = currentCat ? `Viewing: ${currentCat.label}` : 'Viewing: Items';
+
   return new ActionRowBuilder().addComponents(
     new StringSelectMenuBuilder()
       .setCustomId(`inv_category:${viewerId}:${targetId}`)
-      .setPlaceholder(`Viewing: ${cats.find(c => c.value === category)?.label || '📦 Items'}`)
-      .addOptions(cats.map(c => ({ label: c.label, description: c.description, value: c.value, default: c.value === category })))
+      .setPlaceholder(placeholderText)
+      .addOptions(
+        cats.map(c => ({
+          label: c.label,
+          description: c.description,
+          value: c.value,
+          emoji: { id: c.emoji }, // Pass the snowflake ID directly inside the emoji object
+          default: c.value === category
+        }))
+      )
   );
 }
 
