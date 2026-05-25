@@ -280,10 +280,12 @@ module.exports = {
     }
 
     const updatedGlobal = getCurrentStock().slice(0, 3);
-    // Always show global quantities on the shared message so one user's
-    // purchase does not change what other users see. Each user sees their
-    // own remaining stock only when they run /stock themselves.
-    const updatedStock = updatedGlobal;
+    // Show per-user local stock quantities so the buyer sees their updated count
+    const freshUser = await User.findOne({ userId });
+    const updatedStock = updatedGlobal.map(p => ({
+      ...p,
+      quantity: freshUser?.localStock?.[p.name] ?? p.quantity
+    }));
 
     const countdown = getStockCountdownString();
     const resetTimestamp = getStockResetTimestamp();

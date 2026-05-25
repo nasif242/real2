@@ -135,13 +135,12 @@ async function _spawnDrop(channelId) {
   try {
     const channel = await validateDropsChannel(dropsClient, channelId);
     if (!channel) {
-      console.error(`Error spawning drop: channel ${channelId} is inaccessible or not a text channel. Removing from configured channels.`);
-      // Remove this channel from configured list to avoid repeated errors
+      console.error(`Error spawning drop: channel ${channelId} is inaccessible or not a text channel. Skipping spawn (channel kept in config).`);
+      // Only remove from in-memory set to stop spawning; do NOT save so the
+      // channel persists in DB and is retried on next bot restart.
       configuredDropChannels.delete(channelId);
-      // cleanup per-channel in-memory state
       messageCounts.delete(channelId);
       channelThresholds.delete(channelId);
-      saveDropChannelIds(Array.from(configuredDropChannels)).catch(() => {});
       return;
     }
 

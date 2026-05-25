@@ -65,7 +65,23 @@ module.exports = {
     const statsValue = `Total Pulls: **${user.totalPulls || 0}**\nUnique Cards: **${uniqueCardsCount}** / ${totalCardsCount}`;
 
     const crew = await Crew.findOne({ members: targetId });
-    const crewValue = crew ? `**${crew.name}**${crew.captainId === targetId ? ' (Captain)' : ''}` : 'None';
+    let crewValue = 'None';
+    if (crew) {
+      let roleEmoji = '👤';
+      if (crew.captainId === targetId) {
+        roleEmoji = '<:captain:1508200434274406470>';
+      } else {
+        const memberDocs = await User.find(
+          { userId: { $in: crew.members.filter(id => id !== crew.captainId) } },
+          'userId bounty'
+        );
+        if (memberDocs.length > 0) {
+          const vc = memberDocs.reduce((best, u) => ((u.bounty ?? 100) > (best.bounty ?? 100) ? u : best));
+          if (vc.userId === targetId) roleEmoji = '<:vc:1508270658763751434>';
+        }
+      }
+      crewValue = `**${crew.name}** ${roleEmoji}`;
+    }
 
     const title = `${username}'s Profile`;
     const embed = new EmbedBuilder()

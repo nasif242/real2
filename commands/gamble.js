@@ -956,23 +956,39 @@ async function startSlots(interaction, session) {
     return interaction.editReply({ embeds: [embed], components: [], files: [att] });
   }
 
-  // Choose first reel uniformly from pool
-  const reels = [];
-  reels[0] = pool[Math.floor(Math.random() * pool.length)];
+  // Decide outcome first using explicit probabilities, then fill reels to match
+  const rand = Math.random() * 100;
+  let outcome;
+  if (rand < 2) outcome = 'jackpot';       // 2%: 3x same card  → ×3
+  else if (rand < 7) outcome = 'attr3';    // 5%: 3x same attr  → ×2
+  else if (rand < 42) outcome = 'attr2';   // 35%: 2x same attr → ×1.5
+  else outcome = 'none';                   // 58%: no match     → ×0
 
-  // Make exact same-card matches more probable than pure RNG
-  for (let i = 1; i < 3; i++) {
-    const pSame = 0.18;
-    const pAttr = 0.12;
-    if (Math.random() < pSame) {
-      reels[i] = reels[0];
-    } else if (Math.random() < pAttr) {
-      const sameAttr = pool.filter(c => c.attribute === reels[0].attribute && c.id !== reels[0].id);
-      if (sameAttr.length) reels[i] = sameAttr[Math.floor(Math.random() * sameAttr.length)];
-      else reels[i] = pool[Math.floor(Math.random() * pool.length)];
-    } else {
-      reels[i] = pool[Math.floor(Math.random() * pool.length)];
-    }
+  const reels = [];
+  const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+
+  if (outcome === 'jackpot') {
+    reels[0] = pick(pool);
+    reels[1] = reels[0];
+    reels[2] = reels[0];
+  } else if (outcome === 'attr3') {
+    reels[0] = pick(pool);
+    const sameAttr = pool.filter(c => c.attribute === reels[0].attribute && c.id !== reels[0].id);
+    reels[1] = sameAttr.length ? pick(sameAttr) : reels[0];
+    const sameAttr2 = pool.filter(c => c.attribute === reels[0].attribute && c.id !== reels[0].id && c.id !== reels[1].id);
+    reels[2] = sameAttr2.length ? pick(sameAttr2) : (sameAttr.length ? pick(sameAttr) : reels[0]);
+  } else if (outcome === 'attr2') {
+    reels[0] = pick(pool);
+    const sameAttr = pool.filter(c => c.attribute === reels[0].attribute && c.id !== reels[0].id);
+    reels[1] = sameAttr.length ? pick(sameAttr) : pick(pool);
+    const diffAttr = pool.filter(c => c.attribute !== reels[0].attribute);
+    reels[2] = diffAttr.length ? pick(diffAttr) : pick(pool);
+  } else {
+    reels[0] = pick(pool);
+    const notAttr0 = pool.filter(c => c.attribute !== reels[0].attribute);
+    reels[1] = notAttr0.length ? pick(notAttr0) : pick(pool);
+    const notAttr01 = pool.filter(c => c.attribute !== reels[0].attribute && c.attribute !== reels[1].attribute);
+    reels[2] = notAttr01.length ? pick(notAttr01) : pick(pool);
   }
 
   const ids = reels.map(c => c.id);
@@ -986,14 +1002,14 @@ async function startSlots(interaction, session) {
   let resultLine = '';
 
   if (allSame) {
-    payoutMult = 20; matchType = 'jackpot';
-    resultLine = '**JACKPOT! 3-of-a-kind!**';
+    payoutMult = 3; matchType = 'jackpot';
+    resultLine = '**JACKPOT! 3-of-a-kind!** ×3';
   } else if (allAttr) {
-    payoutMult = 5; matchType = 'attr3';
-    resultLine = `**3 ${attrs[0]} Attribute Match!** ×${payoutMult}`;
+    payoutMult = 2; matchType = 'attr3';
+    resultLine = `**3 ${attrs[0]} Attribute Match!** ×2`;
   } else if (twoAttr) {
     payoutMult = 1.5; matchType = 'attr2';
-    resultLine = `**2 Attribute Match!** ×${payoutMult}`;
+    resultLine = `**2 Attribute Match!** ×1.5`;
   } else {
     resultLine = '**No match. Better luck next time!**';
   }

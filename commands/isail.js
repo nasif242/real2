@@ -979,10 +979,16 @@ async function handleVictory(state, msg, user, discordUser) {
           const shipDefObj = getShipById(rewardShip) || getCardById(rewardShip) || null;
           const shipKey = (shipDefObj && shipDefObj.id) ? shipDefObj.id : String(rewardShip).toLowerCase().replace(/[^a-z0-9]+/g, '_');
           const defaultCola = shipDefObj ? (shipDefObj.cola !== undefined ? shipDefObj.cola : (shipDefObj.maxCola !== undefined ? shipDefObj.maxCola : 0)) : 0;
+          // Always grant the ship on first island completion (prevCount === 0 guarantees this is first time)
           if (!user.ships[shipKey]) {
             user.ships[shipKey] = { cola: defaultCola, maxCola: (shipDefObj && shipDefObj.maxCola !== undefined) ? shipDefObj.maxCola : defaultCola };
-            if (typeof user.markModified === 'function') user.markModified('ships');
+          } else {
+            // Ship entry already exists — update maxCola if it's missing
+            if (user.ships[shipKey].maxCola === undefined) {
+              user.ships[shipKey].maxCola = (shipDefObj && shipDefObj.maxCola !== undefined) ? shipDefObj.maxCola : defaultCola;
+            }
           }
+          if (typeof user.markModified === 'function') user.markModified('ships');
         }
       } else if (prevCount === 1) {
         // Second completion: 1 gem
@@ -2165,13 +2171,13 @@ module.exports = {
         }
       }
       else if (act === 'rest') {
-        // If a specific card is selected, rest only that card (3 energy, 15% HP)
+        // If a specific card is selected, rest only that card (3 energy, 10% HP)
         if (state.selected !== null) {
           const card = state.cards[state.selected];
           if (card && card.alive) {
             card.energy = 3;
             card.turnsUntilRecharge = 2;
-            const healAmount = Math.ceil((card.maxHP || card.def.health) * 0.15);
+            const healAmount = Math.ceil((card.maxHP || card.def.health) * 0.10);
             card.currentHP = Math.min(card.maxHP || card.def.health, (card.currentHP || 0) + healAmount);
             const removed = card.status?.some(st => st.type === 'freeze' || st.type === 'hungry');
             if (removed) {
@@ -2182,14 +2188,14 @@ module.exports = {
             state.lastUserAction = `Invalid selection for rest.`;
           }
         } else {
-          // Team rest: heal all alive cards by 10% max HP, restore +2 energy to each
+          // Team rest: heal all alive cards by 5% max HP, restore +2 energy to each
           state.cards.forEach(c => {
             if (c.alive) {
-              c.currentHP = Math.min(c.maxHP || c.def.health, (c.currentHP || 0) + Math.floor((c.maxHP || c.def.health) * 0.1));
+              c.currentHP = Math.min(c.maxHP || c.def.health, (c.currentHP || 0) + Math.floor((c.maxHP || c.def.health) * 0.05));
               c.energy = Math.min(3, c.energy + 2);
             }
           });
-          state.lastUserAction = `The team took a rest, healed 10% HP and restored +2 energy each!`;
+          state.lastUserAction = `The team took a rest, healed 5% HP and restored +2 energy each!`;
         }
       } else {
         return interaction.followUp({ content: 'Unknown action.', ephemeral: true });

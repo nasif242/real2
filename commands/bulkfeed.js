@@ -2,6 +2,7 @@ const { EmbedBuilder } = require('discord.js');
 const User = require('../models/User');
 const { searchCards } = require('../utils/cards');
 const { levelers } = require('../data/levelers');
+const { getMaxLevelForRank } = require('../utils/starLevel');
 
 function normalizeQuery(query) {
   return query ? query.trim().toLowerCase() : '';
@@ -202,9 +203,11 @@ module.exports = {
       const currentLevel = Number(ownedEntry.level || 1);
       const totalXpNow = currentXp + xpGain;
       const gainedLevels = Math.floor(totalXpNow / 100) - Math.floor(currentXp / 100);
-      levelsGained += gainedLevels;
-      ownedEntry.level = currentLevel + gainedLevels;
-      ownedEntry.xp = totalXpNow % 100;
+      const maxLevel = getMaxLevelForRank(targetCard.rank);
+      const newLevel = Math.min(maxLevel, currentLevel + gainedLevels);
+      levelsGained += newLevel - currentLevel;
+      ownedEntry.level = newLevel;
+      ownedEntry.xp = newLevel >= maxLevel ? 0 : totalXpNow % 100;
 
       const item = user.items.find(i => i.itemId === action.leveler.id);
       item.quantity -= action.quantity;

@@ -537,6 +537,14 @@ async function main() {
   client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
 
+    // Patch message.reply globally so no command ever pings the user
+    const _origReply = message.reply.bind(message);
+    message.reply = (content) => {
+      if (typeof content === 'string') return _origReply({ content, allowedMentions: { repliedUser: false } });
+      if (content && typeof content === 'object') return _origReply({ ...content, allowedMentions: { repliedUser: false } });
+      return _origReply(content);
+    };
+
     // Support both prefix `op` and bot mention as prefix
     const content = message.content || '';
     const lower = content.toLowerCase();
@@ -628,7 +636,7 @@ async function main() {
       return; // unknown command - don't respond
     } catch (err) {
       console.error(err);
-      message.reply('Error running command.');
+      message.reply({ content: 'Error running command.', allowedMentions: { repliedUser: false } });
     }
   });
 

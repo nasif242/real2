@@ -3,6 +3,7 @@ const User = require('../models/User');
 const { levelers } = require('../data/levelers');
 const { findBestOwnedCard } = require('../utils/cards');
 const { applyDefaultEmbedStyle } = require('../utils/embedStyle');
+const { getMaxLevelForRank } = require('../utils/starLevel');
 
 // Fuzzy search for levelers - find exact name match first, then partial
 function searchLevelers(query) {
@@ -201,8 +202,9 @@ module.exports = {
       const currentLevel = Number(ownedCard.level) || 1;
       const total = currentXp + totalXp;
       const levelsGained = Math.floor(total / 100);
-      ownedCard.level = currentLevel + levelsGained;
-      ownedCard.xp = total % 100;
+      const maxLevel = getMaxLevelForRank(card.rank);
+      ownedCard.level = Math.min(maxLevel, currentLevel + levelsGained);
+      ownedCard.xp = ownedCard.level >= maxLevel ? 0 : total % 100;
 
       // Clean up consumed items
       user.items = (user.items || []).filter(i => i.quantity > 0);
@@ -231,14 +233,15 @@ module.exports = {
       xpGain = Number(leveler.xp || 0) * amount;
     }
 
-    // Add XP
+    // Add XP with level cap enforcement
     const currentXp = Number(ownedCard.xp) || 0;
     const currentLevel = Number(ownedCard.level) || 1;
     const normalizedXpGain = Number(xpGain) || 0;
     const totalXp = currentXp + normalizedXpGain;
     const levels = Math.floor(totalXp / 100);
-    ownedCard.level = currentLevel + levels;
-    ownedCard.xp = totalXp % 100;
+    const maxLevel = getMaxLevelForRank(card.rank);
+    ownedCard.level = Math.min(maxLevel, currentLevel + levels);
+    ownedCard.xp = ownedCard.level >= maxLevel ? 0 : totalXp % 100;
 
     // Remove items
     item.quantity -= amount;
