@@ -720,6 +720,30 @@ function marineAttack(state) {
       logs.push(`${marine.rank} is ${reason} and cannot attack!`);
       return;
     }
+    // Confusion: marine may hit itself instead of attacking
+    try {
+      const confusionChance = getConfusionChance(marine);
+      if (confusionChance > 0 && randomInt(1, 100) <= confusionChance) {
+        // Marine hits itself
+        let baseAtkForMarine = 0;
+        if (typeof marine.attack_min === 'number' && typeof marine.attack_max === 'number') {
+          baseAtkForMarine = randomInt(marine.attack_min, marine.attack_max);
+        } else {
+          baseAtkForMarine = marine.atk || 0;
+        }
+        const selfDmg = Math.max(0, Math.floor(baseAtkForMarine));
+        marine.currentHP = Math.max(0, (marine.currentHP || 0) - selfDmg);
+        if (marine.currentHP <= 0) {
+          const ko = handleKO(marine);
+          if (ko) logs.push(ko);
+        }
+        logs.push(`${marine.emoji || ''} **${marine.rank}** is confused and hits themselves for **${selfDmg} DMG**!`);
+        return;
+      }
+    } catch (e) {
+      // ignore confusion errors and continue with normal attack
+      console.error('Error resolving marine confusion:', e);
+    }
     // choose the same target the user just hit, if still alive; otherwise random alive target
     let target = state.lastMarineTarget && state.lastMarineTarget.alive ? state.lastMarineTarget : null;
     const alive = state.cards.filter(c => c.alive);

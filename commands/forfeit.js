@@ -214,6 +214,16 @@ module.exports = {
         }
       } catch (err) {}
 
+      // Reset any persistent sail progress for this user so a forfeited run
+      // does not leave them partway through the Infinite Sail on restart.
+      try {
+        user.isailProgress = 1;
+        user.lastIsailEnemies = [];
+        await user.save();
+      } catch (err) {
+        console.error('Failed to reset isail progress on forfeit for user', userId, err);
+      }
+
       const { EmbedBuilder } = require('discord.js');
       const embed = new EmbedBuilder()
         .setTitle('Sail forfeited')
