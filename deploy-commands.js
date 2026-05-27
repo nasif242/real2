@@ -261,6 +261,11 @@ commands.push({
       name: 'start',
       type: 1,
       description: 'Force-start the raid early (raid owner only)'
+    },
+    {
+      name: 'cancel',
+      type: 1,
+      description: 'Cancel the raid lobby and refund your God Token (host only)'
     }
   ]
 });

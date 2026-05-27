@@ -266,6 +266,9 @@ async function main() {
         if (action === 'crew_create_modal') {
           return await crewCmd.handleModal(interaction);
         }
+        if (action === 'raid_join_modal') {
+          return await raidCmd.handleJoinModal(interaction);
+        }
       }
 
       if (interaction.isStringSelectMenu()) {
@@ -551,7 +554,7 @@ async function main() {
         }
 
         // handle raid buttons
-        if (action === 'raid_start' || action === 'raid_action') {
+        if (action === 'raid_join' || action === 'raid_start' || action === 'raid_action') {
           return raidCmd.handleButton(interaction, interaction.customId);
         }
       }
