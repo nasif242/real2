@@ -82,6 +82,7 @@ async function list({ message }) {
       { name: 'op owner activedrops', value: 'List active drops and per-channel progress (e.g., 37/100)', inline: false },
       { name: 'op owner dropparty <#channel> <amount>', value: 'Spawn <amount> drops immediately in the specified channel', inline: false },
       { name: 'op owner ship <@user>', value: 'View the user\'s active ship info', inline: false },
+      { name: 'op owner setsailstage <sailstagenumber> <@user>', value: 'Set a user\'s story sail progress to the given global stage number (1 = start of Fusha Village). All previous stages are marked complete; stages after are cleared.', inline: false },
       { name: 'op ownerlist', value: 'Show this list', inline: false }
     );
   return message.channel.send({ embeds: [embed] });
@@ -899,6 +900,83 @@ async function execute({ message, args }) {
       .setColor('#2b2d31');
 
     return message.channel.send({ embeds: [embed] });
+  }
+
+  if (sub === 'setsailstage') {
+    const sailStages = require('../data/sailStages');
+    const stageNumArg = args[1];
+    const mention = args[2];
+    const targetId = parseMention(mention);
+
+    const globalStage = parseInt(stageNumArg, 10);
+    if (isNaN(globalStage) || globalStage < 1) {
+      return message.reply('Usage: op owner setsailstage <sailstagenumber> @user');
+    }
+    if (!targetId) {
+      return message.reply('Usage: op owner setsailstage <sailstagenumber> @user');
+    }
+
+    // Build ordered island list with max stage counts from sailStages data
+    const ISLAND_ORDER = ['fusha_village', 'alvidas_hideout', 'shells_town', 'orange_town', 'syrup_village', 'baratie', 'arlong_park', 'loguetown'];
+    const islandInfo = ISLAND_ORDER.map(id => {
+      const def = (sailStages || []).find(s => s.id === id) || {};
+      return { id, maxStage: Array.isArray(def.stages) ? def.stages.length : 0 };
+    });
+
+    const totalStages = islandInfo.reduce((sum, x) => sum + x.maxStage, 0);
+    if (globalStage > totalStages) {
+      return message.reply(`Stage ${globalStage} is out of range. Max global stage is **${totalStages}**.`);
+    }
+
+    // Map global stage number to island index + local stage within that island
+    let cumulative = 0;
+    let targetIslandIdx = -1;
+    let localStage = 1;
+    for (let i = 0; i < islandInfo.length; i++) {
+      const { maxStage } = islandInfo[i];
+      if (globalStage <= cumulative + maxStage) {
+        targetIslandIdx = i;
+        localStage = globalStage - cumulative;
+        break;
+      }
+      cumulative += maxStage;
+    }
+
+    if (targetIslandIdx === -1) {
+      return message.reply(`Could not resolve stage ${globalStage}.`);
+    }
+
+    const target = await User.findOne({ userId: targetId });
+    if (!target) return message.reply('Target user does not have an account.');
+
+    target.storyProgress = target.storyProgress || {};
+
+    // Mark every island before the target island as fully completed
+    for (let i = 0; i < targetIslandIdx; i++) {
+      const { id, maxStage } = islandInfo[i];
+      const allStages = [];
+      for (let s = 1; s <= maxStage; s++) allStages.push(s);
+      target.storyProgress[id] = allStages;
+    }
+
+    // Target island: mark stages 1..(localStage-1) as done; localStage itself is next to play
+    const targetIsland = islandInfo[targetIslandIdx];
+    const completedInTarget = [];
+    for (let s = 1; s < localStage; s++) completedInTarget.push(s);
+    target.storyProgress[targetIsland.id] = completedInTarget;
+
+    // Clear all islands after the target
+    for (let i = targetIslandIdx + 1; i < islandInfo.length; i++) {
+      target.storyProgress[islandInfo[i].id] = [];
+    }
+
+    target.markModified('storyProgress');
+    await target.save();
+
+    const islandDisplayName = targetIsland.id.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    return message.reply(
+      `Set <@${targetId}>'s sail progress to global stage **${globalStage}** — **${islandDisplayName}**, Stage **${localStage}**.\nAll stages before it are marked complete; this stage is queued as next.`
+    );
   }
 
   if (sub === 'resetisail') {

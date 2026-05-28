@@ -833,9 +833,16 @@ async function finalizeUserAction(state, msg, interaction) {
         // After spawning next slice, return control to the player without forcing a marine turn
         return false;
       }
+      // advanceToNextWave returned false unexpectedly (e.g. race condition already advanced index)
+      // Fall back to victory so progress is always recorded and the battle ends cleanly
+      console.log(`[isail] finalizeUserAction: advanceToNextWave returned false — treating as victory for user=${state.userId}`);
+      const userDoc2 = await User.findOne({ userId: state.userId });
+      await handleVictory(state, msg, userDoc2, interaction ? interaction.user : null);
+      battleStates.delete(msg.id);
+      return true;
     } else {
       const userDoc = await User.findOne({ userId: state.userId });
-      await handleVictory(state, msg, userDoc);
+      await handleVictory(state, msg, userDoc, interaction ? interaction.user : null);
       battleStates.delete(msg.id);
       return true; // finished
     }

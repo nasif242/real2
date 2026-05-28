@@ -12,10 +12,7 @@ const marines = [
     stagerange: [1, 3],
     pool: [
       { emoji: '<:INTcabinboy:1490381950958043206>', attribute: 'INT' },
-      { emoji: '<:QCKcabinboy:1490382202603704360>', attribute: 'QCK' },
-      { emoji: '<:DEXcabinboy:1490382492346220795>', attribute: 'DEX' },
       { emoji: '<:PSYcabinboy:1490382699934777506>', attribute: 'PSY' },
-      { emoji: '<:STRcabinboy:1490382907657818132>', attribute: 'STR' }
     ]
   },
   { 
