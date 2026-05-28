@@ -97,6 +97,8 @@ function flattenCards(consolidatedCards) {
 
     // Generate stats from rank — artifacts always have 0 attack
     const stats = generateArtifactStats(card.rank, card.id);
+    // Store only the base rank — the +/- only affects stat generation
+    const { baseRank } = parseRank(card.rank);
 
     const flattedCard = {
       id: card.id,
@@ -105,7 +107,7 @@ function flattenCards(consolidatedCards) {
       title: card.title,
       faculty: card.faculty !== undefined ? card.faculty : null,
       group: card.group,
-      rank: card.rank,
+      rank: baseRank,
       mastery: 1,
       pullable: card.pullable !== undefined ? card.pullable : true,
       image_url: card.image_url

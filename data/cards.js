@@ -176,8 +176,10 @@ function flattenCards(groupedData) {
 
         const isBoost = !!card.boost;
 
-        // Generate stats from rank — deterministic per card id
+        // Generate stats from rank (full rank string including modifier for sub-band math)
         const stats = generateStatsForRank(card.rank, card.id, isBoost);
+        // Store only the base rank on the card — the +/- only affects stat generation
+        const { baseRank } = parseRank(card.rank);
 
         const flatCard = {
           id: card.id,
@@ -186,7 +188,7 @@ function flattenCards(groupedData) {
           title: card.title,
           faculty,
           group: card.group,
-          rank: card.rank,
+          rank: baseRank,
           mastery: 1,
           pullable: true,
           image_url: card.image_url
@@ -270,11 +272,10 @@ const consolidatedCardData = [
         {
           id: "0001",
           attribute: "STR",
-          rank: "C",
+          rank: "D",
           emoji: "<:MonkeyD:1492353158960124037>",
           image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/000/0001.png",
           special_attack: {
-            name: "Gum-Gum Pistol",
             gif: "https://media1.tenor.com/m/eTo-ytFNLX8AAAAC/luffy-pistol.gif"
           },
           effect: "stun",
