@@ -1107,13 +1107,15 @@ async function handleVictory(state, msg, user, discordUser) {
         entry.xp -= 100;
         entry.level = (entry.level || 1) + 1;
       }
-      // Also give XP to any artifact equipped to this card
-      const _equippedArtifact = (user.ownedCards || []).find(a => a.equippedTo === cardId);
-      if (_equippedArtifact) {
-        _equippedArtifact.xp = (_equippedArtifact.xp || 0) + xpGain;
-        while (_equippedArtifact.xp >= 100) {
-          _equippedArtifact.xp -= 100;
-          _equippedArtifact.level = (_equippedArtifact.level || 1) + 1;
+      // Also give XP to any artifacts equipped to this card (supports multiple)
+      const _equippedArtifacts = (user.ownedCards || []).filter(a => a.equippedTo === cardId);
+      if (_equippedArtifacts.length) {
+        for (const _equippedArtifact of _equippedArtifacts) {
+          _equippedArtifact.xp = (_equippedArtifact.xp || 0) + xpGain;
+          while (_equippedArtifact.xp >= 100) {
+            _equippedArtifact.xp -= 100;
+            _equippedArtifact.level = (_equippedArtifact.level || 1) + 1;
+          }
         }
       }
       if (entry.level > prevLevel) {

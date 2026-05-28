@@ -1,5 +1,6 @@
 const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, AttachmentBuilder } = require('discord.js');
 const { searchCards, buildCardEmbed, getCardFinalStats, getAttributeEmoji, updateShipBalance, buildDurabilityBar, getShipById, getCardById } = require('../utils/cards');
+const abilities = require('../utils/abilities');
 const { sortedOwnedCards } = require('./collection');
 const User = require('../models/User');
 const { cards } = require('../data/cards');
@@ -78,14 +79,9 @@ function makeInfoRow(index, total, cardDef, isOwned) {
     );
   }
 
-  const ABILITY_CARD_IDS = ['4162', '4037', '3786'];
-  if (cardDef && (cardDef.character === 'Nami' || ABILITY_CARD_IDS.includes(cardDef.id))) {
-    components.push(
-      new ButtonBuilder()
-        .setCustomId(`nami_ability:${cardDef.id}`)
-        .setLabel('Ability')
-        .setStyle(ButtonStyle.Secondary)
-    );
+  if (cardDef && abilities.hasAbility(cardDef)) {
+    const btn = abilities.makeAbilityButton(cardDef);
+    if (btn) components.push(btn);
   }
   
   return components.length ? new ActionRowBuilder().addComponents(...components) : null;

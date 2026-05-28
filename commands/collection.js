@@ -1,6 +1,7 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, StringSelectMenuBuilder, AttachmentBuilder } = require('discord.js');
 const User = require('../models/User');
 const { getCardById, buildCardEmbed, getCardFinalStats } = require('../utils/cards');
+const abilities = require('../utils/abilities');
 const { generateArtifactImage } = require('../utils/artifactImage');
 
 const RANK_ORDER = { D: 1, C: 2, B: 3, A: 4, S: 5, SS: 6, UR: 7 };
@@ -123,14 +124,9 @@ function makeNavRow(userId, index, total, cardDef, owned) {
     );
   }
 
-  const ABILITY_CARD_IDS = ['4162', '4037', '3786'];
-  if (cardDef && (cardDef.character === 'Nami' || ABILITY_CARD_IDS.includes(cardDef.id))) {
-    row.addComponents(
-      new ButtonBuilder()
-        .setCustomId(`nami_ability:${cardDef.id}`)
-        .setLabel('Ability')
-        .setStyle(ButtonStyle.Secondary)
-    );
+  if (cardDef && abilities.hasAbility(cardDef)) {
+    const btn = abilities.makeAbilityButton(cardDef);
+    if (btn) row.addComponents(btn);
   }
 
   return row;

@@ -1260,19 +1260,23 @@ function getEffectDescription(effectType, duration, isSelf = false, effectAmount
 
 // Apply XP to an equipped artifact when its host card gains XP
 function applyXpToEquippedArtifact(user, cardEntry, xpGain) {
-  if (!user || !user.ownedCards || !cardEntry) return;
-  
-  // Find any artifact equipped to this card
-  const artifact = user.ownedCards.find(a => a.equippedTo === cardEntry.cardId);
-  if (!artifact) return;
-  
-  // Apply the same XP to the artifact
-  artifact.xp = (artifact.xp || 0) + xpGain;
-  const artifactLevelsGained = Math.floor(artifact.xp / 100);
-  if (artifactLevelsGained > 0) {
-    artifact.level = (artifact.level || 1) + artifactLevelsGained;
-    artifact.xp = artifact.xp % 100;
+  if (!user || !Array.isArray(user.ownedCards) || !cardEntry) return;
+
+  // Find all artifacts equipped to this card and apply XP to each (supports
+  // multiple artifacts equipped to the same host, e.g., Zoro's special slot).
+  const artifacts = user.ownedCards.filter(a => a.equippedTo === cardEntry.cardId && isArtifactCard(getCardById(a.cardId)));
+  if (!artifacts.length) return;
+
+  for (const artifact of artifacts) {
+    artifact.xp = (artifact.xp || 0) + xpGain;
+    const artifactLevelsGained = Math.floor(artifact.xp / 100);
+    if (artifactLevelsGained > 0) {
+      artifact.level = (artifact.level || 1) + artifactLevelsGained;
+      artifact.xp = artifact.xp % 100;
+    }
   }
+
+  if (typeof user.markModified === 'function') user.markModified('ownedCards');
 }
 
 module.exports = {

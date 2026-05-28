@@ -402,11 +402,12 @@ async function main() {
           const { buildCardEmbed } = require('./utils/cards');
           const avatarUrl = interaction.user.displayAvatarURL();
           const embed = buildCardEmbed(newDef, userEntry, avatarUrl, userDoc);
-          // rebuild components
+          // rebuild components (include Boosts and Ability where appropriate)
           const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+          const abilities = require('./utils/abilities');
           const prevAvailable = newDef.mastery > 1;
           const nextAvailable = newDef.mastery < newDef.mastery_total;
-          const row = new ActionRowBuilder().addComponents(
+          const components = [
             new ButtonBuilder()
               .setCustomId(`mastery_prev:${newDef.id}`)
               .setLabel('Previous')
@@ -417,7 +418,24 @@ async function main() {
               .setLabel('Next')
               .setStyle(nextAvailable ? ButtonStyle.Primary : ButtonStyle.Secondary)
               .setDisabled(!nextAvailable)
-          );
+          ];
+          // show Boosts button when user owns the card and it's not a ship
+          if (userEntry && !newDef.ship) {
+            components.push(
+              new ButtonBuilder()
+                .setCustomId(`info_boost:boost`)
+                .setLabel('Boosts')
+                .setEmoji('<:boosticon:1490506833344073768>')
+                .setStyle(ButtonStyle.Secondary)
+            );
+          }
+          // show Ability button for any card that has abilities
+          if (abilities.hasAbility(newDef)) {
+            const abilityBtn = abilities.makeAbilityButton(newDef);
+            if (abilityBtn) components.push(abilityBtn);
+          }
+
+          const row = new ActionRowBuilder().addComponents(...components);
           // Attach generated artifact image when navigating mastery pages
           let files;
           if (newDef && newDef.artifact && !newDef.image_url) {
@@ -556,9 +574,9 @@ async function main() {
           return gambleCmd.handleButton(interaction);
         }
 
-        // handle nami ability info button (collection + info)
-        if (action === 'nami_ability') {
-          return gambleCmd.handleNamiAbilityButton(interaction, cardId);
+        // handle ability button (collection + info)
+        if (action === 'ability') {
+          return require('./utils/abilities').handleButton(interaction, cardId);
         }
 
         // handle crew buttons

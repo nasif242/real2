@@ -10,11 +10,6 @@ This document lists all status effects available in the battle system, their mec
 - **Duration**: Specified in turns (doubled internally for proper timing).
 - **Application**: Can be applied to self or target based on "itself" flag.
 
-### Freeze
-- **Icon**: <:Freeze:1479137305749880924>
-- **Mechanics**: Prevents the affected card from taking actions for the duration. Unfrozen by taking damage.
-- **Duration**: Specified in turns (doubled internally for proper timing).
-- **Application**: Can be applied to self or target based on "itself" flag.
 
 ### Cut
 - **Icon**: <:Cut:1479136751397109771>

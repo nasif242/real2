@@ -1,5 +1,5 @@
 const User = require('../models/User');
-const { searchCards, findBestOwnedCard } = require('../utils/cards');
+const { searchCards, findBestOwnedCard, getCardById } = require('../utils/cards');
 
 function findArtifactCard(query) {
   if (!query) return null;
@@ -100,6 +100,22 @@ module.exports = {
     const targetOwned = user.ownedCards.some(e => e.cardId === targetDef.id);
     if (!targetOwned) {
       return reply(`You don't own **${targetDef.character}**.`);
+    }
+
+    // Enforce per-card artifact slot limits (default 1). Roronoa Zoro can
+    // equip up to 3 artifacts when that card's star level is >= 7.
+    const targetOwnedEntry = user.ownedCards.find(e => e.cardId === targetDef.id) || null;
+    let allowedArtifacts = 1;
+    const targetChar = targetDef.character ? String(targetDef.character).toLowerCase().trim() : '';
+    if (targetChar === 'roronoa zoro' && targetOwnedEntry && (targetOwnedEntry.starLevel || 0) >= 7) {
+      allowedArtifacts = 3;
+    }
+
+    const currentEquippedCount = user.ownedCards.filter(e => e.equippedTo === targetDef.id && getCardById(e.cardId) && getCardById(e.cardId).artifact).length;
+    if (currentEquippedCount >= allowedArtifacts) {
+      const label = `${targetDef.emoji ? `${targetDef.emoji} ` : ''}${targetDef.character}`.trim();
+      if (allowedArtifacts === 1) return reply(`**${label}** already has an artifact equipped. Unequip it first.`);
+      return reply(`**${label}** already has ${currentEquippedCount} artifacts equipped. This card can have up to ${allowedArtifacts} artifacts.`);
     }
 
     if (artifactEntry.equippedTo) {
