@@ -1,0 +1,93 @@
+character: "Silvers Raylaigh", 
+alias: ["Dark King","cracked shiki"],
+cards: [
+{
+id: "0366",
+attribute:"INT",
+rank:"S",
+emoji: "<:0366:1509365140750078043>",
+image: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/300/0366.png"
+},
+{
+title: "Dark King"
+id: "0367",
+attribute: "INT",
+rank: "SS",
+emoji: "<:0367:1509365530665156668>"
+image: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/300/0367.png"
+special_attack: {
+            name: "Dark king's aura",
+          },
+          effect: "doomed",
+          effectDuration: 6,
+},
+{
+title: "Pirate King Crewman" ,
+id: "1353",
+attribute: "QCK",
+rank: "A",
+emoji: "<:1353:1509368509023518830>",
+image: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/1/300/1353.png"
+},
+{
+title: "Master of a Sleepless Town",
+id: "1354",
+attribute: "DEX",
+emoji: "<:1354:1509368986968785098>",
+rank: "A",
+image: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/1/300/1354.png>",
+},
+{
+title: "Dark King Shining in the Limelight",
+id: "1355",
+attribute: "DEX",
+rank: "S",
+emoji: "<:1355:1509369658346573864>",
+image: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/1/300/1355.png",
+},
+{
+title: "Straw Hat Pirates Contributor",
+id: "1533",
+attribute: "QCK",
+rank: "A",
+emoji: "<:1533:1509370109645426829>",
+image: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/1/500/1533.png",
+},
+{
+title: "Straw Hat Pirates Conspirator",
+id: "1534",
+attribute: "QCK",
+rank: "S",
+emoji: "<:1534:1509370536818507786>",
+image: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/1/500/1534.png",
+},
+{
+title: "The Dark King - Pirate King's Right-Hand Man",
+id: "1619",
+attribute: "INT",
+rank: "UR",
+image: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/1/600/1619.png",
+special_attack: {
+name: "Netherworld Conqueror", },
+effect: 'Drunk'
+effectDuration: -1, 
+},
+{
+title: "Old Man Watching Over the New Age",
+id: "1882",
+attribute: "DEX",
+rank: "S",
+emoji: "<:1882:1509708020504985600>"
+image: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/1/800/1882.png"
+},
+{
+title: "Dark King - Old Man Watching Over the New Age",
+id: "1883",
+attribute: "DEX",
+rank: "SS",
+emoji: "<:1883:1509708919818293329>",
+image: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/1/800/1883.png",
+special_attack: { name: "Signaling the Begging of a Bright Future",
+effect: "drunk",
+effectDuration: 3, },
+},

@@ -298,7 +298,7 @@ const triviaQuestions = {
   C: 'From drugs',
   D: 'From poisonous rain'
  },
- answer: 'C'
+ answer: 'B'
  },
   {
   question: 'Who is the "prettiest woman" in one piece?',
