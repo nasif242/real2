@@ -979,6 +979,27 @@ async function execute({ message, args }) {
     );
   }
 
+  if (sub === 'setmarinesailstage') {
+    const stageNum = parseInt(args[1], 10);
+    const mention = args[2];
+    const targetId = parseMention(mention);
+
+    if (isNaN(stageNum) || stageNum < 1) {
+      return message.reply('Usage: op owner setmarinesailstage <stage> @user');
+    }
+    if (!targetId) {
+      return message.reply('Usage: op owner setmarinesailstage <stage> @user');
+    }
+
+    const target = await User.findOne({ userId: targetId });
+    if (!target) return message.reply('Target user does not have an account.');
+
+    target.isailProgress = stageNum;
+    await target.save();
+
+    return message.reply(`Set <@${targetId}>'s Navy Base (infinite sail) progress to stage **${stageNum}**.`);
+  }
+
   if (sub === 'resetisail') {
     const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
     const count = await User.countDocuments({ isailProgress: { $gt: 1 } });

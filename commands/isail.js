@@ -864,8 +864,15 @@ async function finalizeUserAction(state, msg, interaction) {
 
   // back to the user – update now will show both user action and marine action
   const user = await User.findOne({ userId: state.userId });
-  // apply cut effects for both sides after marine action
+  // apply cut/bleed effects for both sides after marine action
   applyGlobalCut(state);
+  // If status effects (cut/bleed) killed all remaining marines, trigger victory now
+  if (state.marines.every(m => m.currentHP <= 0)) {
+    const userDocCut = await User.findOne({ userId: state.userId });
+    await handleVictory(state, msg, userDocCut, interaction ? interaction.user : null);
+    battleStates.delete(msg.id);
+    return true;
+  }
   // Recharge energy at the start of user turn for any cards that didn't act last turn
   rechargeEnergy(state);
   // refresh message now so any accumulated logs (effects, skips) are visible
@@ -889,6 +896,13 @@ async function runSkipCycle(state, msg, user, discordUser) {
         await handleDefeat(state, msg, user, discordUser);
         battleStates.delete(msg.id);
         return false; // battle ended
+      }
+      // If cut/bleed from maybeSkipUserTurn killed all marines, trigger victory
+      if (state.marines.every(m => m.currentHP <= 0)) {
+        const userDocCut = await User.findOne({ userId: state.userId });
+        await handleVictory(state, msg, userDocCut, discordUser);
+        battleStates.delete(msg.id);
+        return false;
       }
       state.turn = 'user';
       // refresh message after marine action
@@ -1302,6 +1316,13 @@ function setupTimeout(state, msg, user, discordUser) {
         if (checkForDefeat(state)) {
           const userDoc = await User.findOne({ userId: state.userId });
           await handleDefeat(state, msg, userDoc, discordUser);
+          battleStates.delete(msg.id);
+          return;
+        }
+        // If cut/bleed effects killed all marines during the timeout turn, trigger victory
+        if (state.marines.every(m => m.currentHP <= 0)) {
+          const userDocCut = await User.findOne({ userId: state.userId });
+          await handleVictory(state, msg, userDocCut, discordUser);
           battleStates.delete(msg.id);
           return;
         }
