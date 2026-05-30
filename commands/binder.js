@@ -102,11 +102,11 @@ function buildMainCards(user, direction) {
 function buildTitle(session) {
   if (session.view === 'main') {
     const dir = session.direction === 'oldest' ? '(Oldest First)' : '(Latest First)';
-    return `📖 Main binder ${dir}`;
+    return `Main binder ${dir}`;
   }
-  if (session.view === 'character') return `📖 ${session.filterName} binder`;
-  if (session.view === 'faction') return `📖 ${session.filterName} binder`;
-  return '📖 Binder';
+  if (session.view === 'character') return `${session.filterName} binder`;
+  if (session.view === 'faction') return `${session.filterName} binder`;
+  return 'Binder';
 }
 
 function buildFooter(session) {
