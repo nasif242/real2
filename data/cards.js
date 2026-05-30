@@ -2803,7 +2803,7 @@ const consolidatedCardData = [
           id: "4098",
           attribute: "PSY",
           rank: "UR",
-          emoji: "<:0366:1509365140750078043>",
+          emoji: "<:4098:1510283071918964897>",
           image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/4/000/4098.png",
           special_attack: {
             name: "Overwhelming Aura of the Dark King"
