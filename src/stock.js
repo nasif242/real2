@@ -21,7 +21,41 @@ let currentStock = [];
 let lastStockReset = Date.now();
 let lastPullReset = Date.now();
 let globalClient = null;
+let pendingResetNotification = false;
 const SUPPORT_GUILD_ID = '1322627413234155520';
+
+async function attemptResetNotify() {
+  try {
+    if (!globalClient) {
+      console.warn('[reset-notify] attemptResetNotify called but Discord client not attached');
+      pendingResetNotification = true;
+      return;
+    }
+    const { getBotConfig } = require('../models/BotConfig');
+    const resetsChannel = await getBotConfig('resetsChannel');
+    console.log(`[reset-notify] attempt: resetsChannel from DB: ${resetsChannel || 'not configured'}`);
+    if (!resetsChannel) {
+      console.log('[reset-notify] No resetsChannel configured — skipping notification');
+      pendingResetNotification = false;
+      return;
+    }
+    const ch = await globalClient.channels.fetch(resetsChannel).catch((e) => {
+      console.error(`[reset-notify] Failed to fetch channel ${resetsChannel}:`, e && e.message ? e.message : e);
+      return null;
+    });
+    if (ch) {
+      const roleMention = '<@&1389619213492158464>'; // kept for backwards compatibility
+      await ch.send(`${roleMention} Pulls have been reset! you can start pulling in command channels.`)
+        .then(() => console.log(`[reset-notify] Reset message sent successfully to #${ch.name} (${resetsChannel})`))
+        .catch((e) => console.error(`[reset-notify] Failed to send reset message to ${resetsChannel}:`, e && e.message ? e.message : e));
+    } else {
+      console.warn(`[reset-notify] Channel ${resetsChannel} could not be fetched — message not sent`);
+    }
+    pendingResetNotification = false;
+  } catch (err) {
+    console.error('[reset-notify] attemptResetNotify error:', err);
+  }
+}
 
 async function syncSupportServerMembers() {
   const User = require('../models/User');
@@ -211,33 +245,28 @@ async function resetPullCounter() {
       await User.bulkWrite(bulkOps, { ordered: false }).catch(() => {});
     }
     console.log('Pulls reset');
-    // If a client is set and a reset notification channel is configured, post a message
+    // Try to notify configured channel; if client not available, defer notification
     try {
       if (globalClient) {
-        const { getBotConfig } = require('../models/BotConfig');
-        const resetsChannel = await getBotConfig('resetsChannel');
-        console.log(`[reset-notify] resetsChannel from DB: ${resetsChannel || 'not configured'}`);
-        if (resetsChannel) {
-          const ch = await globalClient.channels.fetch(resetsChannel).catch((e) => {
-            console.error(`[reset-notify] Failed to fetch channel ${resetsChannel}:`, e.message);
-            return null;
-          });
-          if (ch) {
-            const roleMention = '<@&1389619213492158464>';
-            ch.send(`${roleMention} Pulls have been reset! you can start pulling in command channels.`)
-              .then(() => console.log(`[reset-notify] Reset message sent successfully to #${ch.name} (${resetsChannel})`))
-              .catch((e) => console.error(`[reset-notify] Failed to send reset message to ${resetsChannel}:`, e.message));
-          } else {
-            console.warn(`[reset-notify] Channel ${resetsChannel} could not be fetched — message not sent`);
-          }
-        } else {
-          console.log('[reset-notify] No resetsChannel configured — skipping notification');
-        }
+        await attemptResetNotify();
       } else {
-        console.warn('[reset-notify] Discord client not attached — skipping notification');
+        pendingResetNotification = true;
+        console.warn('[reset-notify] Discord client not attached — will notify when available');
       }
     } catch (err2) {
       console.error('Error sending pull reset notification:', err2);
+    }
+
+    // Ensure drop timers/configs are reloaded after global resets so configured
+    // drop channels are preserved and timers restarted if necessary.
+    try {
+      const dropsModule = require('../commands/drops');
+      if (typeof dropsModule.initializeDrops === 'function') {
+        // reinitialize with current client (no-op if client missing)
+        dropsModule.initializeDrops(globalClient).catch(() => {});
+      }
+    } catch (e) {
+      // best-effort; ignore
     }
   } catch (err) {
     console.error('Error resetting user pull counts:', err);
@@ -246,6 +275,10 @@ async function resetPullCounter() {
 
 function setClient(c) {
   globalClient = c;
+  if (pendingResetNotification) {
+    // Try to send any pending reset notification now that client is available
+    attemptResetNotify().catch((e) => console.error('[reset-notify] deferred notify failed:', e));
+  }
   // Kick off a background sync of support-server membership for all users
   (async () => {
     try {

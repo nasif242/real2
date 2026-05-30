@@ -1,6 +1,6 @@
 const { EmbedBuilder } = require('discord.js');
 const User = require('../models/User');
-const { searchCards } = require('../utils/cards');
+const { searchCards, parseCardAttributes } = require('../utils/cards');
 const { levelers } = require('../data/levelers');
 const { getMaxLevelForRank } = require('../utils/starLevel');
 
@@ -80,8 +80,11 @@ function findAllLevelers(query, user) {
 }
 
 function getLevelerXp(leveler, card) {
+  const cardAttrs = parseCardAttributes(card.attribute || '');
   if (typeof leveler.xp === 'object') {
-    return leveler.xp[card.attribute] || 0;
+    if (leveler.attribute && cardAttrs.includes(leveler.attribute)) return Number(leveler.xp[leveler.attribute] || 0);
+    if (cardAttrs.length === 1) return Number(leveler.xp[cardAttrs[0]] || 0);
+    return Math.max(...cardAttrs.map(a => Number(leveler.xp[a] || 0)));
   }
   return Number(leveler.xp || 0);
 }

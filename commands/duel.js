@@ -540,6 +540,9 @@ async function updateDuelMessage(msg, state) {
 
   // Replace the message to reset interaction timers when the turn has changed
   try { await msg.edit({ components: [] }); } catch (e) {}
+  // record previous message ID so interactions referencing it can still locate the state
+  state.messageHistory = state.messageHistory || [];
+  try { if (msg && msg.id) state.messageHistory.push(msg.id); } catch (e) {}
   const newMsg = await msg.channel.send({ embeds: [embed], components });
   // Remap the duelStates entry to the new message ID
   duelStates.delete(msg.id);
@@ -587,7 +590,6 @@ function setupTimeout(state, msg) {
     state.timeout = setTimeout(async () => {
       try {
         const currentMsg = state.lastMsg || msg;
-        if (!duelStates.has(currentMsg.id)) return;
         if (state.finished) return;
         const timedOutTeam = state.turn === 'player1' ? state.player1Cards : state.player2Cards;
         const timedOutUsername = state.turn === 'player1' ? state.discordUser1.username : state.discordUser2.username;
@@ -602,7 +604,7 @@ function setupTimeout(state, msg) {
         else state.lastP2Action = actionText;
         appendLog(state, `${timedOutUsername} took too long. Turn passed.`);
         try {
-          await finalizeAction(state, state.lastMsg || msg, true);
+          await finalizeAction(state, currentMsg, true);
         } catch (e) {
           console.error('Timeout error:', e);
         }
@@ -631,6 +633,7 @@ async function finalizeAction(state, msg, timedOut = false, appliedCut = false) 
 
     if (checkTeamDefeated(currentTeam)) {
     state.finished = true;
+    const latestMsg = state.lastMsg || msg;
     const winnerId = state.turn === 'player1' ? state.player2Id : state.player1Id;
     const loserId = state.turn === 'player1' ? state.player1Id : state.player2Id;
     const winner = state.turn === 'player1' ? state.discordUser2 : state.discordUser1;
@@ -781,11 +784,18 @@ async function finalizeAction(state, msg, timedOut = false, appliedCut = false) 
     
     clearDuelTimeout(state);
     try {
-      await msg.edit({ embeds: [victorEmbed], components: [] });
+      await latestMsg.edit({ embeds: [victorEmbed], components: [] });
     } catch (e) {
-      try { await msg.channel.send({ embeds: [victorEmbed] }); } catch {}
+      try { await (latestMsg && latestMsg.channel ? latestMsg.channel.send({ embeds: [victorEmbed] }) : null); } catch {}
     }
-    duelStates.delete(msg.id);
+    try {
+      duelStates.delete(latestMsg.id);
+      if (Array.isArray(state.messageHistory)) {
+        for (const mid of state.messageHistory) {
+          try { duelStates.delete(mid); } catch (e) {}
+        }
+      }
+    } catch (e) {}
   } else {
     // Recharge and switch turn
     rechargeEnergy(state);
@@ -963,7 +973,8 @@ async function finalizeAction(state, msg, timedOut = false, appliedCut = false) 
     // Edit the existing message in place so the interaction's original message
     // is never deleted mid-duel (deletion causes "This interaction failed" on
     // the deferred component interaction even though the defer was acknowledged).
-    await updateDuelMessage(msg, state);
+    const latestMsg2 = state.lastMsg || msg;
+    await updateDuelMessage(latestMsg2, state);
     // clear log now that we have shown it on the latest embed
     state.log = '';
   }
@@ -1124,7 +1135,8 @@ async function handleStratModalSubmit(interaction) {
       discordUser2: pending.discordUser2,
       isBountyDuel: false,
       bountyHunter: null,
-      rewardsAllowed: rewardsAllowedMap
+      rewardsAllowed: rewardsAllowedMap,
+      messageHistory: []
     };
     applyGlobalCut(state);
     appendLog(state, `${state.startingPlayer === 'player1' ? state.discordUser1.username : state.discordUser2.username} goes first!`);
@@ -1504,7 +1516,8 @@ module.exports = {
           discordUser2: pending.discordUser2,
           isBountyDuel,
           bountyHunter,
-          rewardsAllowed: rewardsAllowedMap
+          rewardsAllowed: rewardsAllowedMap,
+          messageHistory: []
         };
         applyGlobalCut(state);
         appendLog(state, `${state.startingPlayer === 'player1' ? state.discordUser1.username : state.discordUser2.username} goes first!`);
@@ -1563,7 +1576,21 @@ module.exports = {
       return;
     }
 
-    const state = duelStates.get(msgId);
+    let state = duelStates.get(msgId);
+
+    // If not found directly by message id, attempt to locate by lastMsg or messageHistory
+    if (!state) {
+      for (const s of duelStates.values()) {
+        try {
+          if (s.lastMsg && s.lastMsg.id === msgId) { state = s; break; }
+          if (Array.isArray(s.messageHistory) && s.messageHistory.includes(msgId)) { state = s; break; }
+        } catch (e) {}
+      }
+    }
+    // If we located the state via history, rebind the lookup for faster future access
+    if (state && !duelStates.has(msgId)) {
+      try { duelStates.set(msgId, state); } catch (e) {}
+    }
     const logs = [];
 
     if (!state) {

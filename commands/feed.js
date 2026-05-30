@@ -1,7 +1,7 @@
 const { EmbedBuilder } = require('discord.js');
 const User = require('../models/User');
 const { levelers } = require('../data/levelers');
-const { findBestOwnedCard } = require('../utils/cards');
+const { findBestOwnedCard, parseCardAttributes } = require('../utils/cards');
 const { applyDefaultEmbedStyle } = require('../utils/embedStyle');
 const { getMaxLevelForRank } = require('../utils/starLevel');
 
@@ -155,8 +155,9 @@ module.exports = {
 
     // Attribute mode: feed all matching levelers in inventory
     if (attributeMode) {
+      const cardAttrs = parseCardAttributes(card.attribute || '');
       // For explicit attribute (STR/DEX/...), require the card to match that attribute
-      if (attributeQuery !== 'ALL' && card.attribute !== attributeQuery) {
+      if (attributeQuery !== 'ALL' && !cardAttrs.includes(attributeQuery)) {
         const reply = `This card is ${card.attribute}. Use \'op feed ${card.attribute} <card>\' or \'op feed all <card>\' to feed matching levelers.`;
         if (message) return message.reply(reply);
         return interaction.reply({ content: reply, flags: 64 });
@@ -168,9 +169,9 @@ module.exports = {
       const defsToUse = levelers.filter(l => {
         if (isRainbowLeveler(l)) return true; // rainbow levelers always apply
         if (attributeQuery === 'ALL') {
-          return (l.attribute === card.attribute) || (l.attribute === 'ALL');
+          return (l.attribute === 'ALL') || cardAttrs.includes(l.attribute);
         }
-        return l.attribute === attributeQuery;
+        return l.attribute === attributeQuery || l.attribute === 'ALL';
       });
 
       let totalXp = 0;
@@ -182,8 +183,11 @@ module.exports = {
         const qty = it.quantity;
         // xp per item for this card
         let xpPer = 0;
-        if (typeof def.xp === 'object') xpPer = Number(def.xp[card.attribute] || 0);
-        else xpPer = Number(def.xp || 0);
+        if (typeof def.xp === 'object') {
+          if (def.attribute && cardAttrs.includes(def.attribute)) xpPer = Number(def.xp[def.attribute] || 0);
+          else if (cardAttrs.length === 1) xpPer = Number(def.xp[cardAttrs[0]] || 0);
+          else xpPer = Math.max(...cardAttrs.map(a => Number(def.xp[a] || 0)));
+        } else xpPer = Number(def.xp || 0);
         if (!xpPer) continue;
         totalXp += xpPer * qty;
         consumed += qty;
@@ -219,7 +223,8 @@ module.exports = {
 
     // Single-leveler mode (original behavior)
     // Validate attribute compatibility
-    if (typeof leveler.xp !== 'object' && leveler.attribute !== 'ALL' && leveler.attribute !== card.attribute) {
+    const cardAttrsSingle = parseCardAttributes(card.attribute || '');
+    if (typeof leveler.xp !== 'object' && leveler.attribute !== 'ALL' && !cardAttrsSingle.includes(leveler.attribute)) {
       const reply = `${leveler.emoji} **${leveler.name}** (${leveler.attribute}) cannot be fed to **${card.character}** (${card.attribute}). Only ${leveler.attribute} cards can use this leveler!`;
       if (message) return message.reply(reply);
       return interaction.reply({ content: reply, flags: 64 });
@@ -228,7 +233,9 @@ module.exports = {
     // Calculate XP from the leveler exactly as defined in data/levelers.js
     let xpGain = 0;
     if (typeof leveler.xp === 'object') {
-      xpGain = (leveler.xp[card.attribute] || 0) * amount;
+      if (leveler.attribute && cardAttrsSingle.includes(leveler.attribute)) xpGain = (leveler.xp[leveler.attribute] || 0) * amount;
+      else if (cardAttrsSingle.length === 1) xpGain = (leveler.xp[cardAttrsSingle[0]] || 0) * amount;
+      else xpGain = Math.max(...cardAttrsSingle.map(a => Number(leveler.xp[a] || 0))) * amount;
     } else {
       xpGain = Number(leveler.xp || 0) * amount;
     }

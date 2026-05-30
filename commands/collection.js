@@ -45,12 +45,16 @@ function compareCards(a, b, mode, user) {
 function sortAndFilter(items, mode, user) {
   let filtered = Array.isArray(items) ? [...items] : [];
   const attrMap = { dex: 'DEX', str: 'STR', qck: 'QCK', psy: 'PSY', int: 'INT' };
+  const { parseCardAttributes } = require('../utils/cards');
 
   if (mode && mode.endsWith('-only')) {
     const key = mode.split('-')[0];
-    if (attrMap[key]) {
+      if (attrMap[key]) {
       const attr = attrMap[key];
-      filtered = filtered.filter(x => (x.card.attribute || '').toUpperCase() === attr);
+      filtered = filtered.filter(x => {
+        const parts = parseCardAttributes(x.card.attribute || '');
+        return parts.includes(attr);
+      });
       mode = 'strongest-weakest';
     } else if (key === 'ships') {
       filtered = filtered.filter(x => x.card.ship);

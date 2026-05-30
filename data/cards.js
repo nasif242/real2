@@ -239,7 +239,9 @@ function flattenCards(groupedData) {
         const isArtifact = !!card.artifact;
         if (card.attribute && !isArtifact) flatCard.attribute = card.attribute;
         if (card.emoji) {
-          flatCard.emoji = isArtifact ? card.emoji : getAttributeEmoji(card);
+          flatCard.emoji = card.emoji;
+        } else if (card.attribute && !isArtifact) {
+          flatCard.emoji = getAttributeEmoji(card);
         }
         if (card.boost) flatCard.boost = card.boost;
         if (card.artifact) flatCard.artifact = card.artifact;
@@ -2794,6 +2796,45 @@ const consolidatedCardData = [
           effectDuration: 2
         }
         ]
+      },
+      {
+        character: "Silvers Rayleigh",
+        cards: [
+        {
+          title: "Aiding the Dark King",
+          id: "4098",
+          attribute: "PSY",
+          rank: "UR",
+          emoji: "<:0366:1509365140750078043>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/4/000/4098.png",
+          special_attack: {
+            name: "Overwhelming Aura of the Dark King"
+          },
+          effect: "drunk",
+          effectDuration: 3
+        }
+        ]
+      },
+      {
+        character: "Gol D. Roger & Silvers Rayleigh & Gaban",
+        cards: [
+        {
+          title: "Aiming to Become the World's Greatest Pirates",
+          id: "4257",
+          attribute: "<:STR:1490476222755639476>/<:INT:1490476207601483816>",
+          rank: "SS",
+          emoji: "<:4257:1510285392920973464>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/4/200/4257.png",
+          special_attack: {
+            name: "Furious Onslaught"
+          },
+          effect: "attackup",
+          effectDuration: -1,
+          itself: true,
+          scount: 3,
+          count: 3
+        }
+        ]
       }
     ]
   },
@@ -2993,7 +3034,7 @@ const consolidatedCardData = [
     characters: [
       {
         character: "Shanks",
-        alias: ["shanks", "red-haired shanks", "red-haired", "black clad redhead", "black clad emperor", "pirate apprentice", "roger pirates", "emperor and captain", "emperor witnessing the end of the world", "moon knight warrior", "shanks beckman", "shanks & beckman", "shaking the great era of piracy", "regaining over the new era", "approaching the new era", "final blow against the demon king"],
+        alias: ["shanks", "red-haired shanks", "red-haired", "black clad redhead", "black clad emperor", "pirate apprentice",],
         cards: [
         {
           id: "076",
@@ -3466,7 +3507,7 @@ const consolidatedCardData = [
           id: "1619",
           attribute: "INT",
           rank: "UR",
-          emoji: null,
+          emoji: "<:1619:1510246650583715970>",
           image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/1/600/1619.png",
           special_attack: {
             name: "Netherworld Conqueror"

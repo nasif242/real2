@@ -6,6 +6,9 @@ const {
 const { createCanvas, loadImage } = require('@napi-rs/canvas');
 const User = require('../models/User');
 const { cards } = require('../data/cards');
+const crypto = require('crypto');
+const { randomInt } = crypto;
+const { parseCardAttributes } = require('../utils/cards');
 
 const { OWNER_ID } = require('../config');
 const { getBotConfig } = require('../models/BotConfig');
@@ -77,7 +80,7 @@ function getNamiMultiplier(user) {
 }
 
 function rollRank() {
-  const r = Math.random() * 100;
+  const r = randomInt(0, 10000) / 100; // 0.00 - 99.99
   if (r < 20) return 'D';
   if (r < 40) return 'C';
   if (r < 60) return 'B';
@@ -92,7 +95,7 @@ function getSlotPool() {
 }
 
 function rollSlotRank() {
-  const r = Math.random() * 100;
+  const r = randomInt(0, 10000) / 100;
   if (r < 80) return 'S';
   if (r < 98) return 'SS';
   return 'UR';
@@ -101,8 +104,11 @@ function rollSlotRank() {
 function rollSlotCard() {
   const rank = rollSlotRank();
   const pool = getSlotPool().filter(c => c.rank === rank);
-  if (!pool.length) return getSlotPool()[Math.floor(Math.random() * getSlotPool().length)];
-  return pool[Math.floor(Math.random() * pool.length)];
+  if (!pool.length) {
+    const g = getSlotPool();
+    return g[randomInt(0, g.length)];
+  }
+  return pool[randomInt(0, pool.length)];
 }
 
 // ────────────────────────────────────────────
@@ -137,7 +143,7 @@ function makeDeck() {
     }
   }
   for (let i = deck.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
+    const j = randomInt(0, i + 1);
     [deck[i], deck[j]] = [deck[j], deck[i]];
   }
   return deck;
@@ -166,7 +172,8 @@ function cardLabel(c) {
 
 // Crash
 function rollCrashAt() {
-  return Math.min(100, Math.max(1.01, 0.99 / (Math.random() * 0.99)));
+  const r = randomInt(1, 1000000) / 1000000; // avoid 0
+  return Math.min(100, Math.max(1.01, 0.99 / (r * 0.99)));
 }
 
 function crashCurrentMult(startTime) {
@@ -184,11 +191,11 @@ const SCRATCH_MULTIPLIERS = [0.25, 0.5, 0.75, 1.0, 1.5];
 function buildScratchGrid(bet) {
   const mults = SCRATCH_MULTIPLIERS;
   let tiles;
-  if (Math.random() < 0.50) {
+  if (randomInt(0, 2) === 0) {
     // Win round: guarantee at least a pair of one multiplier
-    const winIdx = Math.floor(Math.random() * mults.length);
+    const winIdx = randomInt(0, mults.length);
     const winVal = Math.round(mults[winIdx] * bet);
-    const isTriple = Math.random() < 0.25;
+    const isTriple = randomInt(0, 4) === 0;
     const copies = isTriple ? 3 : 2;
     tiles = Array(copies).fill(winVal);
     // Fill remaining slots with the other multipliers (one each), then zeros
@@ -199,7 +206,12 @@ function buildScratchGrid(bet) {
     tiles = mults.map(m => Math.round(m * bet));
     while (tiles.length < 9) tiles.push(0);
   }
-  return tiles.sort(() => Math.random() - 0.5);
+  // Fisher-Yates shuffle for unbiased shuffle
+  for (let i = tiles.length - 1; i > 0; i--) {
+    const j = randomInt(0, i + 1);
+    [tiles[i], tiles[j]] = [tiles[j], tiles[i]];
+  }
+  return tiles;
 }
 
 const RED_NUMBERS = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
@@ -602,13 +614,14 @@ async function renderSlotsCanvas(reels, matchType) {
     const x = startX + i * (slotW + gap);
     const card = reels[i];
     const highlight = matchType === 'jackpot' || matchType === 'attr3' || (matchType === 'attr2' && i < 2);
-    const attrColor = ATTRIBUTE_COLORS[card.attribute] || '#333333';
+    const cardAttrs = parseCardAttributes(card.attribute || '');
+    const attrColor = (card && card.scount && Array.isArray(cardAttrs) && cardAttrs.length > 1) ? '#000000' : (ATTRIBUTE_COLORS[cardAttrs[0]] || '#333333');
     const borderColor = highlight ? '#ffd700' : attrColor;
 
     ctx.strokeStyle = borderColor;
     ctx.lineWidth = highlight ? 3 : 2;
     // subtle background tint based on attribute
-    ctx.fillStyle = highlight ? '#151515' : (card.attribute ? '#0f0f0f' : '#1a1a1a');
+    ctx.fillStyle = highlight ? '#151515' : (cardAttrs.length ? '#0f0f0f' : '#1a1a1a');
     ctx.beginPath();
     ctx.roundRect ? ctx.roundRect(x, startY, slotW, slotH, 8) : ctx.rect(x, startY, slotW, slotH);
     ctx.fill();
@@ -636,7 +649,7 @@ async function renderSlotsCanvas(reels, matchType) {
 
     const rankH = 24;
     // Use attribute color for the bottom bar so DEX cards show DEX color
-    ctx.fillStyle = ATTRIBUTE_COLORS[card.attribute] || '#555555';
+    ctx.fillStyle = (card && card.scount && Array.isArray(cardAttrs) && cardAttrs.length > 1) ? '#000000' : (ATTRIBUTE_COLORS[cardAttrs[0]] || '#555555');
     ctx.fillRect(x, startY + slotH - rankH, slotW, rankH);
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 11px sans-serif';
@@ -953,7 +966,7 @@ async function startSlots(interaction, session) {
   }
 
   // Decide outcome first using explicit probabilities, then fill reels to match
-  const rand = Math.random() * 100;
+  const rand = randomInt(0, 10000) / 100;
   let outcome;
   if (rand < 2) outcome = 'jackpot';       // 2%: 3x same card  → ×3
   else if (rand < 10) outcome = 'attr3';   // 8%: 3x same attr  → ×2
@@ -961,7 +974,7 @@ async function startSlots(interaction, session) {
   else outcome = 'none';                   // 50%: no match     → ×0
 
   const reels = [];
-  const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+  const pick = arr => arr[randomInt(0, arr.length)];
 
   if (outcome === 'jackpot') {
     reels[0] = pick(pool);
@@ -1109,7 +1122,7 @@ async function startCrash(interaction, session) {
 
 
 async function startTowers(interaction, session) {
-  const floors = Array.from({ length: 5 }, () => ({ bomb: Math.floor(Math.random() * 4) }));
+  const floors = Array.from({ length: 5 }, () => ({ bomb: randomInt(0, 4) }));
   session.state = { floors, currentFloor: 0, picks: {}, phase: 'playing' };
   const buf = renderTowersCanvas(session.state);
   const att = new AttachmentBuilder(buf, { name: 'towers.png' });
@@ -1175,7 +1188,7 @@ async function handleButton(interaction) {
 // ────────────────────────────────────────────
 
 async function handleCoinButton(interaction, session, pick) {
-  const result = Math.random() < 0.5 ? 'heads' : 'tails';
+  const result = randomInt(0, 2) === 0 ? 'heads' : 'tails';
   const won = pick === result;
   const profit = won ? Math.floor(session.bet * session.namiMultiplier) : 0;
   if (won) await User.updateOne({ userId: session.userId }, { $inc: { balance: profit } });
@@ -1299,7 +1312,7 @@ async function finishBlackjack(interaction, session, reason) {
 }
 
 async function handleRouletteSpin(interaction, session, betType) {
-  const number = Math.floor(Math.random() * 37);
+  const number = randomInt(0, 37);
   const isRed = RED_NUMBERS.has(number);
   const isGreen = number === 0;
   const isBlack = !isRed && !isGreen;
@@ -1315,7 +1328,7 @@ async function handleRouletteSpin(interaction, session, betType) {
       const parsed = parseInt(parts[1], 10);
       if (!isNaN(parsed) && parsed >= 0 && parsed <= 36) luckyNum = parsed;
     }
-    if (luckyNum === null) luckyNum = Math.floor(Math.random() * 37);
+    if (luckyNum === null) luckyNum = randomInt(0, 37);
     if (luckyNum === number) { won = true; payoutMult = 3; }
   }
 

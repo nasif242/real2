@@ -189,4 +189,27 @@ function startVoteWebhook() {
   });
 }
 
-module.exports = { startVoteWebhook, setClient };
+async function postServerCount(token, client) {
+  try {
+    if (!token) return console.warn('[top.gg] No token provided — skipping server count post');
+    if (!client || !client.user) return console.warn('[top.gg] Discord client not available — skipping server count post');
+    const botId = client.user.id;
+    const url = `https://top.gg/api/bots/${botId}/stats`;
+    const body = { server_count: client.guilds.cache.size };
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: token },
+      body: JSON.stringify(body)
+    });
+    if (res.ok) {
+      console.log(`[top.gg] Posted server count: ${body.server_count}`);
+    } else {
+      const txt = await res.text().catch(() => '');
+      console.error('[top.gg] Failed to post server count:', res.status, txt);
+    }
+  } catch (err) {
+    console.error('[top.gg] postServerCount error:', err);
+  }
+}
+
+module.exports = { startVoteWebhook, setClient, postServerCount };

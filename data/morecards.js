@@ -1307,6 +1307,7 @@ exports.moreCards = [
           id: "5054",
           attribute: "STR",
           rank: "A",
+          emoji: '<:1000049432:1502478130252877854>',
           image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/5/000/5054.png"
         },
         {
@@ -1492,7 +1493,7 @@ exports.moreCards = [
           image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/3/000/3006.png"
         },
         {
-          title: "Sailor with an Unwavering Sense of Justicethe White Hunter - Sailor with an Unwavering Sense of Justice",
+          title: "the White Hunter - Sailor with an Unwavering Sense of Justice",
           id: "3007",
           attribute: "QCK",
           rank: "SS",

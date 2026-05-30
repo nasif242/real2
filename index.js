@@ -181,6 +181,21 @@ async function main() {
     try { stockModule.setClient(client); } catch (e) {}
     // pass Discord client to vote webhook so it can DM voters
     try { require('./src/voteWebhook').setClient(client); } catch (e) {}
+    // Post server count to top.gg if token is configured (env or DB)
+    try {
+      const vwh = require('./src/voteWebhook');
+      const TOPGG_TOKEN = process.env.TOPGG_TOKEN || process.env.TOPGG_API_TOKEN || null;
+      if (TOPGG_TOKEN) {
+        vwh.postServerCount(TOPGG_TOKEN, client).catch(() => {});
+      } else {
+        // try DB-stored token (owner may have set it via bot config)
+        try {
+          const { getBotConfig } = require('./models/BotConfig');
+          const dbToken = await getBotConfig('topggToken');
+          if (dbToken) vwh.postServerCount(dbToken, client).catch(() => {});
+        } catch (e) {}
+      }
+    } catch (e) {}
     // removed pre-warm cache logic (caused issues in some hosting environments)
     // start a periodic checker for daily reminders (runs every minute)
     const { EmbedBuilder } = require('discord.js');

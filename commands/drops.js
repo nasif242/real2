@@ -49,7 +49,21 @@ async function saveDropChannelIds(channelConfigs) {
     } else {
       channels = Array.from(configuredDropChannels).map(cid => ({ channelId: cid, threshold: channelThresholds.get(cid) || 100, progress: messageCounts.get(cid) || 0 }));
     }
-    await setBotConfig('dropChannels', channels);
+    // If the provided list looks like a full replacement of current in-memory
+    // configured channels (matching length), perform a replace. Otherwise
+    // merge with existing DB entries to avoid accidentally overwriting
+    // other configured channels from concurrent operations.
+    const isFullReplace = Array.isArray(channels) && channels.length === configuredDropChannels.size;
+    if (isFullReplace) {
+      await setBotConfig('dropChannels', channels);
+    } else {
+      // Merge with existing DB entries
+      const existing = await loadDropChannelIds().catch(() => []);
+      const map = new Map();
+      for (const e of existing) map.set(e.channelId, e);
+      for (const c of channels) map.set(c.channelId, c);
+      await setBotConfig('dropChannels', Array.from(map.values()));
+    }
   } catch (err) {
     console.error('Error saving drop config to DB:', err);
   }

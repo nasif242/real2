@@ -240,6 +240,36 @@ function getAttributeEmoji(attribute) {
   return map[attribute] || attribute || '❔';
 }
 
+// Parse a card attribute string into an array of attribute codes.
+// Supports formats like 'STR', 'STR/INT', '<:STR:1234>/<:INT:5678>', or emoji-like tokens.
+function parseCardAttributes(attribute) {
+  if (!attribute || typeof attribute !== 'string') return [];
+  const parts = attribute.split('/').map(p => p.trim()).filter(Boolean);
+  const codes = [];
+  const KNOWN = ['STR', 'DEX', 'QCK', 'INT', 'PSY', 'ALL'];
+  for (const part of parts) {
+    if (!part) continue;
+    const up = part.toUpperCase();
+    // direct code
+    if (KNOWN.includes(up)) {
+      codes.push(up);
+      continue;
+    }
+    // emoji token like <:STR:12345> or name containing STR/INT
+    const m = part.match(/<a?:([^:>]+):\d+>/);
+    const name = m ? m[1] : part;
+    const found = (name.match(/STR|DEX|QCK|INT|PSY/i) || [])[0];
+    if (found) codes.push(found.toUpperCase());
+    else {
+      // fallback: if the part itself contains a known code substring
+      const alt = (part.match(/STR|DEX|QCK|INT|PSY/i) || [])[0];
+      if (alt) codes.push(alt.toUpperCase());
+    }
+  }
+  // unique
+  return Array.from(new Set(codes));
+}
+
 function buildDurabilityBar(current, max, type = 'default') {
   if (max <= 0) return '';
   // empty bar (no durability)
@@ -603,8 +633,13 @@ function buildPullEmbed(card, username, avatarUrl, pityText, duplicateInfo, user
     INT: '#9b59b6'
   };
   const rankColor = rankData[card.rank] && rankData[card.rank].color;
-  // Use attribute color first, then rank color, then a default.
-  let color = attributeColors[card.attribute] || rankColor || '#2b2d31';
+  const cardAttrs = parseCardAttributes(card.attribute);
+  let color;
+  if (card && card.scount && Array.isArray(cardAttrs) && cardAttrs.length > 1) {
+    color = '#000000';
+  } else {
+    color = attributeColors[cardAttrs[0]] || rankColor || '#2b2d31';
+  }
   // Artifact pull embeds should always be white
   if (card && card.artifact) color = '#FFFFFF';
   // same emoji handling as buildCardEmbed: transform `<:name:id>` into a CDN URL
@@ -766,7 +801,12 @@ function buildCardEmbed(cardDef, userEntry, avatarUrl, user) {
     color = '#ffffff';
   } else {
     // Use attribute color first, then rank color, then a default.
-    color = attributeColors[cardDef.attribute] || rankColor || '#2b2d31';
+    const defAttrs = parseCardAttributes(cardDef.attribute);
+    if (cardDef && cardDef.scount && Array.isArray(defAttrs) && defAttrs.length > 1) {
+      color = '#000000';
+    } else {
+      color = attributeColors[defAttrs[0]] || rankColor || '#2b2d31';
+    }
   }
   let iconText = crewIcons[cardDef.faculty];
   let iconUrl = iconText;
@@ -843,7 +883,8 @@ function buildCardEmbed(cardDef, userEntry, avatarUrl, user) {
   }
 
   if (isArtifactCard(cardDef)) {
-    const attributeIcon = cardDef.attribute ? getAttributeEmoji(cardDef.attribute) : null;
+    const artifactAttrs = parseCardAttributes(cardDef.attribute);
+    const attributeIcon = artifactAttrs.length > 1 ? artifactAttrs.map(getAttributeEmoji).join('/') : (artifactAttrs[0] ? getAttributeEmoji(artifactAttrs[0]) : null);
     const boostSummary = getArtifactBoostSummary(cardDef, lvl);
     const signatureLines = getArtifactSignatureLines(cardDef);
     const wielderLine = exactEntry && exactEntry.equippedTo
@@ -962,7 +1003,8 @@ function buildCardEmbed(cardDef, userEntry, avatarUrl, user) {
   if (cardDef.title) titleLine += ` — ${cardDef.title}`;
   // Blank line after title
   // Dex/attribute emoji below title, above level
-  const attributeIcon = getAttributeEmoji(cardDef.attribute);
+  const cardAttrIcons = parseCardAttributes(cardDef.attribute);
+  const attributeIcon = cardAttrIcons.length > 1 ? cardAttrIcons.map(getAttributeEmoji).join('/') : (cardAttrIcons[0] ? getAttributeEmoji(cardAttrIcons[0]) : null);
   const descLines = [
           `${titleLine}`,
           '',
@@ -1312,6 +1354,7 @@ module.exports = {
   normalizeGifUrl,
   getCardFinalStats,
   getAttributeEmoji,
+  parseCardAttributes,
   buildDurabilityBar,
   simulatePull,
   pickFromPoolWithWishlist,
