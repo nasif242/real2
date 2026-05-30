@@ -5,8 +5,8 @@ exports.rankData = {
   B: { color: '#c6c6c7', badge: 'https://files.catbox.moe/zkcg1y.webp' },
   A: { color: '#bfddff', badge: 'https://files.catbox.moe/bljs3q.webp' },
   S: { color: '#9966CC', badge: 'https://files.catbox.moe/5ep3w0.webp' },
-  SS: { color: '#26619C', badge: 'https://files.catbox.moe/jxtjc6.png' },
-  UR: { color: '#ff00f0', badge: 'https://files.catbox.moe/07p0m2.png' }
+  SS: { color: '#26619C', badge: 'https://files.catbox.moe/z8oqdf.png' },
+  UR: { color: '#ff00f0', badge: 'https://files.catbox.moe/bst9ds.png' }
 };
 
 // Optional per-rank thumbnails used specifically for artifact embeds. These
