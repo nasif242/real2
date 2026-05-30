@@ -240,6 +240,21 @@ async function renderMarket(target, userId, session, isUpdate = false) {
   return null;
 }
 
+const MARKET_RANKS = new Set(['D', 'C', 'B', 'A', 'S', 'SS', 'UR']);
+const MARKET_ATTRS = { str: 'STR', dex: 'DEX', qck: 'QCK', int: 'INT', psy: 'PSY' };
+
+function parseMarketArgs(args) {
+  let filterRank = null, filterAttr = null, filterStar = null;
+  for (const arg of (args || [])) {
+    const upper = arg.toUpperCase();
+    if (MARKET_RANKS.has(upper)) { filterRank = upper; continue; }
+    if (MARKET_ATTRS[arg.toLowerCase()]) { filterAttr = MARKET_ATTRS[arg.toLowerCase()]; continue; }
+    const n = parseInt(arg, 10);
+    if (!isNaN(n) && n >= 1 && n <= 7) { filterStar = n; continue; }
+  }
+  return { filterRank, filterAttr, filterStar };
+}
+
 async function execute({ message, interaction, args }) {
   const userId = message ? message.author.id : interaction.user.id;
   const session = getSession(userId);
@@ -250,6 +265,13 @@ async function execute({ message, interaction, args }) {
   session.isSearch = false;
   session.searchQuery = null;
   session.searchCardIds = null;
+
+  if (message && args && args.length) {
+    const parsed = parseMarketArgs(args);
+    session.filterRank = parsed.filterRank;
+    session.filterAttr = parsed.filterAttr;
+    session.filterStar = parsed.filterStar;
+  }
 
   const { listings, total } = await fetchListings(session);
   const embed = buildMarketEmbed(listings, session, total);

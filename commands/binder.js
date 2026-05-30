@@ -209,7 +209,7 @@ module.exports = {
   name: 'binder',
   description: 'View your card collection binder (5×3 grid)',
 
-  async execute({ interaction, message }) {
+  async execute({ interaction, message, args }) {
     const userId = interaction ? interaction.user.id : message.author.id;
     const user = await User.findOne({ userId });
     if (!user) {
@@ -228,8 +228,36 @@ module.exports = {
     const session = { userId, view: 'main', filterName: 'Main', allCards: cards, page: 0, direction: 'latest', user };
     setSession(userId, session);
 
+    // Prefix args: "op binder boroque works" → faction, "op binder luf" → character search
+    if (message && args && args.length) {
+      const query = args.join(' ').toLowerCase().trim();
+      const matchedFaction = FACTIONS.find(f =>
+        f.toLowerCase().includes(query) || query.includes(f.toLowerCase())
+      );
+      if (matchedFaction) {
+        const factionCards = buildFactionCards(matchedFaction, user);
+        if (factionCards.length) {
+          session.view = 'faction';
+          session.filterName = matchedFaction;
+          session.allCards = factionCards;
+        }
+      } else {
+        const charCards = buildCharacterCards(query, user);
+        if (charCards.length) {
+          const displayName =
+            charCards.find(c => !isSpecial(c.cardDef))?.cardDef.character
+            || charCards[0].cardDef.character
+            || (query.charAt(0).toUpperCase() + query.slice(1));
+          session.view = 'character';
+          session.filterName = displayName;
+          session.filterQuery = query;
+          session.allCards = charCards;
+        }
+      }
+    }
+
     if (message) {
-      const slots = Array.from({ length: PER_PAGE }, (_, i) => cards[i] || null);
+      const slots = Array.from({ length: PER_PAGE }, (_, i) => session.allCards[i] || null);
       let imgBuffer;
       try { imgBuffer = await generateBinderCanvas(slots); } catch (e) { return message.reply('Failed to generate binder.'); }
       const file = new AttachmentBuilder(imgBuffer, { name: 'binder.png' });

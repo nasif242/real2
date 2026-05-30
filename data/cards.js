@@ -81,12 +81,12 @@ function cardIdSeed(id) {
 //   "S+"  → top 25 %                  [min + span*0.75, max]
 // ---------------------------------------------------------------------------
 const RANK_STAT_RANGES = {
-  D:  { power: [0,  5],  health: [1,   8],  speed: [1,  1],  attack_min: [1,  1],  attack_max: [1,  1]  },
-  C:  { power: [5,  10], health: [8,   15], speed: [1,  3],  attack_min: [1,  3],  attack_max: [1,  3]  },
-  B:  { power: [10, 15], health: [15,  26], speed: [1,  5],  attack_min: [1,  5],  attack_max: [1,  5]  },
-  A:  { power: [15, 20], health: [26,  35], speed: [3,  8],  attack_min: [3,  8],  attack_max: [3,  8]  },
-  S:  { power: [20, 30], health: [35,  50], speed: [6,  12], attack_min: [6,  12], attack_max: [6,  12] },
-  SS: { power: [30, 50], health: [50,  80], speed: [10, 20], attack_min: [10, 20], attack_max: [10, 20] },
+  D:  { power: [0,  5],  health: [1,   8],  speed: [1,  1],  attack_min: [1,  1],  attack_max: [1,  2]  },
+  C:  { power: [5,  10], health: [8,   15], speed: [1,  3],  attack_min: [1,  3],  attack_max: [3,  6]  },
+  B:  { power: [10, 15], health: [15,  26], speed: [1,  5],  attack_min: [2,  5],  attack_max: [5,  10] },
+  A:  { power: [15, 20], health: [26,  35], speed: [3,  8],  attack_min: [4,  8],  attack_max: [8,  14] },
+  S:  { power: [20, 30], health: [35,  50], speed: [6,  12], attack_min: [6,  12], attack_max: [12, 20] },
+  SS: { power: [30, 50], health: [50,  80], speed: [10, 20], attack_min: [10, 18], attack_max: [18, 30] },
   UR: { power: [50, 80], health: [75, 120], speed: [18, 30], attack_min: [15, 25], attack_max: [25, 40] }
 };
 

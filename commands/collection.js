@@ -273,7 +273,7 @@ async function renderCard(interaction, session, index) {
 module.exports = {
   name: 'collection',
   description: 'View your owned card collection (best to worst)',
-  async execute({ message, interaction }) {
+  async execute({ message, interaction, args }) {
     const userId = message ? message.author.id : interaction.user.id;
     const user = await User.findOne({ userId });
     if (!user) {
@@ -289,22 +289,37 @@ module.exports = {
       return interaction.reply({ content: reply, ephemeral: true });
     }
 
-    const session = { userId, cards: sorted, original: sorted, currentIndex: 0, mode: 'strongest-weakest', cachedUser: user };
+    const FILTER_ALIASES = {
+      stw: 'strongest-weakest', wts: 'weakest-strongest',
+      htl: 'highest-level', lth: 'lowest-level',
+      dex: 'dex-only', str: 'str-only', qck: 'qck-only',
+      psy: 'psy-only', spy: 'psy-only', int: 'int-only',
+      s: 'ships-only', ships: 'ships-only',
+      a: 'artifacts-only', artifacts: 'artifacts-only',
+    };
+    const filterArg = (args?.[0] || '').toLowerCase();
+    const initialMode = FILTER_ALIASES[filterArg] || 'strongest-weakest';
+    const initialCards = initialMode !== 'strongest-weakest'
+      ? sortAndFilter(sorted, initialMode, user)
+      : sorted;
+
+    const session = { userId, cards: initialCards, original: sorted, currentIndex: 0, mode: initialMode, cachedUser: user };
     if (!global.collectionSessions) global.collectionSessions = new Map();
     global.collectionSessions.set(`${userId}_collection`, session);
 
+    const firstCard = initialCards[0];
     const avatarUrl = message ? message.author.displayAvatarURL() : interaction.user.displayAvatarURL();
-    const embed = buildCardEmbed(sorted[0].card, sorted[0].entry, avatarUrl, user);
-    const rowNav = makeNavRow(userId, 0, sorted.length, sorted[0].card, !!sorted[0].entry);
+    const embed = buildCardEmbed(firstCard.card, firstCard.entry, avatarUrl, user);
+    const rowNav = makeNavRow(userId, 0, initialCards.length, firstCard.card, !!firstCard.entry);
     const rowSort = makeSortButton(userId);
     const components = [rowNav, rowSort];
 
     // Attach generated artifact image when necessary
     let files;
-    if (sorted[0].card && sorted[0].card.artifact) {
+    if (firstCard.card && firstCard.card.artifact) {
       try {
-        const buf = await generateArtifactImage(sorted[0].card);
-        files = [new AttachmentBuilder(buf, { name: `artifact-${sorted[0].card.id}.png` })];
+        const buf = await generateArtifactImage(firstCard.card);
+        files = [new AttachmentBuilder(buf, { name: `artifact-${firstCard.card.id}.png` })];
       } catch (e) {
         console.error('Failed to generate artifact image for collection execute', e);
       }

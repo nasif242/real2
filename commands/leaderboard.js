@@ -188,9 +188,10 @@ async function sendLeaderboardReply({ categoryKey, allUsers, userId, client, cha
   const row = buildSelectRow(categoryKey);
 
   if (config.isCrew) {
-    if (!interaction.deferred && !interaction.replied) await interaction.deferReply();
+    if (interaction && !interaction.deferred && !interaction.replied) await interaction.deferReply();
     const imagePayload = await buildCrewLeaderboardImage(userId);
     if (!imagePayload) {
+      if (message) return channel.send({ content: 'No crews have been created yet.', components: [row] });
       return interaction.editReply({ content: 'No crews have been created yet.', components: [row], fetchReply: true });
     }
     const imageBuffer = await generateLeaderboardImage(imagePayload);

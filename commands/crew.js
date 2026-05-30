@@ -170,10 +170,15 @@ module.exports = {
       targetUser = interaction.options.getUser?.('user') || null;
     } else {
       const firstArg = (args?.[0] || '').toLowerCase();
-      sub = firstArg || 'view';
-      if (sub === 'colour') sub = 'color';
-      if (sub === 'add') sub = 'invite';
-      if (sub === 'remove') sub = 'kick';
+      // If first arg is a @mention or raw user ID, treat as `crew view @user`
+      if (!firstArg || /^<@!?\d+>$/.test(firstArg) || /^\d{17,19}$/.test(firstArg)) {
+        sub = 'view';
+      } else {
+        sub = firstArg;
+        if (sub === 'colour') sub = 'color';
+        if (sub === 'add') sub = 'invite';
+        if (sub === 'remove') sub = 'kick';
+      }
       targetUser = message.mentions.users.first() || null;
     }
 
