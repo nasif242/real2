@@ -246,7 +246,8 @@ const attributeColors = {
   QCK: '#3498ff',
   PSY: '#f5df4d',
   INT: '#9b59b6',
-  ALL: '#9fa8da'
+  ALL: '#9fa8da',
+  BASE: '#FFFFFF'
 };
 
 function getRodByName(query) {

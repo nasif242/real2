@@ -235,7 +235,8 @@ function getAttributeEmoji(attribute) {
     QCK: '<:QCK:1490476238593331291>',
     PSY: '<:PSY:1490476369472127166>',
     INT: '<:INT:1490476207601483816>',
-    ALL: '🔷'
+    ALL: '🔷',
+    BASE: '<:BASE:1510322504194064404>'
   };
   return map[attribute] || attribute || '❔';
 }
@@ -246,7 +247,7 @@ function parseCardAttributes(attribute) {
   if (!attribute || typeof attribute !== 'string') return [];
   const parts = attribute.split('/').map(p => p.trim()).filter(Boolean);
   const codes = [];
-  const KNOWN = ['STR', 'DEX', 'QCK', 'INT', 'PSY', 'ALL'];
+  const KNOWN = ['STR', 'DEX', 'QCK', 'INT', 'PSY', 'ALL', 'BASE'];
   for (const part of parts) {
     if (!part) continue;
     const up = part.toUpperCase();
@@ -258,11 +259,11 @@ function parseCardAttributes(attribute) {
     // emoji token like <:STR:12345> or name containing STR/INT
     const m = part.match(/<a?:([^:>]+):\d+>/);
     const name = m ? m[1] : part;
-    const found = (name.match(/STR|DEX|QCK|INT|PSY/i) || [])[0];
+    const found = (name.match(/STR|DEX|QCK|INT|PSY|BASE/i) || [])[0];
     if (found) codes.push(found.toUpperCase());
     else {
       // fallback: if the part itself contains a known code substring
-      const alt = (part.match(/STR|DEX|QCK|INT|PSY/i) || [])[0];
+      const alt = (part.match(/STR|DEX|QCK|INT|PSY|BASE/i) || [])[0];
       if (alt) codes.push(alt.toUpperCase());
     }
   }
@@ -630,7 +631,8 @@ function buildPullEmbed(card, username, avatarUrl, pityText, duplicateInfo, user
     DEX: '#33cc33',
     QCK: '#3498ff',
     PSY: '#f5df4d',
-    INT: '#9b59b6'
+    INT: '#9b59b6',
+    BASE: '#FFFFFF'
   };
   const rankColor = rankData[card.rank] && rankData[card.rank].color;
   const cardAttrs = parseCardAttributes(card.attribute);
@@ -640,8 +642,9 @@ function buildPullEmbed(card, username, avatarUrl, pityText, duplicateInfo, user
   } else {
     color = attributeColors[cardAttrs[0]] || rankColor || '#2b2d31';
   }
-  // Artifact pull embeds should always be white
+  // Artifact and BASE pull embeds should always be white
   if (card && card.artifact) color = '#FFFFFF';
+  if (cardAttrs[0] === 'BASE') color = '#FFFFFF';
   // same emoji handling as buildCardEmbed: transform `<:name:id>` into a CDN URL
   let iconVal = crewIcons[card.faculty];
   if (iconVal && iconVal.startsWith && iconVal.startsWith('<:')) {
@@ -790,7 +793,8 @@ function buildCardEmbed(cardDef, userEntry, avatarUrl, user) {
     DEX: '#33cc33',
     QCK: '#3498ff',
     PSY: '#f5df4d',
-    INT: '#9b59b6'
+    INT: '#9b59b6',
+    BASE: '#FFFFFF'
   };
   let color;
   const rankColor = rankData[cardDef.rank] && rankData[cardDef.rank].color;

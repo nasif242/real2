@@ -274,6 +274,16 @@ Use `rank: 'S+'` (or similar) to push a card to the top of its band without movi
 | Blue | Q | QCK | Luffy (QCK forms), Yassopp |
 | Yellow | P | PSY | Chopper, Robin |
 | Purple | I | INT | Nami, Robin |
+| White | — | BASE | Zeus, special/crossover cards (ID ≥ 6000) |
+
+### BASE attribute rules
+
+- **BASE** is a special attribute for cards with ID ≥ 6000 (or explicitly set `attribute: 'BASE'`).
+- BASE cards are **neutral in combat**: they deal and receive 1× damage against every attribute — never effective or weak.
+- Only **BASE levelers** can be fed to a BASE card (no STR/DEX/QCK/PSY/INT levelers).
+- BASE cards **do not use an emoji** for their visuals in binder/team/slots displays. Instead, the bot detects the character's face in the `image_url` and shows a circular face crop with a golden border.
+- Embed color for BASE cards is always **white** (`#FFFFFF`).
+- Emoji in the attribute embed/info field: `<:BASE:1510322504194064404>`
 
 ---
 

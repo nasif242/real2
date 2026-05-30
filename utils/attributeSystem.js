@@ -1,12 +1,13 @@
 // Attribute system for combat.
-/// Each card has an attribute: STR, DEX, QCK, PSY, INT
+/// Each card has an attribute: STR, DEX, QCK, PSY, INT, BASE
 
 const ATTRIBUTE_MATCHUPS = {
   STR: { effective: 'DEX', weak: 'QCK' },
   DEX: { effective: 'QCK', weak: 'STR' },
   QCK: { effective: 'STR', weak: 'DEX' },
   PSY: { effective: 'INT', weak: null },
-  INT: { effective: 'PSY', weak: null }
+  INT: { effective: 'PSY', weak: null },
+  BASE: { effective: null, weak: null }
 };
 
 /**

@@ -25,8 +25,10 @@ const ATTRIBUTE_COLORS = {
   PSY: '#FFD54F',
   DEX: '#44AA44',
   STR: '#FF4444',
-  QCK: '#4DABF7'
+  QCK: '#4DABF7',
+  BASE: '#FFFFFF'
 };
+const { isBaseCard, drawBaseFaceCard } = require('../utils/baseFaceRenderer');
 
 const GAME_EMOJIS = {
   coin: '<:Untitleddesign:1507893497103913040>',
@@ -627,15 +629,29 @@ async function renderSlotsCanvas(reels, matchType) {
     ctx.fill();
     ctx.stroke();
 
-    const emojiId = extractEmojiId(card.emoji);
     let imgLoaded = false;
-    if (emojiId) {
-      try {
-        const img = await loadImage(`https://cdn.discordapp.com/emojis/${emojiId}.png`);
-        const iw = 88, ih = 88;
-        ctx.drawImage(img, x + (slotW - iw) / 2, startY + 8, iw, ih);
-        imgLoaded = true;
-      } catch (e) { /* fall through to text */ }
+    if (isBaseCard(card)) {
+      // BASE cards: face-centered circular crop from image_url with golden border
+      if (card.image_url) {
+        try {
+          const img = await loadImage(card.image_url);
+          const diameter = 88;
+          const cx = x + slotW / 2;
+          const cy = startY + 8 + diameter / 2;
+          drawBaseFaceCard(ctx, img, cx, cy, diameter, card.character || '?');
+          imgLoaded = true;
+        } catch (e) { /* fall through to text */ }
+      }
+    } else {
+      const emojiId = extractEmojiId(card.emoji);
+      if (emojiId) {
+        try {
+          const img = await loadImage(`https://cdn.discordapp.com/emojis/${emojiId}.png`);
+          const iw = 88, ih = 88;
+          ctx.drawImage(img, x + (slotW - iw) / 2, startY + 8, iw, ih);
+          imgLoaded = true;
+        } catch (e) { /* fall through to text */ }
+      }
     }
 
     if (!imgLoaded) {

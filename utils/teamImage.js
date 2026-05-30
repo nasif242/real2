@@ -2,6 +2,7 @@ let createCanvas, loadImage;
 let _imageCache = null;
 let loadImageCached = null;
 let CANVAS_AVAILABLE = true;
+const { isBaseCard, drawBaseFaceCard } = require('./baseFaceRenderer');
 
 // Try preferred fast native binding first, then fall back to node-canvas
 try {
@@ -69,6 +70,16 @@ function fitImageToSquare(ctx, img, x, y, size, radius = 32) {
 
 async function loadCardImage(card) {
   if (!CANVAS_AVAILABLE) return null;
+  // BASE cards use image_url directly for face-centered rendering
+  if (isBaseCard(card)) {
+    if (card.image_url) {
+      try {
+        const img = await loadImageCached(card.image_url);
+        if (img) return img;
+      } catch (e) {}
+    }
+    return null;
+  }
   if (card.emoji) {
     const emojiUrl = parseDiscordEmojiUrl(card.emoji);
     if (emojiUrl) {
@@ -212,8 +223,18 @@ async function generateTeamImage({ username, totalPower, cards, backgroundUrl })
     const card = cards[i];
     if (card) {
       const cardImage = cardImages[i];
-      if (cardImage) {
+      if (isBaseCard(card)) {
+        // BASE cards: face-centered circular crop with golden border
+        const cx = x + cardSize / 2;
+        const cy = squareY + cardSize / 2;
+        const diameter = cardSize - 10;
+        drawBaseFaceCard(ctx, cardImage, cx, cy, diameter, card.character || '?');
+      } else if (cardImage) {
         fitImageToSquare(ctx, cardImage, x, squareY, cardSize, 40);
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 8;
+        roundRect(ctx, x - 6, squareY - 6, cardSize + 12, cardSize + 12, 42);
+        ctx.stroke();
       } else {
         ctx.fillStyle = '#1f2f58';
         roundRect(ctx, x, squareY, cardSize, cardSize, 40);
@@ -221,11 +242,11 @@ async function generateTeamImage({ username, totalPower, cards, backgroundUrl })
         ctx.fillStyle = '#ffffff';
         ctx.font = '700 40px sans-serif';
         ctx.fillText(card.character.slice(0, 2).toUpperCase(), x + cardSize / 2, squareY + cardSize / 2 + 16);
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 8;
+        roundRect(ctx, x - 6, squareY - 6, cardSize + 12, cardSize + 12, 42);
+        ctx.stroke();
       }
-      ctx.strokeStyle = '#ffffff';
-      ctx.lineWidth = 8;
-      roundRect(ctx, x - 6, squareY - 6, cardSize + 12, cardSize + 12, 42);
-      ctx.stroke();
     } else {
       ctx.fillStyle = 'rgba(255,255,255,0.05)';
       roundRect(ctx, x, squareY, cardSize, cardSize, 40);

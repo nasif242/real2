@@ -20,3 +20,5 @@
         Use `scripts/validate-card-counts.js` to check repository-wide conformance.
 
 Note: The repository currently enforces that `boost`/`artifact` cards have `attack_min` and `attack_max` set to `0` at flatten-time. If you want the engine to reflect the "two times worse" rule instead of zeroing attacks, the runtime clamping logic in `data/cards.js` must be adjusted accordingly.
+
+- **BASE attribute**: Cards with ID ≥ 6000 (or `attribute: 'BASE'`) use the BASE type. BASE cards are combat-neutral (no type advantage or weakness against any attribute). They must only accept BASE levelers. Their embed color is always white. In binder, team, and slots canvas renders, BASE cards are shown as a circular face crop from `image_url` with a golden border — not from the emoji CDN. The attribute emoji is `<:BASE:1510322504194064404>`. When adding a BASE card, set `attribute: 'BASE'` explicitly and ensure `image_url` is a clear, full-body or portrait image of the character (the face heuristic crops the upper-center portion).

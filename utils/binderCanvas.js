@@ -1,4 +1,5 @@
 const { createCanvas, loadImage } = require('@napi-rs/canvas');
+const { isBaseCard, drawBaseFaceCard } = require('./baseFaceRenderer');
 
 const COLS = 5;
 const ROWS = 3;
@@ -22,7 +23,8 @@ const ATTRIBUTE_COLORS = {
   DEX: '#44AA44',
   QCK: '#4DABF7',
   INT: '#9966CC',
-  PSY: '#FFD54F'
+  PSY: '#FFD54F',
+  BASE: '#FFFFFF'
 };
 
 async function loadImageWithTimeout(url, ms = 6000) {
@@ -42,12 +44,14 @@ function getEmojiUrl(emoji) {
 
 // Image source per card type:
 //   ships    → image_url  (full artwork)
+//   BASE     → image_url  (face-centered crop rendered separately)
 //   artifacts → emoji CDN (fills slot better than the small catbox webp)
 //   regular  → emoji CDN
 function resolveImageUrl(slot) {
   if (!slot || !slot.cardDef) return null;
   const { cardDef } = slot;
   if (cardDef.ship) return cardDef.image_url || getEmojiUrl(cardDef.emoji) || null;
+  if (isBaseCard(cardDef)) return cardDef.image_url || null;
   return getEmojiUrl(cardDef.emoji) || cardDef.image_url || null;
 }
 
@@ -83,31 +87,48 @@ async function generateBinderCanvas(slots) {
     const imgResult = imageResults[i];
     const img = imgResult && imgResult.status === 'fulfilled' ? imgResult.value : null;
 
-    // Padding: ships get a small border; artifacts & regular fill the slot
-    const PAD = cardDef.ship ? 4 : cardDef.artifact ? 0 : 8;
-
-    if (img) {
-      ctx.globalAlpha = owned ? 1.0 : 0.2;
-      ctx.drawImage(img, x + PAD, y + PAD, CELL_W - PAD * 2, CELL_H - PAD * 2);
+    if (isBaseCard(cardDef)) {
+      // BASE cards: face-centered circular crop with golden border
+      const cx = x + CELL_W / 2;
+      const cy = y + (CELL_H - 26) / 2;  // vertically centered above ID bar
+      const diameter = 104;
+      ctx.globalAlpha = owned ? 1.0 : 0.25;
+      drawBaseFaceCard(ctx, img, cx, cy, diameter, cardDef.character || '?');
       ctx.globalAlpha = 1.0;
+      if (!owned) {
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 11px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('Not Owned', cx, cy + diameter / 2 + 12);
+      }
     } else {
-      ctx.fillStyle = RANK_COLORS[cardDef.rank] || '#333333';
-      ctx.globalAlpha = owned ? 0.25 : 0.08;
-      ctx.fillRect(x + 1, y + 1, CELL_W - 2, CELL_H - 2);
-      ctx.globalAlpha = 1.0;
-    }
+      // Padding: ships get a small border; artifacts & regular fill the slot
+      const PAD = cardDef.ship ? 4 : cardDef.artifact ? 0 : 8;
 
-    if (!owned) {
-      // Dark overlay
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
-      ctx.fillRect(x + 1, y + 1, CELL_W - 2, CELL_H - 2);
+      if (img) {
+        ctx.globalAlpha = owned ? 1.0 : 0.2;
+        ctx.drawImage(img, x + PAD, y + PAD, CELL_W - PAD * 2, CELL_H - PAD * 2);
+        ctx.globalAlpha = 1.0;
+      } else {
+        ctx.fillStyle = RANK_COLORS[cardDef.rank] || '#333333';
+        ctx.globalAlpha = owned ? 0.25 : 0.08;
+        ctx.fillRect(x + 1, y + 1, CELL_W - 2, CELL_H - 2);
+        ctx.globalAlpha = 1.0;
+      }
 
-      // "Not Owned" text — shifted up to make room for ID below
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 13px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText('Not Owned', x + CELL_W / 2, y + CELL_H / 2 - 10);
+      if (!owned) {
+        // Dark overlay
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
+        ctx.fillRect(x + 1, y + 1, CELL_W - 2, CELL_H - 2);
+
+        // "Not Owned" text — shifted up to make room for ID below
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 13px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('Not Owned', x + CELL_W / 2, y + CELL_H / 2 - 10);
+      }
     }
 
     // Rank badge — only for ships and artifacts (not regular attacking cards)

@@ -2591,7 +2591,7 @@ const consolidatedCardData = [
         cards: [
         {
           id: "9000",
-          attribute: "PSY",
+          attribute: "BASE",
           rank: "S",
           emoji: "<:1000048933:1499901301109293066>",
           image_url: "https://static.wikia.nocookie.net/onepiece/images/9/9b/Zeus_Anime_Infobox.png/revision/latest/scale-to-width-down/1000?cb=20220602000228"
@@ -2599,7 +2599,7 @@ const consolidatedCardData = [
         {
           title: "The thundercloud",
           id: "9001",
-          attribute: "STR",
+          attribute: "BASE",
           rank: "SS",
           emoji: "<:1000048942:1499903572559527946>",
           image_url: "https://static.wikia.nocookie.net/onepiece/images/a/a8/Darken_Zeus_While_Attacking.png/revision/latest/scale-to-width-down/1000?cb=20180107062950",
