@@ -2106,7 +2106,8 @@ module.exports = {
             } else if (card.def.all) {
               if (card.def.effect) multiEffectTarget = targets;
             } else {
-              multiEffectTarget = targets[0] || null;
+              // scount: apply effect to all selected targets (not just the first)
+              multiEffectTarget = card.def.scount ? targets : (targets[0] || null);
             }
             const { isStatusEffectUnlocked: _isailAutoEffUnlocked } = require('../utils/starLevel');
             if (multiEffectTarget && _isailAutoEffUnlocked(card.userEntry?.starLevel)) {
@@ -2428,7 +2429,8 @@ module.exports = {
           } else if (card.def.all) {
             if (card.def.effect) effectTarget = targets;
           } else {
-            effectTarget = targets[0] || null;
+            // scount: apply effect to all selected targets (not just the first)
+            effectTarget = card.def.scount ? targets : (targets[0] || null);
           }
           const { isStatusEffectUnlocked: _isailAutoEffUnlocked } = require('../utils/starLevel');
           if (effectTarget && _isailAutoEffUnlocked(card.userEntry?.starLevel)) {

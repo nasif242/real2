@@ -22,6 +22,7 @@ let lastStockReset = Date.now();
 let lastPullReset = Date.now();
 let globalClient = null;
 let pendingResetNotification = false;
+let isResetting = false;
 const SUPPORT_GUILD_ID = '1322627413234155520';
 
 async function attemptResetNotify() {
@@ -398,19 +399,36 @@ function initStockSystem() {
     resetPullCounter();
   }
 
-  // Set interval to check every 5 seconds for resets
-  setInterval(async () => {
+  // Set interval to check every 5 seconds for stock resets
+  setInterval(() => {
     const timeToStock = getTimeUntilNextStockReset();
     if (timeToStock <= 0) {
       resetStock();
     }
+  }, 5000);
 
-    const timeToPull = getTimeUntilNextPullReset();
-    if (timeToPull <= 0) {
-      await resetPullCounter();
-      resetStock(); // Also reset stock when pulls reset
-    }
-  }, 5000); // check every 5 seconds
+  // Schedule pull resets using setTimeout chained to the exact reset time
+  // This is more reliable than polling and guarantees the notification fires
+  function scheduleNextPullReset() {
+    const delay = getTimeUntilNextPullReset();
+    // Add a small buffer (200ms) so we land just after the boundary
+    setTimeout(async () => {
+      if (!isResetting) {
+        isResetting = true;
+        try {
+          await resetPullCounter();
+          resetStock();
+        } catch (e) {
+          console.error('[stock] scheduled pull reset error:', e);
+        } finally {
+          isResetting = false;
+        }
+      }
+      scheduleNextPullReset();
+    }, delay + 200);
+  }
+
+  scheduleNextPullReset();
 }
 
 module.exports = {

@@ -1043,16 +1043,16 @@ function clearUserState(userId) {
 }
 
 // Build a select menu of top-10 recommended cards for the draft picker
+// Uses base def stats for sorting to avoid expensive O(N²) boost resolution
 async function buildRecommendedCardSelect(pickerUserId, rankRestriction) {
   let cards = [];
   try {
-    const pickerUser = await User.findOne({ userId: pickerUserId });
+    const pickerUser = await User.findOne({ userId: pickerUserId }, 'ownedCards');
     if (pickerUser && pickerUser.ownedCards && pickerUser.ownedCards.length > 0) {
       cards = pickerUser.ownedCards.map(entry => {
         const def = cardDefs.find(c => c.id === entry.cardId);
         if (!def) return null;
-        const scaled = resolveStats(entry, pickerUser.ownedCards);
-        return { def, userEntry: entry, scaled };
+        return { def, userEntry: entry };
       }).filter(Boolean);
     }
   } catch (e) {}
@@ -1061,7 +1061,7 @@ async function buildRecommendedCardSelect(pickerUserId, rankRestriction) {
   }
   if (cards.length === 0) return null;
   cards.sort((a, b) => {
-    const score = c => (c.scaled?.health || c.def.health || 0) + (c.scaled?.power || c.def.power || 0) + (c.scaled?.attack_max || c.def.attack_max || 0);
+    const score = c => (c.def.health || 0) + (c.def.power || 0) + (c.def.attack_max || 0);
     return score(b) - score(a);
   });
   const top = cards.slice(0, 10);
@@ -1439,6 +1439,9 @@ async function handleRankDraftModalSubmit(interaction) {
     return interaction.reply({ content: 'Invalid rank. Use one of: D, C, B, A, S, SS, UR', ephemeral: true });
   }
 
+  // Defer immediately so Discord doesn't time out while we build the draft
+  try { await interaction.deferReply({ ephemeral: true }); } catch (e) {}
+
   // configure pending to perform a STRAT draft limited to this rank
   pending.duelType = 'strat';
   pending.rankRestriction = rawRank;
@@ -1447,7 +1450,7 @@ async function handleRankDraftModalSubmit(interaction) {
   try { await interaction.channel.messages.fetch(msgId).then(m => m.delete()).catch(() => {}); } catch (e) {}
   try { await startStratDraft(pending, interaction); } catch (e) { console.error('Failed to start Rank Draft:', e); }
   pendingDuelRequests.delete(msgId);
-  try { await interaction.reply({ content: `Started Rank Draft (${rawRank})`, ephemeral: true }); } catch (e) {}
+  try { await interaction.editReply({ content: `Started Rank Draft (${rawRank})` }); } catch (e) {}
 }
 
 module.exports = {
@@ -2123,8 +2126,8 @@ module.exports = {
           // `all` effects target the selected group of targets as intended
           if (card.def.effect) effectTarget = resolvedTargets;
         } else {
-          // scount only splits damage; special effect still applies to the primary selected target
-          effectTarget = resolvedTargets[0] || null;
+          // scount: apply effect to all selected targets (not just the first)
+          effectTarget = card.def.scount ? resolvedTargets : (resolvedTargets[0] || null);
         }
         const { isStatusEffectUnlocked: _duelAwaitEffUnlocked } = require('../utils/starLevel');
         if (effectTarget && _duelAwaitEffUnlocked(card.userEntry?.starLevel)) {
@@ -2331,7 +2334,8 @@ module.exports = {
             } else if (card.def.all) {
               if (card.def.effect) effectTarget = targets;
             } else {
-              effectTarget = targets[0] || null;
+              // scount: apply effect to all selected targets (not just the first)
+              effectTarget = card.def.scount ? targets : (targets[0] || null);
             }
             const { isStatusEffectUnlocked: _duelAutoEffUnlocked } = require('../utils/starLevel');
             if (effectTarget && _duelAutoEffUnlocked(card.userEntry?.starLevel)) {
