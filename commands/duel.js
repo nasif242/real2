@@ -1082,34 +1082,36 @@ async function startStratDraft(pending, interaction) {
   stratDrafts.set(draftMsg.id, draftState);
   // 90 second timeout for drafts
   draftState.timeout = setTimeout(async () => {
+    const expired = new EmbedBuilder()
+      .setColor('#FFFFFF')
+      .setTitle('STRAT Duel | Draft')
+      .setDescription(`Players pick a card one at a time.\n\n**${nextName}'s turn to pick.**\n\n**${pending.discordUser1.username}'s team:**\n${p1Names}\n\n**${pending.discordUser2.username}'s team:**\n${p2Names}` + (draftState.rankRestriction ? `\n\nAllowed Rank: **${draftState.rankRestriction}**` : ''))
+      .setFooter({ text: 'Expired' });
     try {
-      const expired = new EmbedBuilder()
-        .setColor('#FFFFFF')
-        .setTitle('STRAT Duel | Draft')
-        .setDescription(`Players pick a card one at a time.
+      const msg = await interaction.channel.messages.fetch(draftState.messageId).catch(() => null);
+      if (msg) await msg.edit({ embeds: [expired], components: [] }).catch(() => {});
+    } catch (e) {
+      // ignore errors while expiring the draft
+    }
+    try { stratDrafts.delete(draftState.messageId); } catch (e) {}
+  }, 90 * 1000);
 
-    **${nextName}'s turn to pick.**
-
-    **${pending.discordUser1.username}'s team:**
-    ${p1Names}
-
-    **${pending.discordUser2.username}'s team:**
-    ${p2Names}` + (draftState.rankRestriction ? `
-
-    Allowed Rank: **${draftState.rankRestriction}**` : ''));
-  const msgId = interaction.message.id;
-  const pending = pendingDuelRequests.get(msgId);
-  if (!pending) return interaction.reply({ content: 'This duel request has expired.', ephemeral: true });
-  // Only the challenger (player1) may change the duel type
-  if (interaction.user.id !== pending.player1Id) {
-    return interaction.reply({ content: 'Only the challenger can change the duel type.', ephemeral: true });
-  }
-  const val = interaction.values && interaction.values[0];
-  pending.duelType = val || 'casual';
-  const embed = EmbedBuilder.from ? EmbedBuilder.from(interaction.message.embeds[0] || {}) : new EmbedBuilder().setDescription(interaction.message.embeds[0]?.description || '');
-  embed.setFooter({ text: `Duel type: ${pending.duelType === 'strat' ? 'STRAT (Draft)' : 'Casual'}` });
-  try { await interaction.update({ embeds: [embed] }); } catch (e) { try { await interaction.followUp({ embeds: [embed] }); } catch {} }
 }
+
+  // Handle duel-type select menu (challenger changes duel type)
+  async function handleSelect(interaction) {
+    const msgId = interaction.message.id;
+    const pending = pendingDuelRequests.get(msgId);
+    if (!pending) return interaction.reply({ content: 'This duel request has expired.', ephemeral: true });
+    // Only the challenger (player1) may change the duel type
+    if (interaction.user.id !== pending.player1Id) return interaction.reply({ content: 'Only the challenger can change the duel type.', ephemeral: true });
+    const val = interaction.values && interaction.values[0];
+    // treat 'rank' as a strat draft (challenged player will pick the rank)
+    pending.duelType = val === 'rank' ? 'strat' : (val || 'casual');
+    const embed = EmbedBuilder.from ? EmbedBuilder.from(interaction.message.embeds[0] || {}) : new EmbedBuilder().setDescription(interaction.message.embeds[0]?.description || '');
+    embed.setFooter({ text: `Duel type: ${pending.duelType === 'strat' ? 'STRAT (Draft)' : 'Casual'}` });
+    try { await interaction.update({ embeds: [embed] }); } catch (e) { try { await interaction.followUp({ embeds: [embed] }); } catch {} }
+  }
 
 // Handle modal submit for STRAT draft picks
 async function handleStratModalSubmit(interaction) {
