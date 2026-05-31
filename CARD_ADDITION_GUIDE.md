@@ -50,11 +50,18 @@ Signaling the Beginning of a Bright Future, drunk, 3 turns, 25%, itself=true, al
 - `gif` is **never** part of the input layout. Do **not** add `gif` to `special_attack` in cards.js.
 - If a field is not stated in the input, do **not** add it to cards.js.
 - Card adding must **strictly** respect what is stated — do not infer, guess, or add anything extra.
+- **NEVER skip any stated value.** Every field on the special attack line must be written to cards.js exactly as given. Missing even one field is an error.
+- The special attack line maps field-by-field in this exact order:
+  1. SA name → `special_attack: { name: "..." }`
+  2. effect name → `effect: "..."`
+  3. turns / `-1 turns` → `effectDuration: N` (integer; `-1` means permanent)
+  4. `effectAmount=N` → `effectAmount: N`
+  5. `itself=true` → `itself: true`
+  6. `all=true` → `all: true`
+  7. `count=N` → `count: N`
+  8. `scount=N` → `scount: N`
+- Add every field that is stated. **If a field appears in the input it must appear in cards.js — no exceptions.**
 - `effectAmount` maps to `effectAmount` in cards.js (used for percentage-based effects like attackup/down).
-- `itself=true` maps to `itself: true` in cards.js.
-- `all=true` maps to `all: true` in cards.js.
-- `count=N` maps to `count: N` in cards.js.
-- `scount=N` maps to `scount: N` in cards.js.
 - Effect duration in "turns" maps to `effectDuration` (integer). `-1` means permanent.
 
 ---
@@ -336,9 +343,9 @@ Use `null` (never a placeholder string) for missing assets:
 - **undead** — Card remains alive at 0 HP
 - **reflect** — Reflects opponent's attack back
 
-⚠️ **Does NOT exist:** `burn`, `poison`, `speeddown`, `paralysis`
+⚠️ **Does NOT exist (known non-working names):** `burn`, `poison`, `speeddown`, `paralysis`
 
-⚠️ **All effect names must appear in the list above.** If an effect name is not listed here it will NOT display on the card info embed and will NOT work in battle. Do not invent effect names — use only the ones above.
+ℹ️ **Always add the effect exactly as stated in the input**, even if the name is not in the list above. The list describes what the battle engine recognises — an unlisted effect will not display or trigger in battle, but the field must still be written if it was stated. Never substitute, rename, or drop an effect name.
 
 ---
 
@@ -353,9 +360,9 @@ Use `null` (never a placeholder string) for missing assets:
 - [ ] Aliases are lowercase
 - [ ] Attributes match character abilities
 - [ ] Ranks are appropriate for anime importance (use +/- to fine-tune)
-- [ ] SS+ rank cards have special attacks with status effects (if stated)
+- [ ] **Every field on the special attack line has been added** — SA name, effect, effectDuration, effectAmount, itself, all, count, scount. Check each one individually; do not stop after the SA name.
+- [ ] **Effect name is written exactly as stated** — never renamed, substituted, or dropped, even if it is not in the valid effects list
 - [ ] Special attacks only include `name` — NO `gif`, NO stat values
-- [ ] Status effects are from the valid list only
 - [ ] Stronger cards have stronger/more impactful status effects
 - [ ] Non-combat support characters use `boost` field (no special_attack)
 - [ ] All effect names are lowercase (attackdown, not "Attack Down")

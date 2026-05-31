@@ -4185,7 +4185,8 @@ const consolidatedCardData = [
           image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/4/500/4562.png",
           special_attack: {
             name: "Emperor Advancing to Take the World"
-          }
+          },
+          effect: "prone"
         },
         {
           title: "Emperor Advancing to his Ambition",
@@ -4196,7 +4197,8 @@ const consolidatedCardData = [
           image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/4/500/4561.png",
           special_attack: {
             name: "Emperor Advancing to Take the World"
-          }
+          },
+          effect: "prone"
         },
         {
           title: "Incoming News",
@@ -4223,7 +4225,8 @@ const consolidatedCardData = [
           image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/4/100/4147.png",
           special_attack: {
             name: "Tremor Crush"
-          }
+          },
+          effect: "prone"
         },
         {
           title: "After the Road Ponegliff",
@@ -4242,7 +4245,8 @@ const consolidatedCardData = [
           image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/4/100/4100.png",
           special_attack: {
             name: "Darkness of Despair"
-          }
+          },
+          effect: "prone"
         },
         {
           title: "Intervening Emperor",
