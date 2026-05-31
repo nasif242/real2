@@ -4273,8 +4273,8 @@ const consolidatedCardData = [
           },
           effect: "doomed",
           effectDuration: 6,
-          count: 3,
-          scount: 3
+          count: 2,
+          scount: 2
         }
         ]
       },
