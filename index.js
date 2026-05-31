@@ -310,6 +310,9 @@ async function main() {
         if (action === 'duel_type') {
           return await duelCmd.handleSelect(interaction);
         }
+        if (action === 'duel_rank_select') {
+          return await duelCmd.handleRankSelect(interaction);
+        }
         if (action === 'guildlist_filter') {
           return await require('./commands/owner').handleSelect(interaction);
         }

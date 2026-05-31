@@ -1106,11 +1106,56 @@ async function startStratDraft(pending, interaction) {
     // Only the challenger (player1) may change the duel type
     if (interaction.user.id !== pending.player1Id) return interaction.reply({ content: 'Only the challenger can change the duel type.', ephemeral: true });
     const val = interaction.values && interaction.values[0];
-    // treat 'rank' as a strat draft (challenged player will pick the rank)
-    pending.duelType = val === 'rank' ? 'strat' : (val || 'casual');
+
+    if (val === 'rank') {
+      // Transition embed: remove Accept/Decline buttons, show rank dropdown
+      const embed = EmbedBuilder.from ? EmbedBuilder.from(interaction.message.embeds[0] || {}) : new EmbedBuilder().setDescription(interaction.message.embeds[0]?.description || '');
+      embed.setFooter({ text: 'RANK Duel — select a rank to restrict the draft:' });
+      const rankSelectRow = new ActionRowBuilder().addComponents(
+        new StringSelectMenuBuilder()
+          .setCustomId('duel_rank_select')
+          .setPlaceholder('Choose a rank')
+          .addOptions([
+            { label: 'D', value: 'D', description: 'D rank cards only' },
+            { label: 'C', value: 'C', description: 'C rank cards only' },
+            { label: 'B', value: 'B', description: 'B rank cards only' },
+            { label: 'A', value: 'A', description: 'A rank cards only' },
+            { label: 'S', value: 'S', description: 'S rank cards only' },
+            { label: 'SS', value: 'SS', description: 'SS rank cards only' },
+            { label: 'UR', value: 'UR', description: 'UR rank cards only' }
+          ])
+      );
+      try { await interaction.update({ embeds: [embed], components: [rankSelectRow] }); } catch (e) { try { await interaction.followUp({ embeds: [embed], components: [rankSelectRow] }); } catch {} }
+      return;
+    }
+
+    // STRAT selected
+    pending.duelType = 'strat';
     const embed = EmbedBuilder.from ? EmbedBuilder.from(interaction.message.embeds[0] || {}) : new EmbedBuilder().setDescription(interaction.message.embeds[0]?.description || '');
-    embed.setFooter({ text: `Duel type: ${pending.duelType === 'strat' ? 'STRAT (Draft)' : 'Casual'}` });
+    embed.setFooter({ text: 'Duel type: STRAT (Draft)' });
     try { await interaction.update({ embeds: [embed] }); } catch (e) { try { await interaction.followUp({ embeds: [embed] }); } catch {} }
+  }
+
+  // Handle rank dropdown selection (starts rank draft directly)
+  async function handleRankSelect(interaction) {
+    const msgId = interaction.message.id;
+    const pending = pendingDuelRequests.get(msgId);
+    if (!pending) return interaction.reply({ content: 'This duel request has expired.', ephemeral: true });
+    if (interaction.user.id !== pending.player1Id) return interaction.reply({ content: 'Only the challenger can select the rank.', ephemeral: true });
+
+    const rawRank = (interaction.values && interaction.values[0] || '').toUpperCase();
+    const VALID = ['D', 'C', 'B', 'A', 'S', 'SS', 'UR'];
+    if (!VALID.includes(rawRank)) return interaction.reply({ content: 'Invalid rank. Use one of: D, C, B, A, S, SS, UR', ephemeral: true });
+
+    pending.duelType = 'strat';
+    pending.rankRestriction = rawRank;
+
+    // Acknowledge the interaction first, then delete the challenge message
+    try { await interaction.deferUpdate(); } catch (e) {}
+    try { await interaction.message.delete(); } catch {}
+
+    await startStratDraft(pending, interaction);
+    pendingDuelRequests.delete(msgId);
   }
 
 // Handle modal submit for STRAT draft picks
@@ -1276,6 +1321,7 @@ module.exports = {
   clearUserState,
   duelStates,
   handleSelect,
+  handleRankSelect,
   handleStratModalSubmit,
   handleRankDraftModalSubmit,
   async execute({ message, interaction, args }) {
@@ -1294,8 +1340,8 @@ module.exports = {
     if (message) {
       const rawArgs = Array.isArray(args) ? args.slice() : [];
       const low = rawArgs.map(a => String(a).toLowerCase());
-      // detect explicit 'draft' flag
-      const idxDraft = low.findIndex(a => a === 'draft');
+      // detect explicit 'draft' or 'strat' flag
+      const idxDraft = low.findIndex(a => a === 'draft' || a === 'strat');
       if (idxDraft !== -1) {
         forcedMode = 'strat';
         rawArgs.splice(idxDraft, 1);
@@ -1448,6 +1494,26 @@ module.exports = {
       speed2 = p1Speed;
     }
 
+    // If forcedMode, skip challenge embed and go directly to draft
+    if (forcedMode === 'strat') {
+      const pendingState = {
+        player1Id: userId,
+        player2Id: opponentId,
+        player1Cards: p1Team,
+        player2Cards: p2Team,
+        p1Speed: p1Speed,
+        p2Speed: p2Speed,
+        discordUser1: discordUser1,
+        discordUser2: discordUser2,
+        duelType: 'strat'
+      };
+      if (forcedRank) pendingState.rankRestriction = forcedRank;
+      const channelRef = message ? message.channel : interaction.channel;
+      await startStratDraft(pendingState, { channel: channelRef });
+      if (message) return;
+      return;
+    }
+
     // Send acceptance message
     const crews = require('../data/crews');
     const challengerTeamLines = p1Team.map(c => {
@@ -1477,20 +1543,15 @@ module.exports = {
           .setCustomId('duel_accept:decline')
           .setLabel('Decline')
           .setStyle(ButtonStyle.Secondary)
-          .setEmoji('<:decline:1489632232942342154>'),
-        new ButtonBuilder()
-          .setCustomId('duel_rankdraft:open')
-          .setLabel('Rank Draft')
-          .setStyle(ButtonStyle.Secondary)
+          .setEmoji('<:decline:1489632232942342154>')
       );
     const typeSelectRow = new ActionRowBuilder().addComponents(
       new StringSelectMenuBuilder()
         .setCustomId('duel_type')
         .setPlaceholder('Select duel type')
         .addOptions([
-          { label: 'Casual Duel', value: 'casual', description: 'Regular duel (default)' },
           { label: 'STRAT Duel', value: 'strat', description: 'Drafting duel — pick cards before start' },
-          { label: 'RANK Draft', value: 'rank', description: 'Draft restricted to a specific rank (challenger sets)' }
+          { label: 'RANK Duel', value: 'rank', description: 'Draft restricted to a specific rank' }
         ])
     );
     
@@ -1513,7 +1574,8 @@ module.exports = {
       p1Speed: p1Speed,
       p2Speed: p2Speed,
       discordUser1: discordUser1,
-      discordUser2: discordUser2
+      discordUser2: discordUser2,
+      duelType: 'strat' // default to STRAT (no casual option)
     };
     // apply any forced modes (draft or rank) requested by the challenger
     if (forcedMode) pendingState.duelType = forcedMode;
