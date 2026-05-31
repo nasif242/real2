@@ -36,7 +36,7 @@ function isRaidSoloMode()        { return raidSoloMode; }
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const raidStates       = new Map();
-const BELI_BY_RANK     = { D: 100, C: 300, B: 700, A: 1200, S: 2000, SS: 2800, UR: 3500 };
+const BELI_BY_RANK     = { D: 300, C: 300, B: 300, A: 300, S: 500, SS: 700, UR: 1000 };
 const RAID_TIMEOUT     = 3 * 60 * 1000;  // lobby auto-cancel
 const TURN_TIMEOUT_MS  = 30 * 1000;      // per-turn inactivity
 const INACT_TIMEOUT_MS = 60 * 1000;      // whole-raid inactivity → cancel
@@ -46,8 +46,8 @@ const MIN_PLAYERS      = 3;
 const EMOJI = {
   godToken: '<:godtoken:1499957056650608753>',
   captain:  '<:captain:1508200434274406470>',
-  viceCap:  '🔱',
-  member:   '⚓',
+  viceCap:  '<:vc:1508270658763751434>',
+  member:   '<:user:1490731587564736643>',
   energy:   '<:energy:1478051414558118052>',
   hpFL:     '<:Healthfullleft:1481750264074469437>',
   hpFM:     '<:healthfullmiddle:1481750286795149435>',

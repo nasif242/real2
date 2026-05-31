@@ -8,7 +8,7 @@ module.exports = {
     const embed = new EmbedBuilder()
       .setColor('#f4e66c')
       .setTitle('Shop')
-      .setImage('https://files.catbox.moe/77lzc8.png')
+      .setImage('https://files.catbox.moe/py98kw.png')
 
     if (message) return message.channel.send({ embeds: [embed] });
     return interaction.reply({ embeds: [embed] });

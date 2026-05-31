@@ -153,7 +153,10 @@ effects.confusion = {
     type: name,
     emoji: name === 'attackup' ? '<:1000048307:1497961719094444217>' : (name === 'attackdown' ? '<:1000048289:1497961703810400347>' : (name === 'defenseup' ? '<:1000048288:1497961711234567890>' : '<:1000048285:1497961701234567890>')),
     applyEffect({ target, def, dur, addEffectToTarget, statusTargetName, statusMessage }) {
-      const amount = def.effectAmount ?? 12;
+      if (def.effectAmount === undefined) {
+        return [];
+      }
+      const amount = def.effectAmount;
       addEffectToTarget(target, name, dur, { amount });
       const verb = name.includes('attack') ? (name === 'attackup' ? "'s attack is boosted" : "'s attack is reduced") : (name === 'defenseup' ? "'s defense is boosted" : "'s defense is reduced");
       return [`${statusTargetName(target)}${verb} (${amount}%)${statusMessage()}!`];

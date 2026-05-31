@@ -307,27 +307,35 @@ function applyCardEffect(attacker, target, context = {}) {
       break;
     }
     case 'attackup': {
-      const amount = def.effectAmount !== undefined ? def.effectAmount : 12;
-      addEffectToTarget(applyTo, 'attackup', dur, { amount });
-      logs.push(`${statusTargetName(applyTo)}'s attack is boosted (${amount}%)${statusMessage()}!`);
+      if (def.effectAmount !== undefined) {
+        const amount = def.effectAmount;
+        addEffectToTarget(applyTo, 'attackup', dur, { amount });
+        logs.push(`${statusTargetName(applyTo)}'s attack is boosted (${amount}%)${statusMessage()}!`);
+      }
       break;
     }
     case 'attackdown': {
-      const amount = def.effectAmount !== undefined ? def.effectAmount : 12;
-      addEffectToTarget(applyTo, 'attackdown', dur, { amount });
-      logs.push(`${statusTargetName(applyTo)}'s attack is reduced (${amount}%)${statusMessage()}!`);
+      if (def.effectAmount !== undefined) {
+        const amount = def.effectAmount;
+        addEffectToTarget(applyTo, 'attackdown', dur, { amount });
+        logs.push(`${statusTargetName(applyTo)}'s attack is reduced (${amount}%)${statusMessage()}!`);
+      }
       break;
     }
     case 'defenseup': {
-      const amount = def.effectAmount !== undefined ? def.effectAmount : 12;
-      addEffectToTarget(applyTo, 'defenseup', dur, { amount });
-      logs.push(`${statusTargetName(applyTo)}'s defense is boosted (${amount}%)${statusMessage()}!`);
+      if (def.effectAmount !== undefined) {
+        const amount = def.effectAmount;
+        addEffectToTarget(applyTo, 'defenseup', dur, { amount });
+        logs.push(`${statusTargetName(applyTo)}'s defense is boosted (${amount}%)${statusMessage()}!`);
+      }
       break;
     }
     case 'defensedown': {
-      const amount = def.effectAmount !== undefined ? def.effectAmount : 12;
-      addEffectToTarget(applyTo, 'defensedown', dur, { amount });
-      logs.push(`${statusTargetName(applyTo)}'s defense is reduced (${amount}%)${statusMessage()}!`);
+      if (def.effectAmount !== undefined) {
+        const amount = def.effectAmount;
+        addEffectToTarget(applyTo, 'defensedown', dur, { amount });
+        logs.push(`${statusTargetName(applyTo)}'s defense is reduced (${amount}%)${statusMessage()}!`);
+      }
       break;
     }
     case 'dissattack':

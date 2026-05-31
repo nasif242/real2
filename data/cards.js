@@ -4187,7 +4187,8 @@ const consolidatedCardData = [
           special_attack: {
             name: "Emperor Advancing to Take the World"
           },
-          effect: "prone"
+          effect: "prone",
+          effectDuration: -1,
         },
         {
           title: "Emperor Advancing to his Ambition",
@@ -4199,7 +4200,8 @@ const consolidatedCardData = [
           special_attack: {
             name: "Emperor Advancing to Take the World"
           },
-          effect: "prone"
+          effect: "prone",
+          effectDuration: -1
         },
         {
           title: "Incoming News",
@@ -4227,7 +4229,8 @@ const consolidatedCardData = [
           special_attack: {
             name: "Tremor Crush"
           },
-          effect: "prone"
+          effect: "prone",
+          effectDuration: -1,
         },
         {
           title: "After the Road Ponegliff",
@@ -4247,7 +4250,8 @@ const consolidatedCardData = [
           special_attack: {
             name: "Darkness of Despair"
           },
-          effect: "prone"
+          effect: "prone",
+          effectDuration: -1,
         },
         {
           title: "Intervening Emperor",

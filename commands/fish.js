@@ -376,15 +376,6 @@ module.exports = {
       }
     }
 
-    // 3% chance to get gems; scale final gem amount by rod multiplier
-    const gemChance = Math.random();
-    if (gemChance < 0.03) {
-      const baseGem = randomInt(1, 2);
-      const gemAmount = Math.max(1, Math.round(baseGem * (currentRodData?.multiplier || 1)));
-      user.gems = (user.gems || 0) + gemAmount;
-      lootLines.push(`<:gem:1490741488081043577> ${gemAmount} gem${gemAmount > 1 ? 's' : ''}`);
-    }
-
     const chestRoll = Math.random();
     const chestMultiplier = 1 + (currentRodData?.luckBonus || 0);
     if (chestRoll < 0.001 * chestMultiplier) {
