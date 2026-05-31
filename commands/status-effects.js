@@ -91,6 +91,17 @@ effects.stun = {
   applyEffect({ target, def, dur, addEffectToTarget, statusTargetName, statusMessage }) {
     addEffectToTarget(target, 'stun', dur);
     return [`${statusTargetName(target)} is stunned and can't move${statusMessage()}!`];
+  },
+  onStartOfTurn(entity, status, logs) {
+    if (status.remaining !== Infinity) {
+      status.remaining = Math.max(0, status.remaining - 1);
+      if (status.remaining <= 0) {
+        logs.push(`${entity.def?.character || entity.rank || 'Entity'} is no longer stunned!`);
+        return false;
+      }
+      logs.push(`${entity.def?.character || entity.rank || 'Entity'} is stunned and skips their turn!`);
+    }
+    return status.remaining > 0 || status.remaining === Infinity;
   }
 };
 
@@ -213,6 +224,7 @@ effects.doomed = {
         logs.push(`${entity.def?.character || entity.rank || 'Entity'} is doomed and collapses!`);
         return false;
       }
+      logs.push(`${entity.def?.character || entity.rank || 'Entity'} is doomed — ${status.remaining} turn(s) until death!`);
     }
     return true;
   }

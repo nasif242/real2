@@ -860,13 +860,20 @@ async function finalizeAction(state, msg, timedOut = false, appliedCut = false) 
     // Apply start-of-turn effects to ALL cards (both teams) unless already applied
     if (!appliedCut) applyGlobalCut(state);
 
-    // Check if opponent's team is already defeated BEFORE updating the embed
-    // so the victory embed replaces the battle embed directly (no "All cards defeated!" flash)
-    if (checkTeamDefeated(state.turn === 'player1' ? state.player1Cards : state.player2Cards)) {
+    // Check BOTH teams after status effects — applyGlobalCut may have killed either side
+    const _p1Dead = checkTeamDefeated(state.player1Cards);
+    const _p2Dead = checkTeamDefeated(state.player2Cards);
+    if (_p1Dead || _p2Dead) {
+      // Show status effect logs in the battle embed before replacing it with the victory embed
+      if (state.log) {
+        try { await updateDuelMessage(state.lastMsg || msg, state); } catch (e) {}
+      }
       state.finished = true;
-      const winnerId = state.turn === 'player1' ? state.player2Id : state.player1Id;
-      const loserId = state.turn === 'player1' ? state.player1Id : state.player2Id;
-      const winner = state.turn === 'player1' ? state.discordUser2 : state.discordUser1;
+      // p1 wins when p2 died and p1 didn't; otherwise p2 wins (p1 died, or both died simultaneously)
+      const _p1Wins = _p2Dead && !_p1Dead;
+      const winnerId = _p1Wins ? state.player1Id : state.player2Id;
+      const loserId = _p1Wins ? state.player2Id : state.player1Id;
+      const winner = _p1Wins ? state.discordUser1 : state.discordUser2;
       
       // Load user documents and calculate bounty change
       let winnerUser = await User.findOne({ userId: winnerId });

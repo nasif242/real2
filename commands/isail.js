@@ -866,9 +866,17 @@ async function finalizeUserAction(state, msg, interaction) {
   const user = await User.findOne({ userId: state.userId });
   // apply cut/bleed effects for both sides after marine action
   applyGlobalCut(state);
+  // If status effects killed the user's own cards, trigger defeat now
+  if (state.cards && state.cards.every(c => (c.currentHP || 0) <= 0)) {
+    if (state.log) { try { await refreshBattleMessage(msg, state, user); } catch (e) {} }
+    await handleDefeat(state, msg, user);
+    battleStates.delete(msg.id);
+    return true;
+  }
   // If status effects (cut/bleed) killed all remaining marines, trigger victory now
   if (state.marines.every(m => m.currentHP <= 0)) {
     const userDocCut = await User.findOne({ userId: state.userId });
+    if (state.log) { try { await refreshBattleMessage(msg, state, userDocCut); } catch (e) {} }
     await handleVictory(state, msg, userDocCut, interaction ? interaction.user : null);
     battleStates.delete(msg.id);
     return true;
@@ -900,6 +908,7 @@ async function runSkipCycle(state, msg, user, discordUser) {
       // If cut/bleed from maybeSkipUserTurn killed all marines, trigger victory
       if (state.marines.every(m => m.currentHP <= 0)) {
         const userDocCut = await User.findOne({ userId: state.userId });
+        if (state.log) { try { await refreshBattleMessage(msg, state, userDocCut); } catch (e) {} }
         await handleVictory(state, msg, userDocCut, discordUser);
         battleStates.delete(msg.id);
         return false;
