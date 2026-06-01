@@ -4,13 +4,13 @@ exports.moreCards = [
     faculty: null,
     characters: [
       {
-        /*
         character: "Pistol Bandit",
         alias: ["pistol bandit"],
         cards: [
         {
           title: "",
           id: "0120",
+            pullable: false,
           attribute: "STR",
           rank: "D",
           emoji: "<:0120:1500185920115183867>",
@@ -19,13 +19,13 @@ exports.moreCards = [
         {
           title: "",
           id: "0119",
+            pullable: false,
           attribute: "DEX",
           rank: "D",
           emoji: "<:1000049045:1500518920476430408>",
           image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/100/0119.png"
         }
         ]
-        */
       },
       {
         character: "Higuma",
@@ -86,7 +86,6 @@ exports.moreCards = [
         }
         ]
       },
-      /*
       {
         character: "Shooter Group Cabin Boy",
         alias: ["shooter cabin boy red", "shooter cabin boy", "shooter cabin boy blue", "shooter cabin boy green", "shooter cabin boy yellow", "shooter cabin boy purple"],
@@ -94,6 +93,7 @@ exports.moreCards = [
         {
           title: "",
           id: "0136",
+            pullable: false,
           attribute: "STR",
           rank: "D",
           emoji: "<:0136:1500190217993195680>",
@@ -102,6 +102,7 @@ exports.moreCards = [
         {
           title: "",
           id: "0137",
+            pullable: false,
           attribute: "QCK",
           rank: "D",
           emoji: "<:0137:1500190481336766557>",
@@ -110,6 +111,7 @@ exports.moreCards = [
         {
           title: "",
           id: "0138",
+            pullable: false,
           attribute: "DEX",
           rank: "D",
           emoji: "<:0138:1500190669560484011>",
@@ -118,6 +120,7 @@ exports.moreCards = [
         {
           title: "",
           id: "0139",
+            pullable: false,
           attribute: "PSY",
           rank: "D",
           emoji: "<:0139:1500190873445597435>",
@@ -126,6 +129,7 @@ exports.moreCards = [
         {
           title: "",
           id: "0140",
+            pullable: false,
           attribute: "INT",
           rank: "D",
           emoji: "<:0140:1500191063397371954>",
@@ -140,6 +144,7 @@ exports.moreCards = [
         {
           title: "",
           id: "0141",
+            pullable: false,
           attribute: "INT",
           rank: "D",
           emoji: "<:0141:1500191545435885678>",
@@ -154,6 +159,7 @@ exports.moreCards = [
         {
           title: "",
           id: "0121",
+            pullable: false,
           attribute: "STR",
           rank: "D",
           emoji: "<:0121:1500191938291171409>",
@@ -162,6 +168,7 @@ exports.moreCards = [
         {
           title: "",
           id: "0122",
+            pullable: false,
           attribute: "QCK",
           rank: "D",
           emoji: "<:0122:1500192183448375427>",
@@ -170,6 +177,7 @@ exports.moreCards = [
         {
           title: "",
           id: "0123",
+            pullable: false,
           attribute: "DEX",
           rank: "D",
           emoji: "<:0123:1500192390793658609>",
@@ -178,6 +186,7 @@ exports.moreCards = [
         {
           title: "",
           id: "0124",
+            pullable: false,
           attribute: "PSY",
           rank: "D",
           emoji: "<:0124:1500192707153236138>",
@@ -186,6 +195,7 @@ exports.moreCards = [
         {
           title: "",
           id: "0125",
+            pullable: false,
           attribute: "INT",
           rank: "D",
           emoji: "<:0125:1500192868478746625>",
@@ -200,6 +210,7 @@ exports.moreCards = [
         {
           title: "",
           id: "0029",
+            pullable: false,
           attribute: "STR",
           rank: "B",
           emoji: "<:0029:1500193465001316452>",
@@ -208,6 +219,7 @@ exports.moreCards = [
         {
           title: "Alvida & Coby",
           id: "4407",
+            pullable: false,
           attribute: "DEX",
           rank: "S",
           emoji: "<:4407:1500195922439835758>",
@@ -223,13 +235,14 @@ exports.moreCards = [
         {
           title: "",
           id: "0035",
+            pullable: false,
           attribute: "STR",
           rank: "C",
           emoji: "<:1000048998:1500263096042917988>",
           image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/000/0035.png"
         }
         ]
-        */
+      },
       {
         character: "Cabaji",
         alias: ["cabaji"],
@@ -928,7 +941,6 @@ exports.moreCards = [
           image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/100/0156.png"
         }
         ]
-        /*
       },
       {
         character: "Shooter Group Crew",
@@ -937,6 +949,7 @@ exports.moreCards = [
         {
           title: "",
           id: "0157",
+            pullable: false,
           attribute: "STR",
           rank: "C",
           emoji: "<:1000049073:1500527407763820694>",
@@ -945,6 +958,7 @@ exports.moreCards = [
         {
           title: "",
           id: "0158",
+            pullable: false,
           attribute: "QCK",
           rank: "C",
           emoji: "<:1000049074:1500527653126406297>",
@@ -953,6 +967,7 @@ exports.moreCards = [
         {
           title: "",
           id: "0159",
+            pullable: false,
           attribute: "DEX",
           rank: "C",
           emoji: "<:1000049075:1500527934136389753>",
@@ -961,6 +976,7 @@ exports.moreCards = [
         {
           title: "",
           id: "0160",
+            pullable: false,
           attribute: "PSY",
           rank: "C",
           emoji: "<:1000049076:1500528189892595753>",
@@ -969,6 +985,7 @@ exports.moreCards = [
         {
           title: "",
           id: "0161",
+            pullable: false,
           attribute: "INT",
           rank: "C",
           emoji: "<:0161:1502049717352267898>",
@@ -983,6 +1000,7 @@ exports.moreCards = [
         {
           title: "",
           id: "0162",
+            pullable: false,
           attribute: "INT",
           rank: "C",
           emoji: "<:1000049077:1500528777170653234>",
@@ -997,6 +1015,7 @@ exports.moreCards = [
         {
           title: "",
           id: "0163",
+            pullable: false,
           attribute: "DEX",
           rank: "C",
           emoji: "<:1000049078:1500529042687004672>",
@@ -1005,6 +1024,7 @@ exports.moreCards = [
         {
           title: "",
           id: "0164",
+            pullable: false,
           attribute: "QCK",
           rank: "C",
           emoji: "<:1000049079:1500529218461761737>",
@@ -1019,6 +1039,7 @@ exports.moreCards = [
         {
           title: "",
           id: "0165",
+            pullable: false,
           attribute: "STR",
           rank: "C",
           emoji: "<:1000049080:1500529529322737795>",
@@ -1033,6 +1054,7 @@ exports.moreCards = [
         {
           title: "",
           id: "0166",
+            pullable: false,
           attribute: "DEX",
           rank: "C",
           emoji: "<:1000049081:1500529753160159248>",
@@ -1047,6 +1069,7 @@ exports.moreCards = [
         {
           title: "",
           id: "0167",
+            pullable: false,
           attribute: "QCK",
           rank: "C",
           emoji: "<:1000049082:1500530155716874270>",
@@ -1061,6 +1084,7 @@ exports.moreCards = [
         {
           title: "",
           id: "0168",
+            pullable: false,
           attribute: "PSY",
           rank: "C",
           emoji: "<:1000049083:1500530399628230737>",
@@ -1075,6 +1099,7 @@ exports.moreCards = [
         {
           title: "",
           id: "0169",
+            pullable: false,
           attribute: "INT",
           rank: "C",
           emoji: "<:1000049084:1500530655157555340>",
@@ -1089,6 +1114,7 @@ exports.moreCards = [
         {
           title: "",
           id: "0170",
+            pullable: false,
           attribute: "STR",
           rank: "B",
           emoji: "<:1000049085:1500531403706859540>",
@@ -1103,6 +1129,7 @@ exports.moreCards = [
         {
           title: "",
           id: "0171",
+            pullable: false,
           attribute: "DEX",
           rank: "B",
           emoji: "<:1000049086:1500531632946286743>",
@@ -1117,6 +1144,7 @@ exports.moreCards = [
         {
           title: "",
           id: "0172",
+            pullable: false,
           attribute: "QCK",
           rank: "B",
           emoji: "<:1000049087:1500531868083294363>",
@@ -1131,6 +1159,7 @@ exports.moreCards = [
         {
           title: "",
           id: "0173",
+            pullable: false,
           attribute: "PSY",
           rank: "B",
           emoji: "<:1000049088:1500532105757855845>",
@@ -1145,6 +1174,7 @@ exports.moreCards = [
         {
           title: "",
           id: "0174",
+            pullable: false,
           attribute: "INT",
           rank: "B",
           emoji: "<:1000049089:1500532424927350985>",
@@ -1159,6 +1189,7 @@ exports.moreCards = [
         {
           title: "",
           id: "0175",
+            pullable: false,
           attribute: "STR",
           rank: "C",
           emoji: "<:1000049090:1500532832655638528>",
@@ -1167,6 +1198,7 @@ exports.moreCards = [
         {
           title: "",
           id: "0176",
+            pullable: false,
           attribute: "DEX",
           rank: "C",
           emoji: "<:1000049091:1500533166447005837>",
@@ -1175,6 +1207,7 @@ exports.moreCards = [
         {
           title: "",
           id: "0177",
+            pullable: false,
           attribute: "QCK",
           rank: "C",
           emoji: "<:1000049092:1500533607566016512>",
@@ -1183,13 +1216,13 @@ exports.moreCards = [
         {
           title: "",
           id: "0178",
+            pullable: false,
           attribute: "PSY",
           rank: "C",
           emoji: "<:1000049093:1500533815813214259>",
           image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/100/0178.png"
         }
         ]
-        */
       },
       {
         character: "Morgan",
@@ -1496,7 +1529,6 @@ exports.moreCards = [
         }
         ]
       },
-        /*
       {
 
         character: "Knuckle Apprentice",
@@ -1505,6 +1537,7 @@ exports.moreCards = [
         {
           title: "",
           id: "0179",
+            pullable: false,
           attribute: "STR",
           rank: "D",
           emoji: "<:1000048994:1500242105845678280>",
@@ -1519,6 +1552,7 @@ exports.moreCards = [
         {
           title: "",
           id: "0180",
+            pullable: false,
           attribute: "DEX",
           rank: "D",
           emoji: "<:1000048995:1500242658860339342>",
@@ -1533,6 +1567,7 @@ exports.moreCards = [
         {
           title: "",
           id: "0182",
+            pullable: false,
           attribute: "PSY",
           rank: "D",
           emoji: "<:1000048996:1500243062482276392>",
@@ -1547,13 +1582,14 @@ exports.moreCards = [
         {
           title: "",
           id: "0183",
+            pullable: false,
           attribute: "INT",
           rank: "D",
           emoji: "<:1000048997:1500243622065602860>",
           image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/100/0183.png"
         }
         ]
-        */
+      },
       {
         character: "Smoker",
         alias: ["smoker"],
@@ -1643,7 +1679,6 @@ exports.moreCards = [
           }
         }
         ]
-        /*
       },
       {
         character: "Navy Halberd Apprentice",
@@ -1652,6 +1687,7 @@ exports.moreCards = [
         {
           title: "",
           id: "0181",
+            pullable: false,
           attribute: "QCK",
           rank: "D",
           emoji: "<:1000049094:1500534111478087731>",
@@ -1666,6 +1702,7 @@ exports.moreCards = [
         {
           title: "",
           id: "0184",
+            pullable: false,
           attribute: "STR",
           rank: "C",
           emoji: "<:1000049095:1500534576135536791>",
@@ -1680,6 +1717,7 @@ exports.moreCards = [
         {
           title: "",
           id: "0185",
+            pullable: false,
           attribute: "DEX",
           rank: "C",
           emoji: "<:1000049096:1500534942864638152>",
@@ -1694,6 +1732,7 @@ exports.moreCards = [
         {
           title: "",
           id: "0186",
+            pullable: false,
           attribute: "QCK",
           rank: "C",
           emoji: "<:1000049097:1500535185182032032>",
@@ -1708,6 +1747,7 @@ exports.moreCards = [
         {
           title: "",
           id: "0187",
+            pullable: false,
           attribute: "PSY",
           rank: "C",
           emoji: "<:1000049098:1500535697801609418>",
@@ -1722,13 +1762,13 @@ exports.moreCards = [
         {
           title: "",
           id: "0188",
+            pullable: false,
           attribute: "INT",
           rank: "C",
           emoji: "<:1000049099:1500535903741939712>",
           image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/100/0188.png"
         }
         ]
-        */
       },
       {
         character: "Helmeppo",

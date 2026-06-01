@@ -190,7 +190,7 @@ function flattenCards(groupedData) {
           group: card.group,
           rank: baseRank,
           mastery: 1,
-          pullable: true,
+          pullable: card.pullable !== undefined ? card.pullable : true,
           image_url: card.image_url
         };
 
