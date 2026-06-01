@@ -193,6 +193,12 @@ module.exports = {
     let levelsGained = 0;
     const feedNotes = [];
 
+    // Use absolute XP accounting: level * 100 + xp
+    let curLevel = Number(ownedEntry.level || 1);
+    let curXp = Number(ownedEntry.xp || 0);
+    let absoluteXp = curLevel * 100 + curXp;
+    const maxLevel = getMaxLevelForRank(targetCard.rank);
+
     for (const action of feedActions) {
       const xpPer = getLevelerXp(action.leveler, targetCard);
       if (xpPer <= 0) {
@@ -200,25 +206,39 @@ module.exports = {
         if (message) return message.channel.send(reply);
         return interaction.reply({ content: reply, ephemeral: true });
       }
-      const xpGain = xpPer * action.quantity;
-      totalXp += xpGain;
-      const currentXp = Number(ownedEntry.xp || 0);
-      const currentLevel = Number(ownedEntry.level || 1);
-      const totalXpNow = currentXp + xpGain;
-      const gainedLevels = Math.floor(totalXpNow / 100) - Math.floor(currentXp / 100);
-      const maxLevel = getMaxLevelForRank(targetCard.rank);
-      const newLevel = Math.min(maxLevel, currentLevel + gainedLevels);
-      levelsGained += newLevel - currentLevel;
-      ownedEntry.level = newLevel;
-      ownedEntry.xp = newLevel >= maxLevel ? 0 : totalXpNow % 100;
+      // If already at or above max, stop consuming further levelers
+      if (Math.floor(absoluteXp / 100) >= maxLevel) break;
 
+      const xpNeeded = (maxLevel * 100) - absoluteXp;
+      if (xpNeeded <= 0) break;
+      const requiredQty = Math.ceil(xpNeeded / xpPer);
+      const usedQty = Math.min(action.quantity, requiredQty);
+      const xpGain = xpPer * usedQty;
+
+      absoluteXp += xpGain;
+      totalXp += xpGain;
+
+      const prevLevel = curLevel;
+      curLevel = Math.min(maxLevel, Math.floor(absoluteXp / 100));
+      curXp = curLevel >= maxLevel ? 0 : absoluteXp % 100;
+      levelsGained += curLevel - prevLevel;
+
+      // Deduct only the used quantity from user items
       const item = user.items.find(i => i.itemId === action.leveler.id);
-      item.quantity -= action.quantity;
-      if (item.quantity <= 0) {
-        user.items = user.items.filter(i => i.itemId !== action.leveler.id);
+      if (item) {
+        item.quantity -= usedQty;
+        if (item.quantity <= 0) user.items = user.items.filter(i => i.itemId !== action.leveler.id);
       }
-      feedNotes.push(`${action.leveler.emoji || ''} **${action.leveler.name}** x${action.quantity} (+${xpGain} XP)`);
+
+      feedNotes.push(`${action.leveler.emoji || ''} **${action.leveler.name}** x${usedQty} (+${xpGain} XP)`);
+
+      // If we hit max level, stop processing further levelers
+      if (curLevel >= maxLevel) break;
     }
+
+    // Update the ownedEntry with new level/xp
+    ownedEntry.level = curLevel;
+    ownedEntry.xp = curLevel >= maxLevel ? 0 : curXp;
 
     await user.save();
 

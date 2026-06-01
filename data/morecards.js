@@ -925,6 +925,7 @@ exports.moreCards = [
           image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/100/0156.png"
         }
         ]
+        /*
       },
       {
         character: "Shooter Group Crew",
@@ -1185,6 +1186,7 @@ exports.moreCards = [
           image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/100/0178.png"
         }
         ]
+        */
       },
       {
         character: "Morgan",
@@ -1426,7 +1428,7 @@ exports.moreCards = [
           image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/4/200/4250.png",
           special_attack: {
             name: "Honesty Impact",
-            gif: null
+          gif: null
           },
           effect: "attackup",
           effectDuration: -1,
@@ -1491,7 +1493,9 @@ exports.moreCards = [
         }
         ]
       },
+        /*
       {
+
         character: "Knuckle Apprentice",
         alias: ["knuckle apprentice", "navy apprentice"],
         cards: [
@@ -1546,7 +1550,7 @@ exports.moreCards = [
           image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/100/0183.png"
         }
         ]
-      },
+        */
       {
         character: "Smoker",
         alias: ["smoker"],
@@ -1636,6 +1640,7 @@ exports.moreCards = [
           }
         }
         ]
+        /*
       },
       {
         character: "Navy Halberd Apprentice",
@@ -1720,6 +1725,7 @@ exports.moreCards = [
           image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/100/0188.png"
         }
         ]
+        */
       },
       {
         character: "Helmeppo",

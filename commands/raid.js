@@ -181,6 +181,7 @@ function buildBossFromDef(def) {
     name: def.character || 'Boss', title: def.title || '',
     emoji: def.emoji || '', image: def.image_url || def.image || null,
     cardId: def.id, rank: def.rank || 'D', attribute: def.attribute || 'STR',
+    baseHP: hp,
     maxHP: Math.floor(hp * 6), currentHP: Math.floor(hp * 6),
     attack_min: Math.floor(bMin * 2),
     attack_max: Math.max(Math.floor(bMin * 2), Math.floor(bMax * 2)),
@@ -429,6 +430,15 @@ async function startRaidBattle(state) {
   } catch (_) {}
 
   rebuildRoundQueue(state);
+  // Scale boss HP based on number of joined players: HP multiplier = players_count * 2
+  try {
+    const playersCount = Math.max(1, (state.players || []).length);
+    if (state.boss && typeof state.boss.baseHP === 'number') {
+      const newMax = Math.floor(state.boss.baseHP * playersCount * 2);
+      state.boss.maxHP = newMax;
+      state.boss.currentHP = newMax;
+    }
+  } catch (e) { console.error('[raid] scaling boss HP failed:', e); }
   state.lastAction      = 'The raid has begun! Players attack in order of speed.';
   state.battleMessageId = null;
   // Start the 60 s whole-raid inactivity watchdog
@@ -736,6 +746,16 @@ async function addCardToRaid(state, userId, username, cardQuery, user) {
 
   const card = buildPlayerCard(def, entry, user.ownedCards);
   state.players.push({ userId, username, entry, card });
+  // Recalculate boss HP scaling whenever a card is added to the lobby.
+  try {
+    if (state.boss && typeof state.boss.baseHP === 'number') {
+      const playersCount = Math.max(1, (state.players || []).length);
+      const newMax = Math.floor(state.boss.baseHP * playersCount * 2);
+      state.boss.maxHP = newMax;
+      state.boss.currentHP = newMax;
+    }
+  } catch (e) { console.error('[raid] failed to scale boss HP on join:', e); }
+
   await editLobbyMessage(state);
   return { ok: true, def };
 }
@@ -785,6 +805,7 @@ async function createRaidFromSpawn(ownerId, ownerUsername, channel, def, crew) {
     inactTimeoutId: null,
     soloMode: ownerSolo,
     bossSpecialCounter: 0,
+    ownerPaidGodToken: false,
   };
 
   raidStates.set(channelId, state);
@@ -873,6 +894,7 @@ async function execBoss(ctx, bossQuery) {
     turnTimeoutId: null, inactTimeoutId: null,
     soloMode: ownerSolo,
     bossSpecialCounter: 0,
+    ownerPaidGodToken: true,
   };
 
   raidStates.set(channelId, state);
@@ -898,15 +920,13 @@ async function execBoss(ctx, bossQuery) {
         const ce = new EmbedBuilder()
           .setColor('#FFFFFF')
           .setTitle('**Raid Cancelled**')
-          .setDescription(
-            `Not enough players joined the raid against **${s.boss.name}** ` +
-            `(${s.players.length}/${minNeeded} needed).\n${EMOJI.godToken} God Token refunded to **${s.ownerUsername}**.`
-          );
+          .setDescription(`Not enough players joined the raid against **${s.boss.name}** (${s.players.length}/${minNeeded} needed).` +
+            (s.ownerPaidGodToken ? `\n${EMOJI.godToken} God Token refunded to **${s.ownerUsername}**.` : ''));
         if (emojiId) ce.setThumbnail(`https://cdn.discordapp.com/emojis/${emojiId}.png`);
         const msg = await channel.messages.fetch(s.messageId).catch(() => null);
         if (msg) await msg.edit({ embeds: [ce], components: [] });
       } catch (_) {}
-      await refundGodToken(s.ownerId);
+      if (s.ownerPaidGodToken) await refundGodToken(s.ownerId);
       raidStates.delete(channelId);
       return;
     }
@@ -932,6 +952,16 @@ async function execRemove(ctx) {
   const idx = state.players.findIndex(p => p.userId === ctx.userId);
   if (idx === -1) return reply(ctx, 'You are not in this raid.');
   const removed = state.players.splice(idx, 1)[0];
+  // Recalculate boss HP scaling when a card is removed from the lobby
+  try {
+    if (state.boss && typeof state.boss.baseHP === 'number') {
+      const playersCount = Math.max(1, (state.players || []).length);
+      const newMax = Math.floor(state.boss.baseHP * playersCount * 2);
+      state.boss.maxHP = newMax;
+      state.boss.currentHP = newMax;
+    }
+  } catch (e) { console.error('[raid] failed to scale boss HP on remove:', e); }
+
   await editLobbyMessage(state);
   return reply(ctx, `Removed **${removed.card?.displayDef?.character || 'your card'}** from the raid.`);
 }
@@ -962,13 +992,13 @@ async function execCancel(ctx) {
       const ce = buildLobbyEmbed(state);
       ce.setTitle(`${state.boss.name} | Raid Cancelled`);
       ce.setColor('#888888');
-      ce.setFooter({ text: 'Raid cancelled by the host. God Token refunded.' });
+      ce.setFooter({ text: state.ownerPaidGodToken ? 'Raid cancelled by the host. God Token refunded.' : 'Raid cancelled by the host.' });
       await msg.edit({ embeds: [ce], components: [] });
     }
   } catch (_) {}
-  await refundGodToken(state.ownerId);
+  if (state.ownerPaidGodToken) await refundGodToken(state.ownerId);
   raidStates.delete(ctx.channelId);
-  return reply(ctx, `${EMOJI.godToken} Raid cancelled. Your God Token has been refunded.`);
+  return reply(ctx, state.ownerPaidGodToken ? `${EMOJI.godToken} Raid cancelled. Your God Token has been refunded.` : 'Raid cancelled.');
 }
 
 // ─── Main execute ─────────────────────────────────────────────────────────────

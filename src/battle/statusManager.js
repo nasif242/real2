@@ -284,7 +284,7 @@ function applyCardEffect(attacker, target, context = {}) {
       break;
     }
     case 'bleed': {
-      const amount = def.effectAmount ?? 2;
+      const amount = def.effectAmount ?? 3;
       addEffectToTarget(applyTo, 'bleed', dur, { amount });
       // Intentionally do not emit a separate "is bleeding" log here to avoid
       // duplicating the inline effect description shown with the attack.
@@ -424,7 +424,7 @@ function applyBleedOnEnergyUse(entity, energySpent) {
   if (!entity || !entity.status || energySpent <= 0) return logs;
   const bleed = entity.status.find(s => s.type === 'bleed');
   if (!bleed) return logs;
-  const amount = bleed.amount ?? 2;
+  const amount = bleed.amount ?? 3;
   const total = amount * energySpent;
   entity.currentHP = Math.max(0, (entity.currentHP || 0) - total);
   logs.push(`${entity.def?.character || entity.rank || 'Entity'} takes -${total} HP from bleed!`);

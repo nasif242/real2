@@ -132,6 +132,7 @@ module.exports = {
 
     // Build card acronym index once per trade invocation
     const { cards: allCards } = require('../data/cards');
+    const crews = require('../data/crews');
     function getAcronym(name) {
       return String(name).toLowerCase().split(/\s+/).map(w => w[0] || '').join('');
     }
@@ -174,6 +175,21 @@ module.exports = {
       // card by acronym (e.g. "prp" → purple robber penguin)
       const acronymCard = findCardByAcronym(baseRaw);
       if (acronymCard) return { kind: 'card', id: acronymCard.id, def: acronymCard, qty };
+
+      // crew pack? accept compact names (spadepirates), with/without 'pack', or acronyms (SPP)
+      if (typeof baseRaw === 'string') {
+        const q = baseRaw.toLowerCase().replace(/[^a-z0-9]/g, '');
+        for (const crew of crews) {
+          const normalized = String(crew.name).toLowerCase().replace(/[^a-z0-9]/g, '');
+          if (normalized === q || (normalized + 'pack') === q || q.includes(normalized)) {
+            return { kind: 'pack', crewName: crew.name, qty };
+          }
+          // acronym match: first letters of words, also try with 'p' for pack (e.g. Spade Pirates Pack -> spp)
+          const words = String(crew.name).toLowerCase().split(/\s+/).filter(Boolean);
+          const acr = words.map(w => w[0] || '').join('');
+          if (acr === q || (acr + 'p') === q) return { kind: 'pack', crewName: crew.name, qty };
+        }
+      }
 
       return null;
     }
@@ -230,15 +246,21 @@ module.exports = {
       }
 
       // If both sides have only one item, keep legacy single-item flow
-      if (parsedOffered.length === 1 && parsedRequested.length === 1) {
-        offered = parsedOffered[0];
-        requested = parsedRequested[0];
-        // targetId already computed
-      } else {
-        offeredList = parsedOffered;
-        requestedList = parsedRequested;
-        // create a multi-item session below
-      }
+        if (parsedOffered.length === 1 && parsedRequested.length === 1) {
+          offered = parsedOffered[0];
+          requested = parsedRequested[0];
+          // If either side is a pack, convert to multi-session so pack logic is handled
+          if ((offered && offered.kind === 'pack') || (requested && requested.kind === 'pack')) {
+            offeredList = [offered];
+            requestedList = [requested];
+            offered = null; requested = null;
+          }
+          // targetId already computed
+        } else {
+          offeredList = parsedOffered;
+          requestedList = parsedRequested;
+          // create a multi-item session below
+        }
     } else {
       // Interaction (slash) path: keep original single-item option parsing
       const rawOffer = interaction.options.getString('offer');
@@ -250,6 +272,12 @@ module.exports = {
       if (!offered || !requested || !targetId) {
         const reply = 'Usage: /trade <offer> <want> <target>'; 
         return interaction.reply({ content: reply, ephemeral: true });
+      }
+      // If either side is a pack in slash mode, convert to multi session handling
+      if ((offered && offered.kind === 'pack') || (requested && requested.kind === 'pack')) {
+        offeredList = [offered];
+        requestedList = [requested];
+        offered = null; requested = null;
       }
     }
 
@@ -334,6 +362,15 @@ module.exports = {
           if (message) return message.reply(r);
           return interaction.reply({ content: r, ephemeral: true });
         }
+        if (it.kind === 'pack') {
+          const need = Math.max(1, it.qty || 1);
+          const have = (initiator.packInventory && initiator.packInventory[it.crewName]) || 0;
+          if (have < need) {
+            const r = `You do not have ${need}x ${it.crewName} packs.`;
+            if (message) return message.reply(r);
+            return interaction.reply({ content: r, ephemeral: true });
+          }
+        }
       }
 
       for (const it of requestedListLocal) {
@@ -369,6 +406,15 @@ module.exports = {
           const r = 'Trading by leveler class is not supported in multi-item trades. Use single-item trades.';
           if (message) return message.reply(r);
           return interaction.reply({ content: r, ephemeral: true });
+        }
+        if (it.kind === 'pack') {
+          const need = Math.max(1, it.qty || 1);
+          const have = (target.packInventory && target.packInventory[it.crewName]) || 0;
+          if (have < need) {
+            const r = `Target does not have ${need}x ${it.crewName} packs.`;
+            if (message) return message.reply(r);
+            return interaction.reply({ content: r, ephemeral: true });
+          }
         }
       }
 
@@ -652,6 +698,10 @@ module.exports = {
         if (def.ship) return `${def.character || item.id} (ship) (${def.rank || ''})`;
         return `${def.emoji || ''} ${def.character || item.id} (${def.rank || ''})`;
       }
+      if (item.kind === 'pack') {
+        const qtyLabel = item.qty && item.qty > 1 ? ` x${item.qty}` : '';
+        return `${item.crewName} Pack${qtyLabel}`;
+      }
       return String(item.id || item.amount || item);
     }
 
@@ -909,6 +959,25 @@ module.exports = {
             if (!applyIncomingEntryAsXp(initiator, entry)) initiator.ownedCards.push(entry);
           }
 
+          // Transfer packs: initiator -> target
+          for (const it of offeredListLocal) {
+            if (it.kind !== 'pack') continue;
+            const qty = Math.max(1, it.qty || 1);
+            initiator.packInventory = initiator.packInventory || {};
+            target.packInventory = target.packInventory || {};
+            initiator.packInventory[it.crewName] = Math.max(0, (initiator.packInventory[it.crewName] || 0) - qty);
+            target.packInventory[it.crewName] = (target.packInventory[it.crewName] || 0) + qty;
+          }
+          // Transfer packs: target -> initiator
+          for (const it of requestedListLocal) {
+            if (it.kind !== 'pack') continue;
+            const qty = Math.max(1, it.qty || 1);
+            initiator.packInventory = initiator.packInventory || {};
+            target.packInventory = target.packInventory || {};
+            target.packInventory[it.crewName] = Math.max(0, (target.packInventory[it.crewName] || 0) - qty);
+            initiator.packInventory[it.crewName] = (initiator.packInventory[it.crewName] || 0) + qty;
+          }
+
           // Transfer levelers/items offered -> requested
           for (const it of offeredListLocal) {
             if (it.kind !== 'leveler') continue;
@@ -934,6 +1003,7 @@ module.exports = {
           target.balance = (target.balance || 0) - requestedBeli + offeredBeli;
 
           initiator.markModified('items'); target.markModified('items');
+          initiator.markModified('packInventory'); target.markModified('packInventory');
           await initiator.save();
           await target.save();
 
@@ -942,6 +1012,7 @@ module.exports = {
             if (i.kind === 'beli') return `¥${(i.amount || 0).toLocaleString()}`;
             if (i.kind === 'card') return `${i.def?.emoji || ''} ${i.def?.character || i.id}`;
             if (i.kind === 'leveler') return `${i.qty && i.qty > 1 ? i.qty + 'x ' : ''}${i.def?.name || i.id}`;
+            if (i.kind === 'pack') return `${i.crewName} Pack${i.qty && i.qty > 1 ? ' x' + i.qty : ''}`;
             return String(i.id || i.amount || i);
           }).join(', ');
 

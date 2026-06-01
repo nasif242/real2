@@ -31,7 +31,7 @@ effects.bleed = {
   type: 'bleed',
   emoji: '<:1000048306:1497961727336386641>',
   applyEffect({ target, def, dur, origDur, addEffectToTarget }) {
-    const amount = def.effectAmount ?? 2;
+    const amount = def.effectAmount ?? 3;
     addEffectToTarget(target, 'bleed', dur, { amount });
     // Intentionally no start-of-turn damage/log — bleed is applied on energy use
     return [];

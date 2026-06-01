@@ -1291,7 +1291,7 @@ function getEffectDescription(effectType, duration, isSelf = false, effectAmount
   const targetWord = isSelf ? 'target' : `opponent${isMultiTarget ? 's' : ''}`;
   const amount = (effectAmount !== null && effectAmount !== undefined)
     ? normalizeEffectValue(effectAmount, effectType === 'regen' ? 10 : 12)
-    : null;
+    : (['attackup', 'attackdown', 'defenseup', 'defensedown'].includes(effectType) ? 12 : (effectType === 'regen' ? 10 : null));
   const chance = (effectChance !== null && effectChance !== undefined)
     ? normalizeEffectValue(effectChance ?? effectAmount, 50)
     : null;
