@@ -4,6 +4,7 @@ exports.moreCards = [
     faculty: null,
     characters: [
       {
+        /*
         character: "Pistol Bandit",
         alias: ["pistol bandit"],
         cards: [
@@ -24,6 +25,7 @@ exports.moreCards = [
           image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/100/0119.png"
         }
         ]
+        */
       },
       {
         character: "Higuma",
@@ -84,6 +86,7 @@ exports.moreCards = [
         }
         ]
       },
+      /*
       {
         character: "Shooter Group Cabin Boy",
         alias: ["shooter cabin boy red", "shooter cabin boy", "shooter cabin boy blue", "shooter cabin boy green", "shooter cabin boy yellow", "shooter cabin boy purple"],
@@ -226,7 +229,7 @@ exports.moreCards = [
           image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/000/0035.png"
         }
         ]
-      },
+        */
       {
         character: "Cabaji",
         alias: ["cabaji"],
