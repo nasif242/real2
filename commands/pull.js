@@ -211,7 +211,13 @@ module.exports = {
     const pityProgress = message ? `Pity: ${user.pityCount}/${PITY_TARGET}` : '';
 
     // select card from pool matching category and rank with category-safe fallbacks
-    const pullable = cards.filter(c => c.pullable);
+    // Cards with these keywords in their name are never pullable from the pool
+    const UNPULLABLE_NAME_KEYWORDS = ['slasher', 'striker', 'group'];
+    const pullable = cards.filter(c => {
+      if (!c.pullable) return false;
+      const name = (c.character || '').toLowerCase();
+      return !UNPULLABLE_NAME_KEYWORDS.some(kw => name.includes(kw));
+    });
     let pool = [];
     if (category === 'cards') {
       // prefer non-ship, non-artifact cards of the given rank

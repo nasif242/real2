@@ -773,6 +773,7 @@ exports.moreCards = [
         {
           title: "",
           id: "0126",
+          pullable: false,
           attribute: "STR",
           rank: "D",
           emoji: "<:1000049048:1500520794412023849>",
@@ -781,6 +782,7 @@ exports.moreCards = [
         {
           title: "",
           id: "0127",
+          pullable: false,
           attribute: "QCK",
           rank: "D",
           emoji: "<:1000049049:1500521229671596062>",
@@ -789,6 +791,7 @@ exports.moreCards = [
         {
           title: "",
           id: "0128",
+          pullable: false,
           attribute: "DEX",
           rank: "D",
           emoji: "<:1000049050:1500521463722152097>",
@@ -805,6 +808,7 @@ exports.moreCards = [
         {
           title: "",
           id: "0130",
+          pullable: false,
           attribute: "INT",
           rank: "D",
           emoji: "<:1000049052:1500521903578681497>",

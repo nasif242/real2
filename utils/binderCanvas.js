@@ -1,12 +1,10 @@
 const { createCanvas, loadImage } = require('@napi-rs/canvas');
 const { isBaseCard, detectFaceCenter, drawBaseFaceCard } = require('./baseFaceRenderer');
 
-const COLS = 5;
-const ROWS = 3;
+const DEFAULT_COLS = 5;
+const DEFAULT_ROWS = 3;
 const CELL_W = 156;
 const CELL_H = 180;
-const CANVAS_W = COLS * CELL_W;
-const CANVAS_H = ROWS * CELL_H;
 
 const RANK_COLORS = {
   D: '#B87333',
@@ -55,7 +53,10 @@ function resolveImageUrl(slot) {
   return getEmojiUrl(cardDef.emoji) || cardDef.image_url || null;
 }
 
-async function generateBinderCanvas(slots) {
+async function generateBinderCanvas(slots, cols = DEFAULT_COLS, rows = DEFAULT_ROWS) {
+  const CANVAS_W = cols * CELL_W;
+  const CANVAS_H = rows * CELL_H;
+
   const urls = slots.map(resolveImageUrl);
   // Run image loading and BASE-card face detection in parallel
   const [imageResults, faceRegions] = await Promise.all([
@@ -185,13 +186,13 @@ async function generateBinderCanvas(slots) {
   // Grid separator lines
   ctx.strokeStyle = '#2d333b';
   ctx.lineWidth = 2;
-  for (let c = 1; c < COLS; c++) {
+  for (let c = 1; c < cols; c++) {
     ctx.beginPath();
     ctx.moveTo(c * CELL_W, 0);
     ctx.lineTo(c * CELL_W, CANVAS_H);
     ctx.stroke();
   }
-  for (let r = 1; r < ROWS; r++) {
+  for (let r = 1; r < rows; r++) {
     ctx.beginPath();
     ctx.moveTo(0, r * CELL_H);
     ctx.lineTo(CANVAS_W, r * CELL_H);
@@ -201,4 +202,9 @@ async function generateBinderCanvas(slots) {
   return canvas.toBuffer('image/png');
 }
 
-module.exports = { generateBinderCanvas, PER_PAGE: COLS * ROWS };
+module.exports = {
+  generateBinderCanvas,
+  DEFAULT_COLS,
+  DEFAULT_ROWS,
+  PER_PAGE: DEFAULT_COLS * DEFAULT_ROWS
+};

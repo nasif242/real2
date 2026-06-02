@@ -230,8 +230,12 @@ async function generateTeamImage({ username, totalPower, cards, backgroundUrl })
     if (card) {
       const cardImage = cardImages[i];
       if (isBaseCard(card)) {
-        // BASE cards: square face-crop with golden border
+        // BASE cards: face-crop with BASE border overlay + same white ring as other cards
         await drawBaseFaceCard(ctx, cardImage, faceInfos[i], x, squareY, cardSize, cardSize, card.character || '?');
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 8;
+        roundRect(ctx, x - 6, squareY - 6, cardSize + 12, cardSize + 12, 42);
+        ctx.stroke();
       } else if (cardImage) {
         fitImageToSquare(ctx, cardImage, x, squareY, cardSize, 40);
         ctx.strokeStyle = '#ffffff';

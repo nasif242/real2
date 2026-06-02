@@ -11,7 +11,27 @@ const {
 } = require('discord.js');
 const User = require('../models/User');
 const { cards: allCards } = require('../data/cards');
-const { generateBinderCanvas, PER_PAGE } = require('../utils/binderCanvas');
+const { generateBinderCanvas, DEFAULT_COLS, DEFAULT_ROWS } = require('../utils/binderCanvas');
+
+// Available grid presets — label shown in the select menu, cols×rows per page
+const GRID_PRESETS = [
+  { label: '3 × 2  (6 cards)',    value: '3x2',  cols: 3, rows: 2 },
+  { label: '4 × 3  (12 cards)',   value: '4x3',  cols: 4, rows: 3 },
+  { label: '5 × 3  (15 cards)',   value: '5x3',  cols: 5, rows: 3 },
+  { label: '5 × 4  (20 cards)',   value: '5x4',  cols: 5, rows: 4 },
+  { label: '5 × 5  (25 cards)',   value: '5x5',  cols: 5, rows: 5 },
+  { label: '10 × 5  (50 cards)',  value: '10x5', cols: 10, rows: 5 },
+  { label: 'All cards (auto-fit, max 50)', value: 'auto', cols: null, rows: null },
+];
+
+// Pick the smallest preset that fits all `count` cards (up to 50)
+function bestAutoGrid(count) {
+  const n = Math.min(count, 50);
+  for (const p of GRID_PRESETS) {
+    if (p.cols !== null && p.cols * p.rows >= n) return { cols: p.cols, rows: p.rows };
+  }
+  return { cols: 10, rows: 5 };
+}
 
 const RANK_ORDER = { D: 1, C: 2, B: 3, A: 4, S: 5, SS: 6, UR: 7 };
 
@@ -107,11 +127,12 @@ function buildMainCards(user, direction) {
   return [...regular, ...special];
 }
 
+function perPage(session) {
+  return session.gridCols * session.gridRows;
+}
+
 function buildTitle(session) {
-  if (session.view === 'main') {
-    const dir = session.direction === 'oldest' ? '(Oldest First)' : '(Latest First)';
-    return `Main binder ${dir}`;
-  }
+  if (session.view === 'main') return 'Main binder';
   if (session.view === 'character') return `${session.filterName} binder`;
   if (session.view === 'faction') return `${session.filterName} binder`;
   return 'Binder';
@@ -119,22 +140,23 @@ function buildTitle(session) {
 
 function buildFooter(session) {
   const total = session.allCards.length;
-  const totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
+  const totalPages = Math.max(1, Math.ceil(total / perPage(session)));
   const pageStr = `Page ${session.page + 1} / ${totalPages}`;
+  const gridStr = `${session.gridCols}×${session.gridRows}`;
 
   if (session.view === 'main') {
     const ownedCount = (session.user.ownedCards || []).length;
-    return `${ownedCount} / ${TOTAL_CARDS} cards owned • ${pageStr}`;
+    return `${ownedCount} / ${TOTAL_CARDS} cards owned • ${pageStr} • grid ${gridStr}`;
   }
 
   const ownedInFilter = session.allCards.filter(c => c.owned).length;
-  return `${ownedInFilter} / ${total} owned • ${pageStr}`;
+  return `${ownedInFilter} / ${total} owned • ${pageStr} • grid ${gridStr}`;
 }
 
 function buildComponents(session) {
   const uid = session.userId;
   const total = session.allCards.length;
-  const totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
+  const totalPages = Math.max(1, Math.ceil(total / perPage(session)));
   const prevDisabled = session.page <= 0;
   const nextDisabled = session.page >= totalPages - 1;
 
@@ -152,11 +174,6 @@ function buildComponents(session) {
       .setStyle(nextDisabled ? ButtonStyle.Secondary : ButtonStyle.Primary)
       .setDisabled(nextDisabled),
     new ButtonBuilder()
-      .setCustomId(`binder_toggle:${uid}`)
-      .setLabel(session.direction === 'oldest' ? 'Show Latest' : 'Show Oldest')
-      .setStyle(ButtonStyle.Secondary)
-      .setDisabled(session.view !== 'main'),
-    new ButtonBuilder()
       .setCustomId(`binder_char:${uid}`)
       .setLabel('Search Character')
       .setEmoji('🔍')
@@ -171,17 +188,30 @@ function buildComponents(session) {
       ...FACTIONS.map(f => ({ label: f, value: f }))
     );
 
-  return [navRow, new ActionRowBuilder().addComponents(factionSelect)];
+  // Current grid value for placeholder
+  const currentPreset = GRID_PRESETS.find(p => p.cols === session.gridCols && p.rows === session.gridRows);
+  const gridPlaceholder = currentPreset ? `Grid: ${currentPreset.label}` : `Grid: ${session.gridCols}×${session.gridRows}`;
+  const gridSelect = new StringSelectMenuBuilder()
+    .setCustomId(`binder_grid:${uid}`)
+    .setPlaceholder(gridPlaceholder)
+    .addOptions(GRID_PRESETS.map(p => ({ label: p.label, value: p.value })));
+
+  return [
+    navRow,
+    new ActionRowBuilder().addComponents(factionSelect),
+    new ActionRowBuilder().addComponents(gridSelect),
+  ];
 }
 
 async function renderBinder(interaction, session, isNew = false) {
-  const start = session.page * PER_PAGE;
-  const pageSlots = session.allCards.slice(start, start + PER_PAGE);
-  const slots = Array.from({ length: PER_PAGE }, (_, i) => pageSlots[i] || null);
+  const pp = perPage(session);
+  const start = session.page * pp;
+  const pageSlots = session.allCards.slice(start, start + pp);
+  const slots = Array.from({ length: pp }, (_, i) => pageSlots[i] || null);
 
   let imgBuffer;
   try {
-    imgBuffer = await generateBinderCanvas(slots);
+    imgBuffer = await generateBinderCanvas(slots, session.gridCols, session.gridRows);
   } catch (err) {
     console.error('[binder] Canvas generation failed:', err);
     const msg = { content: 'Failed to generate binder image. Please try again.', ephemeral: true };
@@ -233,7 +263,10 @@ module.exports = {
       return interaction.reply({ content: reply, ephemeral: true });
     }
 
-    const session = { userId, view: 'main', filterName: 'Main', allCards: cards, page: 0, direction: 'latest', user };
+    const session = {
+      userId, view: 'main', filterName: 'Main', allCards: cards, page: 0,
+      gridCols: DEFAULT_COLS, gridRows: DEFAULT_ROWS, user
+    };
     setSession(userId, session);
 
     // Prefix args: "op binder boroque works" → faction, "op binder luf" → character search
@@ -265,9 +298,10 @@ module.exports = {
     }
 
     if (message) {
-      const slots = Array.from({ length: PER_PAGE }, (_, i) => session.allCards[i] || null);
+      const pp = perPage(session);
+      const slots = Array.from({ length: pp }, (_, i) => session.allCards[i] || null);
       let imgBuffer;
-      try { imgBuffer = await generateBinderCanvas(slots); } catch (e) { return message.reply('Failed to generate binder.'); }
+      try { imgBuffer = await generateBinderCanvas(slots, session.gridCols, session.gridRows); } catch (e) { return message.reply('Failed to generate binder.'); }
       const file = new AttachmentBuilder(imgBuffer, { name: 'binder.png' });
       const embed = new EmbedBuilder()
         .setColor('#FFFFFF')
@@ -303,21 +337,13 @@ module.exports = {
       return interaction.showModal(modal);
     }
 
-    if (action === 'binder_toggle') {
-      if (session.view !== 'main') return interaction.reply({ content: 'Toggle only works in the Main binder.', ephemeral: true });
-      session.direction = session.direction === 'latest' ? 'oldest' : 'latest';
-      session.allCards = buildMainCards(session.user, session.direction);
-      session.page = 0;
-      return renderBinder(interaction, session);
-    }
-
     if (action === 'binder_prev') {
       if (session.page > 0) session.page--;
       return renderBinder(interaction, session);
     }
 
     if (action === 'binder_next') {
-      const totalPages = Math.ceil(session.allCards.length / PER_PAGE);
+      const totalPages = Math.ceil(session.allCards.length / perPage(session));
       if (session.page < totalPages - 1) session.page++;
       return renderBinder(interaction, session);
     }
@@ -347,14 +373,32 @@ module.exports = {
   },
 
   async handleSelect(interaction) {
+    const customId = interaction.customId || '';
     const value = interaction.values?.[0];
     const session = getSession(interaction.user.id);
     if (!session) return interaction.reply({ content: 'Binder session expired. Run `/binder` again.', ephemeral: true });
 
+    // Grid size selector
+    if (customId.startsWith('binder_grid:')) {
+      const preset = GRID_PRESETS.find(p => p.value === value);
+      if (!preset) return interaction.reply({ content: 'Unknown grid size.', ephemeral: true });
+
+      if (preset.value === 'auto') {
+        const { cols, rows } = bestAutoGrid(session.allCards.length);
+        session.gridCols = cols;
+        session.gridRows = rows;
+      } else {
+        session.gridCols = preset.cols;
+        session.gridRows = preset.rows;
+      }
+      session.page = 0;
+      return renderBinder(interaction, session);
+    }
+
+    // Faction selector
     if (value === '__main__') {
       session.view = 'main';
       session.filterName = 'Main';
-      session.direction = 'latest';
       session.allCards = buildMainCards(session.user, 'latest');
       session.page = 0;
       return renderBinder(interaction, session);

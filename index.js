@@ -341,7 +341,7 @@ async function main() {
         if (action === 'inv_category') {
           return await require('./commands/inventory').handleSelect(interaction);
         }
-        if (action === 'binder_faction') {
+        if (action === 'binder_faction' || action === 'binder_grid') {
           return await binderCmd.handleSelect(interaction);
         }
       }
@@ -537,7 +537,7 @@ async function main() {
         }
 
         // handle binder navigation
-        if (action && (action === 'binder_prev' || action === 'binder_next' || action === 'binder_toggle' || action === 'binder_char')) {
+        if (action && (action === 'binder_prev' || action === 'binder_next' || action === 'binder_char')) {
           return await binderCmd.handleButton(interaction, interaction.customId);
         }
 
