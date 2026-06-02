@@ -14,14 +14,15 @@
  * distinguish BASE cards. Falls back to a golden stroke when unavailable.
  */
 
-const BASE_BORDER_URL = 'https://files.catbox.moe/q0924q.webp';
+const path = require('path');
+const BASE_BORDER_LOCAL = path.join(__dirname, '..', 'assets', 'base_border.webp');
 
 const faceRegionCache = new Map();
 let _borderImagePromise = null;
 
 /**
- * Lazily load the BASE card border image and cache it for the lifetime of the
- * process.  Uses @napi-rs/canvas (primary) or canvas (fallback).
+ * Lazily load the BASE card border image from the local assets folder and
+ * cache it for the lifetime of the process.
  * Returns the loaded Image, or null if loading fails.
  */
 async function loadBorderImage() {
@@ -34,7 +35,7 @@ async function loadBorderImage() {
       } catch (_e) {
         ({ loadImage } = require('canvas'));
       }
-      return await loadImage(BASE_BORDER_URL);
+      return await loadImage(BASE_BORDER_LOCAL);
     } catch (_e) {
       return null;
     }
@@ -210,12 +211,49 @@ async function drawBaseFaceCard(ctx, img, faceInfo, destX, destY, destW, destH, 
   if (borderImg) {
     ctx.drawImage(borderImg, destX, destY, destW, destH);
   } else {
-    // Fallback: golden stroke border drawn outside the clip
+    // Fallback: decorative multi-layer card frame that approximates the border image
     ctx.save();
-    ctx.strokeStyle = '#FFD700';
-    ctx.lineWidth = 4;
-    roundedRect(destX - 2, destY - 2, destW + 4, destH + 4, radius + 2);
+
+    // Outer dark shadow ring
+    ctx.strokeStyle = 'rgba(0,0,0,0.85)';
+    ctx.lineWidth = 7;
+    roundedRect(destX - 3, destY - 3, destW + 6, destH + 6, radius + 3);
     ctx.stroke();
+
+    // Main thick gold frame
+    const grad = ctx.createLinearGradient(destX, destY, destX + destW, destY + destH);
+    grad.addColorStop(0,    '#FFF0A0');
+    grad.addColorStop(0.25, '#D4A900');
+    grad.addColorStop(0.5,  '#FFD700');
+    grad.addColorStop(0.75, '#B8860B');
+    grad.addColorStop(1,    '#FFD700');
+    ctx.strokeStyle = grad;
+    ctx.lineWidth = 5;
+    roundedRect(destX - 1, destY - 1, destW + 2, destH + 2, radius + 1);
+    ctx.stroke();
+
+    // Inner thin gold highlight
+    ctx.strokeStyle = 'rgba(255, 255, 200, 0.6)';
+    ctx.lineWidth = 1.5;
+    roundedRect(destX + 2, destY + 2, destW - 4, destH - 4, Math.max(0, radius - 2));
+    ctx.stroke();
+
+    // Corner accent dots
+    const cornerOffset = 5;
+    const dotRadius = 3;
+    const corners = [
+      [destX + cornerOffset, destY + cornerOffset],
+      [destX + destW - cornerOffset, destY + cornerOffset],
+      [destX + cornerOffset, destY + destH - cornerOffset],
+      [destX + destW - cornerOffset, destY + destH - cornerOffset]
+    ];
+    ctx.fillStyle = '#FFD700';
+    for (const [cx, cy] of corners) {
+      ctx.beginPath();
+      ctx.arc(cx, cy, dotRadius, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
     ctx.restore();
   }
 }
