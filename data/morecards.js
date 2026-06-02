@@ -3268,7 +3268,15 @@ exports.moreCards = [
           attribute: "QCK/QCK",
           rank: "SS",
           emoji: "<:4436:1511142634867716187>",
-          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/4/400/4436.png"
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/4/400/4436.png",
+          special_attack: {
+            name: "Hakoku Sovereignty of Destruction"
+          },
+          effect: "attackup",
+          itself: true,
+          effectAmount: 20,
+          count: 2,
+          scount: 2
         }
         ]
       },
@@ -3299,7 +3307,6 @@ exports.moreCards = [
           itself: true,
           effectAmount: 20,
           count: 2,
-          scount: 2
         },
         {
           id: "0291",
