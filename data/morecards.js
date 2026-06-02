@@ -3274,7 +3274,7 @@ exports.moreCards = [
     ]
   },
   {
-    faculty: "Shimotsuki Family",
+    faculty: null,
     characters: [
       {
         character: "Shimotsuki Koushirou",

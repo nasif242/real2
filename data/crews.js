@@ -248,11 +248,4 @@ module.exports = [
     rank: 'B',
     color: '#ff371b'
   },
-  {
-    name: "Shimotsuki Family",
-    icon: null,
-    packImage: null,
-    rank: 'B',
-    color: '#7d7d7d'
-  },
 ];

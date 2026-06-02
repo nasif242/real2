@@ -434,7 +434,8 @@ async function startRaidBattle(state) {
   try {
     const playersCount = Math.max(1, (state.players || []).length);
     if (state.boss && typeof state.boss.baseHP === 'number') {
-      const newMax = Math.floor(state.boss.baseHP * playersCount * 2);
+      const multiplier = 2 + playersCount * 0.1;
+      const newMax = Math.floor(state.boss.baseHP * multiplier);
       state.boss.maxHP = newMax;
       state.boss.currentHP = newMax;
     }
@@ -1073,6 +1074,9 @@ module.exports = {
         return interaction.reply({ content: 'The raid has already started.', ephemeral: true });
       if (state.players.length === 0)
         return interaction.reply({ content: 'No players have joined yet!', ephemeral: true });
+      const minNeeded = state.soloMode ? 1 : MIN_PLAYERS;
+      if (state.players.length < minNeeded)
+        return interaction.reply({ content: `You need at least **${minNeeded} players** to start a raid. (${state.players.length}/${minNeeded} joined)`, ephemeral: true });
       if (state.startTimeoutId) { clearTimeout(state.startTimeoutId); state.startTimeoutId = null; }
       await interaction.deferUpdate();
       await startRaidBattle(state);

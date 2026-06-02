@@ -167,12 +167,11 @@ async function _spawnDrop(channelId) {
 
     // Choose rank using drop-specific distribution (DROP-only rates)
     const dropRates = [
-      ['D', 20],
-      ['C', 20],
-      ['B', 20],
-      ['A', 20],
-      ['S', 18],
-      ['SS', 1.9],
+      ['C', 25],
+      ['B', 25],
+      ['A', 25],
+      ['S', 22],
+      ['SS', 2.9],
       ['UR', 0.1]
     ];
     const totalRate = dropRates.reduce((s, [, w]) => s + w, 0);
