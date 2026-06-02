@@ -10,10 +10,37 @@
  *   - Results are cached by URL so the analysis only runs once per image.
  *
  * Display: square rounded-rect crop (same dimensions as other card slots)
- * with a golden border to distinguish BASE cards.
+ * with a border image overlay (https://files.catbox.moe/q0924q.webp) to
+ * distinguish BASE cards. Falls back to a golden stroke when unavailable.
  */
 
+const BASE_BORDER_URL = 'https://files.catbox.moe/q0924q.webp';
+
 const faceRegionCache = new Map();
+let _borderImagePromise = null;
+
+/**
+ * Lazily load the BASE card border image and cache it for the lifetime of the
+ * process.  Uses @napi-rs/canvas (primary) or canvas (fallback).
+ * Returns the loaded Image, or null if loading fails.
+ */
+async function loadBorderImage() {
+  if (_borderImagePromise) return _borderImagePromise;
+  _borderImagePromise = (async () => {
+    try {
+      let loadImage;
+      try {
+        ({ loadImage } = require('@napi-rs/canvas'));
+      } catch (_e) {
+        ({ loadImage } = require('canvas'));
+      }
+      return await loadImage(BASE_BORDER_URL);
+    } catch (_e) {
+      return null;
+    }
+  })();
+  return _borderImagePromise;
+}
 
 /**
  * Returns true when a card is a BASE-type card.
@@ -118,8 +145,11 @@ function computeCrop(faceInfo, imageWidth, imageHeight) {
 }
 
 /**
- * Draw a BASE card as a rounded-rect face crop with a golden border.
- * Matches the same layout area as other card types (no circle).
+ * Draw a BASE card as a rounded-rect face crop with the BASE border image
+ * overlaid on top.  Falls back to a golden stroke border if the image is
+ * unavailable.
+ *
+ * NOTE: This function is async because it may need to load the border image.
  *
  * @param {CanvasRenderingContext2D} ctx
  * @param {Image|null}  img        - pre-loaded canvas Image, or null
@@ -130,7 +160,7 @@ function computeCrop(faceInfo, imageWidth, imageHeight) {
  * @param {number} destH           - height of draw area
  * @param {string} [fallbackText]  - initials shown when image is unavailable
  */
-function drawBaseFaceCard(ctx, img, faceInfo, destX, destY, destW, destH, fallbackText = '?') {
+async function drawBaseFaceCard(ctx, img, faceInfo, destX, destY, destW, destH, fallbackText = '?') {
   const radius = 10;
 
   function roundedRect(x, y, w, h, r) {
@@ -175,13 +205,58 @@ function drawBaseFaceCard(ctx, img, faceInfo, destX, destY, destW, destH, fallba
 
   ctx.restore();
 
-  // Golden border drawn on top (outside clip so it's always fully visible)
-  ctx.save();
-  ctx.strokeStyle = '#FFD700';
-  ctx.lineWidth = 4;
-  roundedRect(destX - 2, destY - 2, destW + 4, destH + 4, radius + 2);
-  ctx.stroke();
-  ctx.restore();
+  // Draw the BASE border image on top (covers the whole card area)
+  const borderImg = await loadBorderImage();
+  if (borderImg) {
+    ctx.drawImage(borderImg, destX, destY, destW, destH);
+  } else {
+    // Fallback: golden stroke border drawn outside the clip
+    ctx.save();
+    ctx.strokeStyle = '#FFD700';
+    ctx.lineWidth = 4;
+    roundedRect(destX - 2, destY - 2, destW + 4, destH + 4, radius + 2);
+    ctx.stroke();
+    ctx.restore();
+  }
 }
 
-module.exports = { isBaseCard, detectFaceCenter, computeCrop, drawBaseFaceCard };
+/**
+ * Generate a canvas Buffer of a BASE card with the face crop and border image
+ * applied. Useful for generating standalone card thumbnails (e.g. card embed).
+ *
+ * @param {object} cardDef  - flat card definition from the cards array
+ * @param {number} [size]   - square canvas size in pixels (default 300)
+ * @returns {Promise<Buffer|null>}
+ */
+async function generateBaseCardImageBuffer(cardDef, size = 300) {
+  try {
+    let createCanvas, loadImage;
+    try {
+      ({ createCanvas, loadImage } = require('@napi-rs/canvas'));
+    } catch (_e) {
+      ({ createCanvas, loadImage } = require('canvas'));
+    }
+
+    const canvas = createCanvas(size, size);
+    const ctx = canvas.getContext('2d');
+
+    let img = null;
+    if (cardDef.image_url) {
+      try {
+        img = await Promise.race([
+          loadImage(cardDef.image_url),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 6000))
+        ]);
+      } catch (_e) {}
+    }
+
+    const faceInfo = img ? await detectFaceCenter(cardDef.image_url) : null;
+    await drawBaseFaceCard(ctx, img, faceInfo, 0, 0, size, size, cardDef.character || '?');
+
+    return canvas.toBuffer('image/png');
+  } catch (_e) {
+    return null;
+  }
+}
+
+module.exports = { isBaseCard, detectFaceCenter, computeCrop, drawBaseFaceCard, generateBaseCardImageBuffer };

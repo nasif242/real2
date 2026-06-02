@@ -231,7 +231,7 @@ async function generateTeamImage({ username, totalPower, cards, backgroundUrl })
       const cardImage = cardImages[i];
       if (isBaseCard(card)) {
         // BASE cards: square face-crop with golden border
-        drawBaseFaceCard(ctx, cardImage, faceInfos[i], x, squareY, cardSize, cardSize, card.character || '?');
+        await drawBaseFaceCard(ctx, cardImage, faceInfos[i], x, squareY, cardSize, cardSize, card.character || '?');
       } else if (cardImage) {
         fitImageToSquare(ctx, cardImage, x, squareY, cardSize, 40);
         ctx.strokeStyle = '#ffffff';

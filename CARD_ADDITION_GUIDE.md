@@ -7,6 +7,23 @@ This guide explains how to properly add new cards to the game. Follow these inst
 
 All cards should have an ID field given from the requester.
 
+### BASE card IDs — auto-assignment
+
+**BASE-attribute cards do NOT need an explicit `id` field.**  When `id` is omitted for a card with `attribute: 'BASE'`, the system automatically assigns the next available integer ID starting from the highest existing BASE id + 1 (BASE ids are always ≥ 6000).
+
+- ✅ Correct — omit the id for a BASE card:
+  ```javascript
+  { title: "Visitor on Kyuka Island", attribute: "BASE", rank: "D", image_url: "..." }
+  ```
+- ❌ Wrong — never invent an explicit BASE id yourself; let auto-assignment handle it:
+  ```javascript
+  { id: "6042", attribute: "BASE", rank: "D", image_url: "..." }
+  ```
+
+**Rule: if a card has `attribute: "BASE"` and no `id` is stated in the input, add it WITHOUT an `id` field.** Do not skip it, do not invent an id.
+
+If the requester explicitly gives a numeric id ≥ 6000, use it as normal. The auto-assignment only kicks in when no id is provided.
+
 ## File Structure
 
 Cards are defined in two main files:
@@ -351,7 +368,9 @@ Use `null` (never a placeholder string) for missing assets:
 
 ## Pre-submission Checklist
 
-- [ ] All required fields are filled (`id`, `rank`, `emoji`, `image_url`)
+- [ ] **No fully-stated card was skipped** — if all required fields are present in the input, the card MUST be added. Previous session missed cards like Bogard, Samurai Batts, Moodie, Batchee, Motzel because of incorrect skipping rules. This must never happen again.
+- [ ] All required fields are filled (`id`/BASE-auto, `rank`, `emoji` or `image_url`)
+- [ ] BASE cards without an explicit id in the input have **no `id` field** in the output (auto-assigned at load time)
 - [ ] Only fields stated in the input layout are added — nothing extra
 - [ ] **`gif` is NOT added** anywhere in cards.js
 - [ ] Use `null` for missing assets, never placeholder strings

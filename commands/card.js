@@ -2,6 +2,7 @@ const { EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, AttachmentBu
 const { searchCards } = require('../utils/cards');
 const User = require('../models/User');
 const { generateArtifactImage } = require('../utils/artifactImage');
+const { isBaseCard, generateBaseCardImageBuffer } = require('../utils/baseFaceRenderer');
 
 function makeComponents(cardDef, userEntry = null) {
   const abilities = require('../utils/abilities');
@@ -69,7 +70,7 @@ module.exports = {
     const embed = buildCardEmbed(cardDef, userEntry, avatarUrl, userDoc);
     const components = [makeComponents(cardDef, userEntry)];
 
-    // Attach generated artifact image when appropriate
+    // Attach generated card image when appropriate
     let files;
     if (cardDef && cardDef.artifact) {
       try {
@@ -77,6 +78,17 @@ module.exports = {
         files = [new AttachmentBuilder(buf, { name: `artifact-${cardDef.id}.png` })];
       } catch (e) {
         console.error('Failed to generate artifact image for card command', e);
+      }
+    } else if (cardDef && isBaseCard(cardDef)) {
+      try {
+        const buf = await generateBaseCardImageBuffer(cardDef, 300);
+        if (buf) {
+          const fname = `base-card-${cardDef.id}.png`;
+          files = [new AttachmentBuilder(buf, { name: fname })];
+          embed.setImage(`attachment://${fname}`);
+        }
+      } catch (e) {
+        console.error('Failed to generate BASE card image for card command', e);
       }
     }
 

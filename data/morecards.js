@@ -409,6 +409,14 @@ exports.moreCards = [
           rank: "C",
           emoji: "<:0049:1510728921027580074>",
           image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/000/0049.png"
+        },
+        {
+          title: "Double Ironfist",
+          id: "0230",
+          attribute: "STR",
+          rank: "B",
+          emoji: "<:0230:1510729139747819611>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/200/0230.png"
         }
         ]
       },
@@ -1456,6 +1464,14 @@ exports.moreCards = [
           rank: "B",
           emoji: "<:0585:1510735044300509358>",
           image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/500/0585.png"
+        },
+        {
+          title: "Nami's Sister",
+          id: "0586",
+          attribute: "PSY",
+          rank: "C",
+          emoji: "<:0586:1510735286194409517>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/500/0586.png"
         }
         ]
       },
@@ -1991,6 +2007,66 @@ exports.moreCards = [
           attribute: "BASE",
           rank: "D",
           image_url: "https://static.wikia.nocookie.net/onepiece/images/e/ea/Bokuden_Anime_Infobox.png/revision/latest?cb=20130327222135"
+        }
+        ]
+      },
+      {
+        character: "Samurai Batts",
+        alias: ["samurai batts"],
+        cards: [
+        {
+          title: "Visitor on Kyuka Island",
+          attribute: "BASE",
+          rank: "D",
+          image_url: "https://static.wikia.nocookie.net/onepiece/images/f/f8/Samurai_Batts_Anime_Infobox.png/revision/latest?cb=20171017184709"
+        }
+        ]
+      },
+      {
+        character: "Brontosaurus",
+        alias: ["brontosaurus"],
+        cards: [
+        {
+          title: "Dinosaur who Lived on Little Garden",
+          attribute: "BASE",
+          rank: "B",
+          image_url: "https://static.wikia.nocookie.net/onepiece/images/8/83/Young_Brontosaurus_in_the_Anime.png/revision/latest/scale-to-width-down/1000?cb=20201006093811"
+        }
+        ]
+      },
+      {
+        character: "Moodie",
+        alias: ["moodie"],
+        cards: [
+        {
+          title: "Fullbody's Date",
+          attribute: "BASE",
+          rank: "D",
+          image_url: "https://static.wikia.nocookie.net/onepiece/images/8/8c/Moodie_Anime_Infobox.png/revision/latest?cb=20240308005758"
+        }
+        ]
+      },
+      {
+        character: "Batchee",
+        alias: ["batchee"],
+        cards: [
+        {
+          title: "A fly that's somehow ranked 112th out of 1052 characters",
+          attribute: "BASE",
+          rank: "D",
+          image_url: "https://static.wikia.nocookie.net/onepiece/images/a/a6/Batchee_in_the_Anime.png/revision/latest?cb=20130128234639"
+        }
+        ]
+      },
+      {
+        character: "Motzel",
+        alias: ["motzel"],
+        cards: [
+        {
+          title: "Customer of Baratie",
+          attribute: "BASE",
+          rank: "D",
+          image_url: "https://static.wikia.nocookie.net/onepiece/images/8/8a/Motzel_Anime_Infobox.png/revision/latest?cb=20240308003535"
         }
         ]
       },
@@ -2732,6 +2808,26 @@ exports.moreCards = [
           effectAmount: 20,
           count: 2,
           scount: 2
+        }
+        ]
+      },
+      {
+        character: "Bogard",
+        alias: ["bogard"],
+        cards: [
+        {
+          title: "Marine Headquarters Marine Officer",
+          attribute: "BASE",
+          rank: "S",
+          image_url: "https://static.wikia.nocookie.net/onepiece/images/4/47/Bogard_Anime_Infobox.png/revision/latest?cb=20240127015647"
+        },
+        {
+          title: "Bogard Upscale",
+          attribute: "BASE",
+          rank: "SS-",
+          image_url: "https://i.pinimg.com/736x/a0/27/c0/a027c09a1ef3343860e34e90a3ed19e1.jpg",
+          effect: "attackup",
+          itself: true
         }
         ]
       }

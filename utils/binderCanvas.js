@@ -96,7 +96,7 @@ async function generateBinderCanvas(slots) {
       // BASE cards: square face-crop with golden border (same dimensions as regular cards)
       const PAD = 8;
       ctx.globalAlpha = owned ? 1.0 : 0.2;
-      drawBaseFaceCard(ctx, img, faceRegions[i], x + PAD, y + PAD, CELL_W - PAD * 2, CELL_H - PAD * 2, cardDef.character || '?');
+      await drawBaseFaceCard(ctx, img, faceRegions[i], x + PAD, y + PAD, CELL_W - PAD * 2, CELL_H - PAD * 2, cardDef.character || '?');
       ctx.globalAlpha = 1.0;
       if (!owned) {
         ctx.fillStyle = 'rgba(0,0,0,0.65)';

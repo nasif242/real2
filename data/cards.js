@@ -158,16 +158,36 @@ function flattenCards(groupedData) {
     3: '<:3_:1503002985578365118>'
   };
 
+  // Pre-scan: find the highest explicit BASE id (>= 6000) so we can
+  // auto-assign sequential ids for BASE-attribute cards that omit the id field.
+  let nextBaseId = 6000;
+  for (const fg of groupedData) {
+    for (const cg of (fg.characters || [])) {
+      for (const c of (cg.cards || [])) {
+        if (c.id) {
+          const n = parseInt(c.id, 10);
+          if (!isNaN(n) && n >= nextBaseId) nextBaseId = n + 1;
+        }
+      }
+    }
+  }
+
   for (const facultyGroup of groupedData) {
     const faculty = facultyGroup.faculty || null;
 
     for (const charGroup of (facultyGroup.characters || [])) {
       const { character, alias } = charGroup;
 
-      for (const card of (charGroup.cards || [])) {
+      for (let card of (charGroup.cards || [])) {
         if (!card.id) {
-          console.warn(`Card for ${character} has no explicit id, skipping`);
-          continue;
+          if (card.attribute === 'BASE') {
+            // Auto-assign the next available BASE id (>= 6000)
+            while (usedIds.has(String(nextBaseId))) nextBaseId++;
+            card = { ...card, id: String(nextBaseId++) };
+          } else {
+            console.warn(`Card for ${character} has no explicit id, skipping`);
+            continue;
+          }
         }
         if (usedIds.has(card.id)) {
           throw new Error(`Duplicate card id ${card.id} in card data`);
