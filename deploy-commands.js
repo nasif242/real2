@@ -177,6 +177,7 @@ commands.push({ name: 'stoprob', description: 'Stop an active robbery against yo
 commands.push({ name: 'forfeit', description: 'Forfeit your current duel or isail battle' });
 commands.push({ name: 'collection', description: 'View your card collection' });
 commands.push({ name: 'binder', description: 'View your card collection in a 3×3 visual binder grid' });
+commands.push({ name: 'wishlist', description: 'View your favorites and wishlist' });
 
 // casino gamble command
 commands.push({ name: 'gamble', description: "Visit Sir Crocodile's Casino for a chance to win Beli" });

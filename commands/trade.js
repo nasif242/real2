@@ -948,7 +948,14 @@ module.exports = {
             const idx = (initiator.ownedCards || []).findIndex(e => e.cardId === it.id);
             if (idx === -1) continue;
             const entry = initiator.ownedCards.splice(idx, 1)[0];
-            if (!applyIncomingEntryAsXp(target, entry)) target.ownedCards.push(entry);
+            if (!applyIncomingEntryAsXp(target, entry)) {
+              target.ownedCards.push(entry);
+              // Remove from target's wishlist now that they own it
+              if (Array.isArray(target.wishlistCards) && target.wishlistCards.includes(it.id)) {
+                target.wishlistCards = target.wishlistCards.filter(w => w !== it.id);
+                if (typeof target.markModified === 'function') target.markModified('wishlistCards');
+              }
+            }
           }
           // Transfer cards: target -> initiator
           for (const it of requestedListLocal) {
@@ -956,7 +963,14 @@ module.exports = {
             const idx = (target.ownedCards || []).findIndex(e => e.cardId === it.id);
             if (idx === -1) continue;
             const entry = target.ownedCards.splice(idx, 1)[0];
-            if (!applyIncomingEntryAsXp(initiator, entry)) initiator.ownedCards.push(entry);
+            if (!applyIncomingEntryAsXp(initiator, entry)) {
+              initiator.ownedCards.push(entry);
+              // Remove from initiator's wishlist now that they own it
+              if (Array.isArray(initiator.wishlistCards) && initiator.wishlistCards.includes(it.id)) {
+                initiator.wishlistCards = initiator.wishlistCards.filter(w => w !== it.id);
+                if (typeof initiator.markModified === 'function') initiator.markModified('wishlistCards');
+              }
+            }
           }
 
           // Transfer packs: initiator -> target
@@ -1091,9 +1105,17 @@ module.exports = {
           // When recipient already owns the incoming card, convert incoming card's level/xp into XP on existing entry
           if (!applyIncomingEntryAsXp(initiator, requestedEntry)) {
             initiator.ownedCards.push(requestedEntry);
+            if (Array.isArray(initiator.wishlistCards) && initiator.wishlistCards.includes(requestedEntry.cardId)) {
+              initiator.wishlistCards = initiator.wishlistCards.filter(w => w !== requestedEntry.cardId);
+              if (typeof initiator.markModified === 'function') initiator.markModified('wishlistCards');
+            }
           }
           if (!applyIncomingEntryAsXp(target, offeredEntry)) {
             target.ownedCards.push(offeredEntry);
+            if (Array.isArray(target.wishlistCards) && target.wishlistCards.includes(offeredEntry.cardId)) {
+              target.wishlistCards = target.wishlistCards.filter(w => w !== offeredEntry.cardId);
+              if (typeof target.markModified === 'function') target.markModified('wishlistCards');
+            }
           }
 
           await initiator.save();

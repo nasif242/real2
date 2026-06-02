@@ -42,6 +42,7 @@ const forfeitCmd = require('./commands/forfeit');
 const favoriteCmd = require('./commands/favorite');
 const unfavoriteCmd = require('./commands/unfavorite');
 const favoritesCmd = require('./commands/favorites');
+const wishlistCmd = require('./commands/wishlist');
 const voteCmd = require('./commands/vote');
 const { startVoteWebhook } = require('./src/voteWebhook');
 const binderCmd = require('./commands/binder');
@@ -394,6 +395,8 @@ async function main() {
         if (commandName === 'crew') return crewCmd.execute({ interaction });
         if (commandName === 'raid') return raidCmd.execute({ interaction });
         if (commandName === 'binder') return binderCmd.execute({ interaction });
+        if (commandName === 'favorites') return favoritesCmd.execute({ interaction });
+        if (commandName === 'wishlist') return wishlistCmd.execute({ interaction });
       }
 
       if (interaction.isButton()) {
@@ -740,6 +743,7 @@ async function main() {
       if (cmd === 'favorite') return await favoriteCmd.execute({ message, args });
       if (cmd === 'unfavorite') return await unfavoriteCmd.execute({ message, args });
       if (cmd === 'favorites') return await favoritesCmd.execute({ message });
+      if (cmd === 'wishlist') return await wishlistCmd.execute({ message });
       if (cmd === 'help' || cmd === 'h') return await require('./commands/help').execute({ message });
       if (cmd === 'crew') return await crewCmd.execute({ message, args });
       if (cmd === 'raid') return await raidCmd.execute({ message, args });

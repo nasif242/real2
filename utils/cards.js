@@ -88,20 +88,21 @@ function getRankFromDistributionWithFilter(rates, allowedRanks) {
   return getRankFromDistribution(filteredRates);
 }
 
-// Pick an item from a pool, giving a small relative bonus to wishlisted items.
-// `wishlist` is an array of cardIds that should receive a weight multiplier.
+// Pick an item from a pool.
+// If `wishlist` is provided and any wishlisted cards are in the pool,
+// there is a flat 10% chance the result is forced to come from those
+// wishlisted cards only.  Otherwise a uniform random pick is used.
 function pickFromPoolWithWishlist(pool, wishlist) {
   if (!pool || !pool.length) return null;
-  const wishSet = Array.isArray(wishlist) ? new Set(wishlist) : null;
-  // base weight 1; wishlisted items have a 1.10 multiplier (i.e., +10% relative chance)
-  const weights = pool.map(c => (wishSet && wishSet.has(c.id) ? 1.1 : 1));
-  const total = weights.reduce((s, w) => s + w, 0);
-  let r = Math.random() * total;
-  for (let i = 0; i < pool.length; i++) {
-    r -= weights[i];
-    if (r <= 0) return pool[i];
+  const wishSet = Array.isArray(wishlist) && wishlist.length ? new Set(wishlist) : null;
+  if (wishSet) {
+    const wishPool = pool.filter(c => wishSet.has(c.id));
+    if (wishPool.length && Math.random() < 0.10) {
+      // Forced wishlist pick (10% flat chance)
+      return wishPool[Math.floor(Math.random() * wishPool.length)];
+    }
   }
-  return pool[pool.length - 1];
+  return pool[Math.floor(Math.random() * pool.length)];
 }
 
 function normalizeName(name) {

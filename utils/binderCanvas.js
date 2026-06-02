@@ -73,9 +73,9 @@ async function generateBinderCanvas(slots, cols = DEFAULT_COLS, rows = DEFAULT_R
   ctx.fillStyle = '#0d1117';
   ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
 
-  for (let i = 0; i < ROWS * COLS; i++) {
-    const col = i % COLS;
-    const row = Math.floor(i / COLS);
+  for (let i = 0; i < rows * cols; i++) {
+    const col = i % cols;
+    const row = Math.floor(i / cols);
     const x = col * CELL_W;
     const y = row * CELL_H;
     const slot = slots[i];

@@ -52,6 +52,11 @@ async function execute({ message, interaction, args }) {
   }
 
   buyer.ownedCards.push(cardEntry);
+  // Remove the obtained card from buyer's wishlist if it was there
+  if (Array.isArray(buyer.wishlistCards) && buyer.wishlistCards.includes(listing.cardId)) {
+    buyer.wishlistCards = buyer.wishlistCards.filter(id => id !== listing.cardId);
+    if (typeof buyer.markModified === 'function') buyer.markModified('wishlistCards');
+  }
   buyer.balance = (buyer.balance || 0) - listing.price;
   seller.balance = (seller.balance || 0) + listing.price;
 
