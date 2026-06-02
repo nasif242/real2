@@ -58,8 +58,9 @@ exports.moreCards = [
             name: "Baptism of Evil",
             gif: null
           },
-          effect: "attackdown",
+          effect: "attackup",
           effectDuration: -1,
+          itself: true,
           effectAmount: 20
         }
         ]
@@ -508,6 +509,7 @@ exports.moreCards = [
           emoji: "<:1000049440:1502487627163635772>",
           image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/4/100/4178.png",
           effect: "defenseup",
+          itself: true,
           effectDuration: -1
         }
         ]
@@ -1509,6 +1511,7 @@ exports.moreCards = [
             name: "A Child's Motivating Smile"
           },
           effect: "attackup",
+          effectDuration: 3,
           itself: true
         }
         ]
@@ -2738,6 +2741,7 @@ exports.moreCards = [
             name: "Clenched Fists Againsts God Valley"
           },
           effect: "attackup",
+          effectDuration: -1,
           itself: true
         },
         {
@@ -2759,6 +2763,7 @@ exports.moreCards = [
             name: "Galaxy Impact"
           },
           effect: "attackup",
+          effectDuration: -1,
           itself: true
         },
         {
@@ -2788,6 +2793,7 @@ exports.moreCards = [
             name: "Galaxy Impact"
           },
           effect: "attackup",
+          effectDuration: -1,
           itself: true,
           effectAmount: 20
         }
@@ -2808,6 +2814,7 @@ exports.moreCards = [
             name: "Inherited Fists of Justice"
           },
           effect: "attackup",
+          effectDuration: -1,
           itself: true,
           effectAmount: 20,
           count: 2,
@@ -2831,6 +2838,7 @@ exports.moreCards = [
           rank: "SS-",
           image_url: "https://i.pinimg.com/736x/a0/27/c0/a027c09a1ef3343860e34e90a3ed19e1.jpg",
           effect: "attackup",
+          effectDuration: -1,
           itself: true
         }
         ]
@@ -3373,6 +3381,7 @@ exports.moreCards = [
             name: "Hakoku Sovereignty of Destruction"
           },
           effect: "attackup",
+          effectDuration: -1,
           itself: true,
           effectAmount: 20,
           count: 2,
@@ -3404,6 +3413,7 @@ exports.moreCards = [
             name: "Hakoku Sovereignty of Destruction"
           },
           effect: "attackup",
+          effectDuration: -1,
           itself: true,
           effectAmount: 20,
           count: 2,

@@ -1373,7 +1373,8 @@ const consolidatedCardData = [
             name: "Impact Dial",
             gif: "https://media1.tenor.com/m/-M-KbgWbDuUAAAAd/usopp-one-piece.gif"
           },
-          effect: "attackdown",
+          effect: "attackup",
+          itself: true,
           effectDuration: 3,
           effectAmount: 80
         },
@@ -4123,8 +4124,9 @@ const consolidatedCardData = [
           rank: "S",
           emoji: "<:1000051538:1506048543855607969>",
           image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/2/500/2555.png",
-          effect: "attackdown",
-          effectDuration: -1
+          effect: "attackup",
+          effectDuration: -1,
+          itself: true
         }
         ]
       },
@@ -4303,8 +4305,9 @@ const consolidatedCardData = [
             name: "Roars and Swords",
             gif: null
           },
-          effect: "attackdown",
+          effect: "attackup",
           effectDuration: -1,
+          itself: true,
           count: 2
         }
         ]
@@ -4544,6 +4547,7 @@ const consolidatedCardData = [
             name: "Captain's Protection"
           },
           effect: "defenseup",
+          effectDuration: -1,
           itself: true
         }
         ]
@@ -4563,6 +4567,7 @@ const consolidatedCardData = [
             name: "Bandmaster's Protection"
           },
           effect: "defenseup",
+          effectDuration: -1,
           itself: true
         }
         ]
