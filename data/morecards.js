@@ -2921,8 +2921,8 @@ exports.moreCards = [
     faculty: "marines",
     characters: [
       {
-        character: "Tashigi",
-        alias: ["tashigi"],
+        character: "Rika",
+        alias: ["Rika"],
         cards: [
         {
           title: "",
