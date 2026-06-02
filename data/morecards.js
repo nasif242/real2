@@ -403,18 +403,18 @@ exports.moreCards = [
         alias: ["fullbody"],
         cards: [
         {
-          title: "",
+          title: "Iron Fist",
           id: "0049",
           attribute: "STR",
           rank: "C",
-          emoji: "<:1000049007:1500265971213140109>",
+          emoji: "<:0049:1510728921027580074>",
           image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/000/0049.png"
         }
         ]
       },
       {
         character: "Zeff",
-        alias: ["zeff", "chef zeff"],
+        alias: ["zeff", "chef zeff", "red-leg"],
         cards: [
         {
           title: "Chef Zeff",
@@ -423,6 +423,52 @@ exports.moreCards = [
           rank: "B",
           emoji: "<:1000049008:1500266247378436218>",
           image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/000/0052.png"
+        },
+        {
+          title: "Pirate Zeff",
+          id: "0606",
+          attribute: "DEX",
+          rank: "B",
+          emoji: "<:0606:1510730245454561290>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/600/0606.png"
+        },
+        {
+          title: "Red-Leg - Cook Pirates Captain",
+          id: "0607",
+          attribute: "DEX",
+          rank: "B",
+          emoji: "<:0607:1510730508105945259>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/600/0607.png"
+        },
+        {
+          title: "Baratie Owner",
+          id: "2149",
+          attribute: "STR",
+          rank: "B",
+          emoji: "<:2149:1510730890391584868>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/2/100/2149.png"
+        },
+        {
+          title: "The Ferocious Fighting Cooks' Caretaker",
+          id: "2150",
+          attribute: "STR",
+          rank: "A",
+          emoji: "<:2150:1510731278205583430>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/2/100/2150.png"
+        },
+        {
+          title: "Seeing Off the Departure",
+          id: "4174",
+          attribute: "PSY",
+          rank: "S",
+          emoji: "<:4174:1510731482338037870>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/4/100/4174.png",
+          special_attack: {
+            name: "Words for the Departing"
+          },
+          effect: "regen",
+          itself: true,
+          all: true
         }
         ]
       },
@@ -1358,6 +1404,596 @@ exports.moreCards = [
         }
         ]
       },
+      {
+        character: "Patty",
+        alias: ["patty", "gangster patty"],
+        cards: [
+        {
+          id: "0050",
+          attribute: "STR",
+          rank: "C",
+          emoji: "<:0050:1510732510357749851>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/000/0050.png"
+        },
+        {
+          title: "Gangster Patty",
+          id: "0608",
+          attribute: "STR",
+          rank: "B",
+          emoji: "<:0608:1510732725336801380>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/600/0608.png"
+        }
+        ]
+      },
+      {
+        character: "Carne",
+        alias: ["carne", "gangster carne"],
+        cards: [
+        {
+          id: "0051",
+          attribute: "QCK",
+          rank: "C",
+          emoji: "<:0051:1510733212064813107>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/000/0051.png"
+        },
+        {
+          title: "Gangster Carne",
+          id: "0609",
+          attribute: "QCK",
+          rank: "B",
+          emoji: "<:0609:1510733393338564669>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/600/0609.png"
+        }
+        ]
+      },
+      {
+        character: "Nojiko",
+        alias: ["nojiko", "nami's sister"],
+        cards: [
+        {
+          id: "0585",
+          attribute: "PSY",
+          rank: "B",
+          emoji: "<:0585:1510735044300509358>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/500/0585.png"
+        }
+        ]
+      },
+      {
+        character: "Bellmere",
+        alias: ["bellmere", "bellemere", "nami's mother"],
+        cards: [
+        {
+          id: "0499",
+          attribute: "DEX",
+          rank: "B",
+          emoji: "<:0499:1510735815699988672>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/400/0499.png"
+        },
+        {
+          title: "Nami and Nojiko's Mother",
+          id: "0500",
+          attribute: "DEX",
+          rank: "A",
+          emoji: "<:0500:1510735966304735332>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/500/0500.png"
+        },
+        {
+          title: "Meeting at the Battlefield",
+          id: "4188",
+          attribute: "DEX",
+          rank: "S",
+          emoji: "<:4188:1510736095749607606>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/4/100/4188.png",
+          special_attack: {
+            name: "A Child's Motivating Smile"
+          },
+          effect: "attackup",
+          itself: true
+        }
+        ]
+      },
+      {
+        character: "Genzo",
+        alias: ["genzo", "coco village sheriff"],
+        cards: [
+        {
+          id: "0784",
+          attribute: "STR",
+          rank: "B",
+          emoji: "<:0784:1510736967535427664>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/700/0784.png"
+        },
+        {
+          title: "Coco Village Sheriff",
+          id: "0785",
+          attribute: "STR",
+          rank: "A",
+          emoji: "<:0785:1510737331076862114>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/700/0785.png"
+        }
+        ]
+      },
+      {
+        character: "Laboon",
+        alias: ["laboon", "rumbar pirates whale"],
+        cards: [
+        {
+          id: "0213",
+          attribute: "STR",
+          rank: "B",
+          emoji: "<:0213:1510801898272329748>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/200/0213.png"
+        },
+        {
+          title: "Luffy's Drawing",
+          id: "0214",
+          attribute: "PSY",
+          rank: "A",
+          emoji: "<:0214:1510802282176970836>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/200/0214.png"
+        },
+        {
+          title: "Rumbar Pirates",
+          id: "1206",
+          attribute: "STR",
+          rank: "B",
+          emoji: "<:1206:1510802668074041364>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/1/200/1206.png"
+        },
+        {
+          title: "Favorite Pirate Song",
+          id: "4196",
+          attribute: "INT",
+          rank: "S",
+          emoji: "<:4196:1510803001319886928>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/4/100/4196.png",
+          special_attack: {
+            name: "Singing Bink's Brew"
+          },
+          effect: "charm",
+          effectDuration: 1
+        }
+        ]
+      },
+      {
+        character: "Chabo",
+        alias: ["chabo"],
+        cards: [
+        {
+          title: "Young Boy from Gosa Village",
+          id: "6055",
+          attribute: "BASE",
+          rank: "D",
+          image_url: "https://static.wikia.nocookie.net/onepiece/images/c/c1/Chabo_Anime_Pre_Timeskip_Infobox.png/revision/latest?cb=20160625060013"
+        },
+        {
+          title: "Young Boy from Gosa Village - Post Timeskip",
+          id: "6056",
+          attribute: "BASE",
+          rank: "C",
+          image_url: "https://static.wikia.nocookie.net/onepiece/images/a/aa/Chabo_Anime_Post_Timeskip_Infobox.png/revision/latest?cb=20251109161150"
+        }
+        ]
+      },
+      {
+        character: "Nako",
+        alias: ["nako"],
+        cards: [
+        {
+          title: "Doctor from Cocoyasi Village",
+          id: "6057",
+          attribute: "BASE",
+          rank: "C",
+          image_url: "https://static.wikia.nocookie.net/onepiece/images/4/4f/Nako_Anime_Infobox.png/revision/latest?cb=20250526150303"
+        }
+        ]
+      },
+      {
+        character: "Hitokui",
+        alias: ["hitokui"],
+        cards: [
+        {
+          title: "Terrorizing Monster in oda's One-Shot Monsters",
+          id: "6066",
+          attribute: "BASE",
+          rank: "C",
+          image_url: "https://static.wikia.nocookie.net/onepiece/images/4/42/Hitokui_Manga_Infobox.png/revision/latest?cb=20241113165627"
+        }
+        ]
+      },
+      {
+        character: "D.R.",
+        alias: ["d.r.", "dr"],
+        cards: [
+        {
+          title: "Main Antagonist in Oda's One-Shot Monsters",
+          id: "6067",
+          attribute: "BASE",
+          rank: "B",
+          image_url: "https://static.wikia.nocookie.net/onepiece/images/d/d7/D.R._Colored_Manga.png/revision/latest/scale-to-width-down/1000?cb=20260123234655"
+        }
+        ]
+      },
+      {
+        character: "Golass",
+        alias: ["golass"],
+        cards: [
+        {
+          title: "Mercenary for Eldorrago",
+          id: "6068",
+          attribute: "BASE",
+          rank: "B",
+          image_url: "https://static.wikia.nocookie.net/onepiece/images/3/3d/Golass_Anime_Infobox.png/revision/latest/scale-to-width-down/1000?cb=20131120054512"
+        }
+        ]
+      },
+      {
+        character: "Henna Oyag",
+        alias: ["henna oyag"],
+        cards: [
+        {
+          title: "Wanted Criminal",
+          id: "6069",
+          attribute: "BASE",
+          rank: "C",
+          image_url: "https://static.wikia.nocookie.net/onepiece/images/b/b8/Henna_Oyag%27s_Wanted_Poster.png/revision/latest?cb=20170801101732"
+        }
+        ]
+      },
+      {
+        character: "Shupeal",
+        alias: ["shupeal"],
+        cards: [
+        {
+          title: "The Hexagon",
+          id: "6070",
+          attribute: "BASE",
+          rank: "B",
+          image_url: "https://static.wikia.nocookie.net/onepiece/images/0/04/Shupeal_Anime_Infobox.png/revision/latest/scale-to-width-down/1000?cb=20191020103313"
+        }
+        ]
+      },
+      {
+        character: "Wild Joe",
+        alias: ["wild joe"],
+        cards: [
+        {
+          title: "One of the Main Antagonists of Wanted!",
+          id: "6071",
+          attribute: "BASE",
+          rank: "C",
+          image_url: "https://static.wikia.nocookie.net/onepiece/images/d/d9/Wild_Joe_Manga_Color_Scheme.png/revision/latest/scale-to-width-down/1000?cb=20231111160901"
+        }
+        ]
+      },
+      {
+        character: "Gyoru",
+        alias: ["gyoru"],
+        cards: [
+        {
+          title: "Fishmonger in Fusha Village",
+          id: "6072",
+          attribute: "BASE",
+          rank: "D",
+          image_url: "https://static.wikia.nocookie.net/onepiece/images/0/03/Gyoru_Anime_Infobox.png/revision/latest?cb=20130511172153"
+        }
+        ]
+      },
+      {
+        character: "Kumate Tribe",
+        alias: ["kumate tribe"],
+        cards: [
+        {
+          title: "Group Of Cannibalistic People",
+          id: "6073",
+          attribute: "BASE",
+          rank: "C",
+          image_url: "https://static.wikia.nocookie.net/onepiece/images/b/b4/Kumate_Tribe_Digital_Colored_Manga.png/revision/latest?cb=20230222030330",
+          count: 3
+        }
+        ]
+      },
+      {
+        character: "Hanger",
+        alias: ["hanger"],
+        cards: [
+        {
+          title: "Employee at Robecca Hanberg",
+          id: "6074",
+          attribute: "BASE",
+          rank: "D",
+          image_url: "https://static.wikia.nocookie.net/onepiece/images/2/2f/Hanger_Anime_Infobox.png/revision/latest?cb=20250313023416"
+        }
+        ]
+      },
+      {
+        character: "Ed",
+        alias: ["ed"],
+        cards: [
+        {
+          title: "Man in Episode 3 Special",
+          id: "6075",
+          attribute: "BASE",
+          rank: "D",
+          image_url: "https://static.wikia.nocookie.net/onepiece/images/6/67/Ed_%28Actor%29_Anime_Infobox.png/revision/latest?cb=20131105161445"
+        }
+        ]
+      },
+      {
+        character: "Yu",
+        alias: ["yu"],
+        cards: [
+        {
+          title: "Little Girl of Loguetown",
+          id: "6077",
+          attribute: "BASE",
+          rank: "D",
+          image_url: "https://static.wikia.nocookie.net/onepiece/images/5/5c/Yu_Anime_Infobox.png/revision/latest?cb=20250409185350"
+        }
+        ]
+      },
+      {
+        character: "Gally",
+        alias: ["gally"],
+        cards: [
+        {
+          title: "Crescent-Moon - Captain of the Gally Pirates",
+          id: "6078",
+          attribute: "BASE",
+          rank: "B",
+          image_url: "https://static.wikia.nocookie.net/onepiece/images/c/c3/Gally_Full_Body.png/revision/latest?cb=20221119035540"
+        }
+        ]
+      },
+      {
+        character: "Koze & Packy",
+        alias: ["koze", "packy", "koze and packy"],
+        cards: [
+        {
+          title: "Members of the Yes Pirates",
+          id: "6079",
+          attribute: "BASE",
+          rank: "C",
+          image_url: "https://static.wikia.nocookie.net/onepiece/images/4/4c/Koze_and_Packy_Anime_Infobox.png/revision/latest?cb=20240727235758"
+        }
+        ]
+      },
+      {
+        character: "Raoul",
+        alias: ["raoul"],
+        cards: [
+        {
+          title: "Bar owner in Loguetown",
+          id: "6080",
+          attribute: "BASE",
+          rank: "D",
+          image_url: "https://static.wikia.nocookie.net/onepiece/images/a/a1/Raoul_Anime_Infobox.png/revision/latest?cb=20230912212114"
+        }
+        ]
+      },
+      {
+        character: "Killer Giant",
+        alias: ["killer giant"],
+        cards: [
+        {
+          title: "Dead Man - One of Gol D. Roger's famous Battles",
+          id: "6081",
+          attribute: "BASE",
+          rank: "S",
+          image_url: "https://static.wikia.nocookie.net/onepiece/images/2/22/Killer_Giant_Anime_Infobox.png/revision/latest?cb=20130211022001"
+        }
+        ]
+      },
+      {
+        character: "Ipponmatsu",
+        alias: ["ipponmatsu"],
+        cards: [
+        {
+          title: "Owner of an Arms Shop in Loguetown",
+          id: "6082",
+          attribute: "BASE",
+          rank: "C",
+          image_url: "https://static.wikia.nocookie.net/onepiece/images/1/1c/Ipponmatsu_Anime_Infobox.png/revision/latest?cb=20130912172614"
+        }
+        ]
+      },
+      {
+        character: "Daddy Masterson",
+        alias: ["daddy masterson", "daddy the father"],
+        cards: [
+        {
+          title: "Daddy the Father - Bounty Hunter",
+          id: "6083",
+          attribute: "BASE",
+          rank: "B",
+          image_url: "https://static.wikia.nocookie.net/onepiece/images/6/65/Daddy_Masterson_Full_Body.png/revision/latest?cb=20250211181327"
+        }
+        ]
+      },
+      {
+        character: "Pete",
+        alias: ["pete"],
+        cards: [
+        {
+          title: "Two Pistol",
+          id: "6084",
+          attribute: "BASE",
+          rank: "C",
+          image_url: "https://static.wikia.nocookie.net/onepiece/images/2/2d/Pete_Anime_Infobox.png/revision/latest?cb=20130904000449"
+        }
+        ]
+      },
+      {
+        character: "Riley Brothers",
+        alias: ["riley brothers"],
+        cards: [
+        {
+          title: "Police-Killer",
+          id: "6085",
+          attribute: "BASE",
+          rank: "C",
+          image_url: "https://static.wikia.nocookie.net/onepiece/images/4/42/Riley_Brothers_Anime_Infobox.png/revision/latest?cb=20130904000811",
+          count: 3
+        }
+        ]
+      },
+      {
+        character: "Carol",
+        alias: ["carol"],
+        cards: [
+        {
+          title: "Daddy Masterson's Daughter",
+          id: "6086",
+          attribute: "BASE",
+          rank: "C",
+          image_url: "https://static.wikia.nocookie.net/onepiece/images/3/31/Carol_Anime_Infobox.png/revision/latest?cb=20250211181617"
+        }
+        ]
+      },
+      {
+        character: "Carmen",
+        alias: ["carmen", "fiery carmen"],
+        cards: [
+        {
+          title: "Fiery Carmen",
+          id: "6087",
+          attribute: "BASE",
+          rank: "C",
+          image_url: "https://static.wikia.nocookie.net/onepiece/images/c/c0/Carmen_Anime_Infobox.png/revision/latest?cb=20230131192307"
+        }
+        ]
+      },
+      {
+        character: "Leo",
+        alias: ["leo"],
+        cards: [
+        {
+          title: "Cook - Carmen's First Disciple",
+          id: "6088",
+          attribute: "BASE",
+          rank: "C",
+          image_url: "https://static.wikia.nocookie.net/onepiece/images/8/8c/Leo_%28Non-Canon%29_Anime_Infobox.png/revision/latest?cb=20130612132421"
+        }
+        ]
+      },
+      {
+        character: "Jose",
+        alias: ["jose"],
+        cards: [
+        {
+          title: "Cook - Carmen's Second Disciple",
+          id: "6089",
+          attribute: "BASE",
+          rank: "C",
+          image_url: "https://static.wikia.nocookie.net/onepiece/images/e/ed/Jose_Anime_Infobox.png/revision/latest?cb=20200130220536"
+        }
+        ]
+      },
+      {
+        character: "Minatomo",
+        alias: ["minatomo"],
+        cards: [
+        {
+          title: "Travelling Carpenter (in)Famously Obsessed with Repairing Doors",
+          id: "6090",
+          attribute: "BASE",
+          rank: "C",
+          image_url: "https://static.wikia.nocookie.net/onepiece/images/d/d8/Minatomo_in_Warship_Island.png/revision/latest?cb=20190112164541"
+        }
+        ]
+      },
+      {
+        character: "Sapi",
+        alias: ["sapi"],
+        cards: [
+        {
+          title: "Fish Salesman from Loguetown",
+          id: "6091",
+          attribute: "BASE",
+          rank: "D",
+          image_url: "https://static.wikia.nocookie.net/onepiece/images/6/6e/Sapi_Anime_Infobox.png/revision/latest?cb=20200208163232"
+        }
+        ]
+      },
+      {
+        character: "Sam",
+        alias: ["sam"],
+        cards: [
+        {
+          title: "Drunk Man from Cocoyasi Village",
+          id: "6092",
+          attribute: "BASE",
+          rank: "D",
+          image_url: "https://static.wikia.nocookie.net/onepiece/images/c/cb/Sam_Anime_Infobox.png/revision/latest?cb=20251109194354"
+        }
+        ]
+      },
+      {
+        character: "Shutai",
+        alias: ["shutai"],
+        cards: [
+        {
+          title: "Shutai the Lizard - Cook",
+          id: "6093",
+          attribute: "BASE",
+          rank: "D",
+          image_url: "https://static.wikia.nocookie.net/onepiece/images/6/67/Shutai_Anime_Infobox.png/revision/latest?cb=20130603014419"
+        }
+        ]
+      },
+      {
+        character: "Eccoli",
+        alias: ["eccoli"],
+        cards: [
+        {
+          title: "Chef Representing Loguetown in the Cooking Championships",
+          id: "6094",
+          attribute: "BASE",
+          rank: "D",
+          image_url: "https://static.wikia.nocookie.net/onepiece/images/9/9b/Eccoli_Anime_Infobox.png/revision/latest?cb=20130603014723"
+        }
+        ]
+      },
+      {
+        character: "Apis",
+        alias: ["apis"],
+        cards: [
+        {
+          title: "Young Girl Living in Warship Island",
+          id: "6095",
+          attribute: "BASE",
+          rank: "D",
+          image_url: "https://static.wikia.nocookie.net/onepiece/images/b/b6/Apis_Anime_Infobox.png/revision/latest?cb=20160901203203"
+        }
+        ]
+      },
+      {
+        character: "Eric",
+        alias: ["eric", "eric the whirlwind"],
+        cards: [
+        {
+          title: "Eric the Whirlwind - Mercenary and Main Antagonist of Warship Island Arc",
+          id: "6096",
+          attribute: "BASE",
+          rank: "B",
+          image_url: "https://static.wikia.nocookie.net/onepiece/images/e/e1/Eric_Anime_Infobox.png/revision/latest?cb=20130423000628"
+        }
+        ]
+      },
+      {
+        character: "Bokuden",
+        alias: ["bokuden"],
+        cards: [
+        {
+          title: "Apis' Grandfather",
+          id: "6097",
+          attribute: "BASE",
+          rank: "D",
+          image_url: "https://static.wikia.nocookie.net/onepiece/images/e/ea/Bokuden_Anime_Infobox.png/revision/latest?cb=20130327222135"
+        }
+        ]
+      },
     ]
   },
   {
@@ -1924,6 +2560,180 @@ exports.moreCards = [
           image_url: "https://static.wikia.nocookie.net/onepiece/images/1/1b/Rika_Manga_Post_Timeskip_Infobox.png/revision/latest?cb=20170318151459"
         }
         ]
+      },
+      {
+        character: "Lines",
+        alias: ["lines"],
+        cards: [
+        {
+          title: "Seasman First Class",
+          id: "6044",
+          attribute: "BASE",
+          rank: "C",
+          image_url: "https://static.wikia.nocookie.net/onepiece/images/9/9d/Lines_Anime_Infobox.png/revision/latest?cb=20240705174446"
+        }
+        ]
+      },
+      {
+        character: "Pudding Pudding",
+        alias: ["pudding pudding"],
+        cards: [
+        {
+          title: "Marine Commodore",
+          id: "6062",
+          attribute: "BASE",
+          rank: "B",
+          image_url: "https://static.wikia.nocookie.net/onepiece/images/c/c0/Pudding_Pudding_Anime_Infobox.png/revision/latest?cb=20220928043355"
+        }
+        ]
+      },
+      {
+        character: "Brannew",
+        alias: ["brannew"],
+        cards: [
+        {
+          title: "Marine Lieutenant Commander",
+          id: "6063",
+          attribute: "BASE",
+          rank: "C",
+          image_url: "https://static.wikia.nocookie.net/onepiece/images/9/98/Brannew_Anime_Pre_Timeskip_Infobox.png/revision/latest?cb=20131010211121"
+        },
+        {
+          title: "Marine Commodore",
+          id: "6064",
+          attribute: "BASE",
+          rank: "B",
+          image_url: "https://static.wikia.nocookie.net/onepiece/images/7/71/Brannew_Anime_Post_Timeskip_Infobox.png/revision/latest?cb=20180321231621"
+        }
+        ]
+      },
+      {
+        character: "John Giant",
+        alias: ["john giant"],
+        cards: [
+        {
+          title: "Marine Vice Admiral",
+          id: "6065",
+          attribute: "BASE",
+          rank: "S",
+          image_url: "https://static.wikia.nocookie.net/onepiece/images/3/3c/John_Giant_Manga_Infobox.png/revision/latest?cb=20190814193141"
+        }
+        ]
+      },
+      {
+        character: "Monkey D. Garp",
+        alias: ["monkey d. garp", "garp", "garp the fist"],
+        cards: [
+        {
+          id: "0305",
+          attribute: "PSY",
+          rank: "A",
+          emoji: "<:0305:1511132625576919150>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/300/0305.png"
+        },
+        {
+          title: "Garp The Fist",
+          id: "0306",
+          attribute: "PSY",
+          rank: "S",
+          emoji: "<:0306:1511132758645276773>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/300/0306.png"
+        },
+        {
+          title: "Garp & Tashigi & Helmeppo - Awaiting Their Ally's Safe Return",
+          id: "4553",
+          attribute: "INT",
+          rank: "S",
+          emoji: "<:4553:1511133189320736848>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/4/500/4553.png"
+        },
+        {
+          title: "Break Into God Valley",
+          id: "4409",
+          attribute: "DEX",
+          rank: "SS",
+          emoji: "<:4409:1511134306133606480>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/4/400/4409.png",
+          special_attack: {
+            name: "Clenched Fists Againsts God Valley"
+          },
+          effect: "attackup",
+          itself: true
+        },
+        {
+          title: "Self-Training Battleship Bag",
+          id: "4251",
+          attribute: "STR",
+          rank: "S",
+          emoji: "<:4251:1511134830643904564>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/4/200/4251.png"
+        },
+        {
+          title: "Fists to Save His Protege",
+          id: "4240",
+          attribute: "PSY",
+          rank: "SS",
+          emoji: "<:4240:1511135055395950824>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/4/200/4240.png",
+          special_attack: {
+            name: "Galaxy Impact"
+          },
+          effect: "attackup",
+          itself: true
+        },
+        {
+          title: "Landing on Pirate Island",
+          id: "4239",
+          attribute: "PSY",
+          rank: "S",
+          emoji: "<:4239:1511135390785077409>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/4/200/4239.png"
+        },
+        {
+          title: "Disciplining the Brats",
+          id: "3848",
+          attribute: "PSY",
+          rank: "SS",
+          emoji: "<:3848:1511135691667669122>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/3/800/3848.png"
+        },
+        {
+          title: "The Fist - Grandfather of the Future King of the Pirates",
+          id: "2991",
+          attribute: "PSY",
+          rank: "UR",
+          emoji: "<:2991:1511136043380904007>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/2/900/2991.png",
+          special_attack: {
+            name: "Galaxy Impact"
+          },
+          effect: "attackup",
+          itself: true,
+          effectAmount: 20
+        }
+        ]
+      },
+      {
+        character: "Garp & Coby",
+        alias: ["garp coby", "garp and coby"],
+        cards: [
+        {
+          title: "Combined Fists of Mentor and protege",
+          id: "4521",
+          attribute: "QCK/DEX",
+          rank: "SS",
+          emoji: "<:4521:1511133589339897946>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/4/500/4521.png",
+          special_attack: {
+            name: "Inherited Fists of Justice"
+          },
+          effect: "attackup",
+          itself: true,
+          effectAmount: 20,
+          count: 2,
+          scount: 2
+        }
+        ]
       }
     ]
   },
@@ -2395,6 +3205,140 @@ exports.moreCards = [
           rank: "A",
           emoji: "<:1000049511:1502767511362474105>",
           image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/3/000/3053.png"
+        }
+        ]
+      }
+    ]
+  },
+  {
+    faculty: "Giant Warrior Pirates",
+    characters: [
+      {
+        character: "Broggy",
+        alias: ["broggy", "red ogre broggy"],
+        cards: [
+        {
+          id: "0292",
+          attribute: "INT",
+          rank: "A",
+          emoji: "<:0292:1511141133183590491>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/200/0292.png"
+        },
+        {
+          title: "Giant Warrior Pirates",
+          id: "0902",
+          attribute: "PSY",
+          rank: "A",
+          emoji: "<:0902:1511141492490313861>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/900/0902.png"
+        },
+        {
+          title: "Broggy The Red",
+          id: "0903",
+          attribute: "PSY",
+          rank: "S",
+          emoji: "<:0903:1511141695665668107>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/900/0903.png"
+        },
+        {
+          title: "For the Pride of Elbaf",
+          id: "3566",
+          attribute: "INT",
+          rank: "S",
+          emoji: "<:3566:1511142014618476666>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/3/500/3566.png"
+        },
+        {
+          title: "Friend - Protecting Dual Shields",
+          id: "4495",
+          attribute: "INT",
+          rank: "S",
+          emoji: "<:4495:1511142313459879997>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/4/400/4495.png"
+        }
+        ]
+      },
+      {
+        character: "Dorry & Broggy",
+        alias: ["dorry broggy", "dorry and broggy"],
+        cards: [
+        {
+          title: "Landing on Egghead",
+          id: "4436",
+          attribute: "QCK/QCK",
+          rank: "SS",
+          emoji: "<:4436:1511142634867716187>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/4/400/4436.png"
+        }
+        ]
+      },
+      {
+        character: "Dorry",
+        alias: ["dorry", "blue ogre dorry"],
+        cards: [
+        {
+          title: "Dorry & Broggy",
+          id: "4232",
+          attribute: "INT",
+          rank: "S",
+          emoji: "<:4232:1511143040085704856>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/4/200/4232.png",
+          count: 2
+        },
+        {
+          title: "Dorry & Broggy - Retaliating Against the Threat to the Homeland",
+          id: "4233",
+          attribute: "STR",
+          rank: "SS",
+          emoji: "<:4233:1511143374019682394>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/4/200/4233.png",
+          special_attack: {
+            name: "Hakoku Sovereignty of Destruction"
+          },
+          effect: "attackup",
+          itself: true,
+          effectAmount: 20,
+          count: 2,
+          scount: 2
+        },
+        {
+          id: "0291",
+          attribute: "PSY",
+          rank: "A",
+          emoji: "<:0291:1511143718064279634>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/200/0291.png"
+        },
+        {
+          title: "Giant Warrior Pirates",
+          id: "0883",
+          attribute: "INT",
+          rank: "A",
+          emoji: "<:0883:1511143966083756172>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/800/0883.png"
+        },
+        {
+          title: "Dorry the Blue",
+          id: "0884",
+          attribute: "INT",
+          rank: "S",
+          emoji: "<:0884:1511144167088607352>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/800/0884.png"
+        },
+        {
+          title: "For the Pride of Elbaf",
+          id: "3583",
+          attribute: "INT",
+          rank: "S",
+          emoji: "<:3583:1511144460764737697>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/3/500/3583.png"
+        },
+        {
+          title: "Friend - Protecting Dual Shields",
+          id: "4494",
+          attribute: "INT",
+          rank: "S",
+          emoji: "<:4494:1511144710148337737>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/4/400/4494.png"
         }
         ]
       }

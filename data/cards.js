@@ -2859,6 +2859,278 @@ const consolidatedCardData = [
           rank: "A",
           emoji: "<:0209:1493010298750107689>",
           image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/200/0209.png"
+        },
+        {
+          title: "Miss All Sunday - Flower Flower Fruit User",
+          id: "2877",
+          attribute: "PSY",
+          rank: "S",
+          emoji: "<:2877:1511131272523812904>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/2/800/2877.png"
+        }
+        ]
+      },
+      {
+        character: "Mr. 9",
+        alias: ["mr. 9", "mr 9"],
+        cards: [
+        {
+          id: "0211",
+          attribute: "QCK",
+          rank: "C",
+          emoji: "<:0211:1511117726243094709>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/200/0211.png"
+        },
+        {
+          title: "Hot Blooded Bat",
+          id: "0212",
+          attribute: "QCK",
+          rank: "B",
+          emoji: "<:0212:1511117934158938245>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/200/0212.png"
+        }
+        ]
+      },
+      {
+        character: "Mr. 13",
+        alias: ["mr. 13", "mr 13", "the unluckies", "ms. friday"],
+        cards: [
+        {
+          title: "Mr. 13 & Ms. Friday - The Unluckies",
+          id: "0290",
+          attribute: "INT",
+          rank: "B",
+          emoji: "<:0290:1511118430349295808>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/200/0290.png",
+          count: 2
+        }
+        ]
+      },
+      {
+        character: "Daz Bonez",
+        alias: ["daz bonez", "mr. 1", "mr 1"],
+        cards: [
+        {
+          title: "Mr. 1",
+          id: "0401",
+          attribute: "STR",
+          rank: "B",
+          emoji: "<:0401:1511119215749365760>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/400/0401.png"
+        },
+        {
+          title: "Mr. 1 - Human Sword",
+          id: "0402",
+          attribute: "STR",
+          rank: "A",
+          emoji: "<:0402:1511119436038279178>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/400/0402.png"
+        },
+        {
+          title: "Mr. 1 - Assassin of the West Blue",
+          id: "0886",
+          attribute: "STR",
+          rank: "A",
+          emoji: "<:0886:1511119735226503250>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/800/0886.png"
+        },
+        {
+          title: "Mr. 1 - The Blade that Create Utopia",
+          id: "2135",
+          attribute: "QCK",
+          rank: "A",
+          emoji: "<:2135:1511120012658737182>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/2/100/2135.png"
+        },
+        {
+          title: "Mr. 1 - Human Sword Assassin",
+          id: "2478",
+          attribute: "PSY",
+          rank: "A",
+          emoji: "<:2478:1511120262643449956>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/2/400/2478.png"
+        },
+        {
+          title: "Mr. 1 - Baroque Works' Assassin",
+          id: "2479",
+          attribute: "PSY",
+          rank: "S",
+          emoji: "<:2479:1511120508790505504>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/2/400/2479.png"
+        },
+        {
+          title: "Mr. 1 - Unrestricted Slashes",
+          id: "4338",
+          attribute: "QCK",
+          rank: "SS",
+          emoji: "<:4338:1511120773845352569>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/4/300/4338.png",
+          special_attack: {
+            name: "Dicing Slashes"
+          },
+          effect: "defenceup",
+          itself: true,
+          effectDuration: 5
+        },
+        {
+          title: "Mr. 1 & Miss Doublefinger",
+          id: "3265",
+          attribute: "STR",
+          rank: "S",
+          emoji: "<:3265:1511121260531417289>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/3/200/3265.png",
+          count: 2
+        },
+        {
+          title: "Convict - Mr. 1",
+          id: "0511",
+          attribute: "INT",
+          rank: "A",
+          emoji: "<:0511:1511122516712886342>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/500/0511.png"
+        }
+        ]
+      },
+      {
+        character: "Mr. Beans",
+        alias: ["mr. beans", "mr beans"],
+        cards: [
+        {
+          title: "Former Baroque Works Millions Agent",
+          id: "6098",
+          attribute: "BASE",
+          rank: "C",
+          image_url: "https://static.wikia.nocookie.net/onepiece/images/2/27/Mr._Beans_Anime_Infobox.png/revision/latest?cb=20240712024055"
+        }
+        ]
+      },
+      {
+        character: "Miss Catherina",
+        alias: ["miss catherina"],
+        cards: [
+        {
+          title: "Former Baroque Works Millions Agent",
+          id: "6099",
+          attribute: "BASE",
+          rank: "C",
+          image_url: "https://static.wikia.nocookie.net/onepiece/images/1/15/Miss_Catherina_Anime_Infobox.png/revision/latest?cb=20240712024031"
+        }
+        ]
+      },
+      {
+        character: "Igaram",
+        alias: ["igaram", "mr. 8"],
+        cards: [
+        {
+          title: "Mr. 8 - Igarappapa",
+          id: "0234",
+          attribute: "PSY",
+          rank: "B",
+          emoji: "<:0234:1511123810936688901>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/200/0234.png"
+        }
+        ]
+      },
+      {
+        character: "Miss Monday",
+        alias: ["miss monday"],
+        cards: [
+        {
+          id: "0235",
+          attribute: "STR",
+          rank: "C",
+          emoji: "<:0235:1511124028948218087>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/200/0235.png"
+        }
+        ]
+      },
+      {
+        character: "Mr. Shimizu",
+        alias: ["mr. shimizu", "mr shimizu"],
+        cards: [
+        {
+          title: "Baroque Works Millions Agent",
+          id: "6100",
+          attribute: "BASE",
+          rank: "C",
+          image_url: "https://static.wikia.nocookie.net/onepiece/images/5/56/Mr._Shimizu_Colored_Manga.png/revision/latest?cb=20250108010901"
+        }
+        ]
+      },
+      {
+        character: "Gem",
+        alias: ["gem", "mr. 5", "mr 5"],
+        cards: [
+        {
+          title: "Mr. 5 - Nez-Palm Cannon",
+          id: "0199",
+          attribute: "STR",
+          rank: "B",
+          emoji: "<:0199:1511125204905230356>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/100/0199.png"
+        },
+        {
+          title: "Mr. 5 - Breeze Breath Bomb",
+          id: "0200",
+          attribute: "STR",
+          rank: "A",
+          emoji: "<:0200:1511125394550689965>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/200/0200.png"
+        },
+        {
+          title: "Mr. 5 - Human Dynamite",
+          id: "1490",
+          attribute: "QCK",
+          rank: "B",
+          emoji: "<:1490:1511125577183264798>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/1/400/1490.png"
+        },
+        {
+          title: "Mr. 5 - Officer Agent of Baroque Works",
+          id: "1419",
+          attribute: "QCK",
+          rank: "A",
+          emoji: "<:1491:1511125819001667614>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/1/400/1491.png"
+        },
+        {
+          title: "Mr. 5 & Miss Valentine",
+          id: "1420",
+          attribute: "STR",
+          rank: "S",
+          emoji: "<:3268:1511129561700630598>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/3/200/3268.png",
+          special_attack: {
+            name: "Bomb & Press"
+          },
+          effect: "stun",
+          effectDuration: 1
+        }
+        ]
+      },
+      {
+        character: "Banchi",
+        alias: ["banchi"],
+        cards: [
+        {
+          title: "Giant \"all-Terrain\" Turtle used by Boroque Works",
+          id: "6101",
+          attribute: "BASE",
+          rank: "C",
+          image_url: "https://static.wikia.nocookie.net/onepiece/images/e/e3/Banchi_Anime_Infobox.png/revision/latest?cb=20131018212225"
+        }
+        ]
+      },
+      {
+        character: "Miss Goldenweek",
+        alias: ["miss goldenweek"],
+        cards: [
+        {
+          id: "0205",
+          attribute: "DEX",
+          rank: "B",
+          emoji: "<:0205:1511137985507102880>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/200/0205.png"
         }
         ]
       },
@@ -3147,34 +3419,6 @@ const consolidatedCardData = [
           emoji: "<:3818:1510335506498584656>",
           image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/3/800/3818.png",
           count: 2
-        }
-        ]
-      },
-      {
-        character: "Kozuki Oden",
-        alias: ["oden", "kozuki oden"],
-        cards: [
-        {
-          title: "Aspiring to the Grand Voyage",
-          id: "3619",
-          attribute: "DEX",
-          rank: "S",
-          emoji: "<:3619:1510340070698123495>",
-          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/3/600/3619.png"
-        },
-        {
-          title: "Welcoming Feast",
-          id: "3620",
-          attribute: "DEX",
-          rank: "SS",
-          emoji: "<:3620:1510339915005693992>",
-          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/3/600/3620.png",
-          special_attack: {
-            name: "Entertaining the Voyage"
-          },
-          effect: "bleed",
-          effectDuration: -1,
-          effectAmount: 5
         }
         ]
       },
@@ -3475,6 +3719,183 @@ const consolidatedCardData = [
           rank: "S",
           emoji: "<:2650:1510364754563039413>",
           image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/2/600/2650.png"
+        },
+        {
+          title: "Demon Hair",
+          id: "2651",
+          attribute: "STR",
+          rank: "SS",
+          emoji: "<:2651:1510703989468172489>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/2/600/2651.png",
+          special_attack: {
+            name: "Armor Assimilation: Union Armado"
+          },
+          effect: "defenceup",
+          itself: true,
+          effectDuration: -1
+        },
+        {
+          title: "Monster Losing Sight of his Control",
+          id: "2681",
+          attribute: "STR",
+          rank: "UR",
+          emoji: "<:2681:1510704479723589694>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/2/600/2681.png",
+          special_attack: {
+            name: "Ultimate Fist"
+          },
+          effect: "defenceup",
+          itself: true,
+          effectAmount: 25,
+          effectDuration: -1
+        },
+        {
+          title: "The one with Invincible Strength",
+          id: "2883",
+          attribute: "QCK",
+          rank: "S",
+          emoji: "<:2883:1510705007685664920>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/2/800/2883.png"
+        },
+        {
+          title: "Score-Settiling Brawl",
+          id: "4026",
+          attribute: "DEX",
+          rank: "S",
+          emoji: "<:4026:1510705521584508968>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/4/000/4026.png"
+        }
+        ]
+      }
+    ]
+  },
+  {
+    faculty: "Kozuki Family",
+    characters: [
+      {
+        character: "Kozuki Oden",
+        alias: ["oden", "kozuki oden"],
+        cards: [
+        {
+          title: "Aspiring to the Grand Voyage",
+          id: "3619",
+          attribute: "DEX",
+          rank: "S",
+          emoji: "<:3619:1510340070698123495>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/3/600/3619.png"
+        },
+        {
+          title: "Welcoming Feast",
+          id: "3620",
+          attribute: "DEX",
+          rank: "SS",
+          emoji: "<:3620:1510339915005693992>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/3/600/3620.png",
+          special_attack: {
+            name: "Entertaining the Voyage"
+          },
+          effect: "bleed",
+          effectDuration: -1,
+          effectAmount: 5
+        },
+        {
+          title: "Heir of the Shogun of Wano",
+          id: "3175",
+          attribute: "STR",
+          rank: "SS",
+          emoji: "<:3175:1510706294989000926>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/3/100/3175.png",
+          special_attack: {
+            name: "Paradise Waterfall"
+          },
+          effect: "bleed",
+          effectDuration: 5
+        },
+        {
+          title: "Samurai Challenging the Dragon",
+          id: "3519",
+          attribute: "STR",
+          rank: "UR",
+          emoji: "<:3519:1510707014148427826>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/3/500/3519.png",
+          special_attack: {
+            name: "Oden Two-Sword Style: Paradise Totsuka"
+          },
+          effect: "bleed",
+          effectDuration: -1,
+          effectAmount: 5
+        },
+        {
+          title: "Samurai Passing On His Will",
+          id: "3552",
+          attribute: "PSY",
+          rank: "S",
+          emoji: "<:3552:1510708038019842208>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/3/500/3552.png"
+        },
+        {
+          title: "Spectacular End",
+          id: "3553",
+          attribute: "PSY",
+          rank: "SS",
+          emoji: "<:3553:1510708277158216003>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/3/500/3553.png",
+          special_attack: {
+            name: "Valiant Way of Life"
+          },
+          effect: "bleed",
+          effectDuration: 5
+        }
+        ]
+      },
+      {
+        character: "Oden & Toki",
+        alias: ["oden toki", "oden and toki", "kozuki toki"],
+        cards: [
+        {
+          title: "Cherished Meeting",
+          id: "3879",
+          attribute: "QCK/STR",
+          rank: "S",
+          emoji: "<:3879:1510725912864493790>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/3/800/3879.png",
+          count: 2
+        },
+        {
+          title: "Long-Awaited Reunion",
+          id: "3880",
+          attribute: "QCK/STR",
+          rank: "SS",
+          emoji: "<:3880:1510726142640918690>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/3/800/3880.png",
+          special_attack: {
+            name: "Joyful Reunion"
+          },
+          effect: "bleed",
+          effectDuration: 5,
+          count: 2,
+          scount: 2
+        }
+        ]
+      },
+      {
+        character: "Oden & Kin'emon & Denjiro",
+        alias: ["oden kinemon denjiro", "oden and kinemon and denjiro"],
+        cards: [
+        {
+          title: "Blades Reflecting a Passionate Determination",
+          id: "4275",
+          attribute: "DEX/STR",
+          rank: "SS",
+          emoji: "<:4275:1510727168353632397>",
+          image_url: "https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/4/200/4275.png",
+          special_attack: {
+            name: "Samurai Challenging the Dragon"
+          },
+          effect: "bleed",
+          effectDuration: 5,
+          count: 3,
+          scount: 3
         }
         ]
       }

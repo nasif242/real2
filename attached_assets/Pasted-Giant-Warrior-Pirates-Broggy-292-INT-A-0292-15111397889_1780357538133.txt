@@ -1,0 +1,32 @@
+Giant Warrior Pirates;
+
+Broggy:
+292, INT, A, <:0292:1511139788974063657>, https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/200/0292.png
+
+Giant Warrior Pirates, 902, PSY, A, <:0902:1511140123402567700>, https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/900/0902.png
+
+Broggy The Red, 903, PSY, S, <:0903:1511140303405584576>, https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/900/0903.png
+
+For the Pride of Elbaf, 3566, INT, S, <:3566:1511140530392924341>, https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/3/500/3566.png
+
+Friend - Protecting Dual Shields, 4495, INT, S, <:4495:1511142255103184896>, https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/4/400/4495.png
+
+Dorry & Broggy:
+Landing on Egghead, 4436, QCK/QCK, SS, <:4436:1511141958192730364>, https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/4/400/4436.png
+
+Dorry:
+Dorry & Broggy, 4232, INT, S, <:4232:1511140818876895384>, https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/4/200/4232.png
+count: 2
+
+Dorry & Broggy - Retaliating Against the Threat to the Homeland, 4233, STR, SS, <:4233:1511141166484295820>, https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/4/200/4233.png
+**Hakoku Sovereignty of Destruction,** attackup, itself=true, effectAmount=20, count=2, scount=2
+
+291, PSY, A, <:0291:1511142661053091931>, https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/200/0291.png
+
+Giant Warrior Pirates, 883, INT, A, <:0883:1511143061881880709>, https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/800/0883.png
+
+Dorry the Blue, 884, INT, S, <:0884:1511143208502165594>, https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/800/0884.png
+
+For the Pride of Elbaf, 3583, INT, S, <:3583:1511143480192143530>, https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/3/500/3583.png
+
+Friend - Protecting Dual Shields, 4494, INT, S, <:4494:1511144125028896899>, https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/4/400/4494.png

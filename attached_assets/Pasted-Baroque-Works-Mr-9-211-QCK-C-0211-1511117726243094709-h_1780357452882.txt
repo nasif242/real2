@@ -1,0 +1,66 @@
+Baroque Works:
+Mr. 9:
+211, QCK, C, <:0211:1511117726243094709>, https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/200/0211.png
+
+Hot Blooded Bat, 212, QCK, B, <:0212:1511117934158938245>, https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/200/0212.png
+
+Mr. 13:
+Mr. 13 & Ms. Friday - The Unluckies, 290, INT, B, <:0290:1511118430349295808>, https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/200/0290.png
+count: 2.
+
+Daz Bonez:
+Mr. 1, 401, STR, B, <:0401:1511119215749365760>, https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/400/0401.png
+
+Mr. 1 - Human Sword, 402, STR,  A, <:0402:1511119436038279178>, https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/400/0402.png
+
+Mr. 1 - Assassin of the West Blue, 886, STR, A, <:0886:1511119735226503250>, https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/800/0886.png
+
+Mr. 1 - The Blade that Create Utopia, 2135, QCK, A, <:2135:1511120012658737182>, https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/2/100/2135.png
+
+Mr. 1 - Human Sword Assassin, 2478, PSY, A, <:2478:1511120262643449956>, https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/2/400/2478.png
+
+Mr. 1 - Baroque Works’ Assassin, 2479, PSY, S, <:2479:1511120508790505504>, https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/2/400/2479.png
+
+Mr. 1 - Unrestricted Slashes, 4338, QCK, SS, <:4338:1511120773845352569>, https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/4/300/4338.png
+Dicing Slashes, defenceup, itself=true, turns=5
+
+Mr. 1 & Miss Doublefinger, 3265, STR, S, <:3265:1511121260531417289>, https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/3/200/3265.png
+count: 2
+
+Mr. Beans:
+Former Baroque Works Millions Agent, BASE, C, https://static.wikia.nocookie.net/onepiece/images/2/27/Mr._Beans_Anime_Infobox.png/revision/latest?cb=20240712024055
+
+Miss Catherina: 
+Former Baroque Works Millions Agent, BASE, C, https://static.wikia.nocookie.net/onepiece/images/1/15/Miss_Catherina_Anime_Infobox.png/revision/latest?cb=20240712024031
+
+Igaram: 
+Mr. 8 - Igarappapa, 234, PSY, B, <:0234:1511123810936688901>, https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/200/0234.png
+
+Miss Monday:
+235, STR, C, <:0235:1511124028948218087>, https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/200/0235.png
+
+Mr. Shimizu: 
+Baroque Works Millions Agent, BASE, C, https://static.wikia.nocookie.net/onepiece/images/5/56/Mr._Shimizu_Colored_Manga.png/revision/latest?cb=20250108010901
+
+Gem: 
+Mr. 5 - Nez-Palm Cannon, 199, STR, B, <:0199:1511125204905230356>, https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/100/0199.png
+
+Mr. 5 - Breeze Breath Bomb, 200, STR, A, <:0200:1511125394550689965>, https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/200/0200.png
+
+Mr. 5 - Human Dynamite, 1490, QCK, B, <:1490:1511125577183264798>, https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/1/400/1490.png
+
+Mr. 5 - Officer Agent of Baroque Works, 1419, QCK, A, <:1491:1511125819001667614>, https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/1/400/1491.png
+
+Mr. 5 & Miss Valentine, 1420, STR, S, <:3268:1511129561700630598>, https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/3/200/3268.png
+Bomb & Press, stun, turns=1
+
+Nico Robin:
+Miss All Sunday - Flower Flower Fruit User, 2877, PSY, S, <:2877:1511131272523812904>, https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/2/800/2877.png
+
+Banchi:
+Giant “all-Terrain” Turtle used by Boroque Works, BASE, C, https://static.wikia.nocookie.net/onepiece/images/e/e3/Banchi_Anime_Infobox.png/revision/latest?cb=20131018212225
+
+Miss Goldenweek:
+205, DEX, B, <:0205:1511137985507102880>, https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/200/0205.png
+
+Colors Trap - Calming Green, <:0206:1511138243549204510>, https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/200/0206.png

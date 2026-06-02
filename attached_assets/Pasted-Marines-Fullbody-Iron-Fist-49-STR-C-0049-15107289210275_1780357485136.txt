@@ -1,0 +1,62 @@
+Marines;
+
+Fullbody:
+
+Iron Fist, 49, STR, C, <:0049:1510728921027580074>, https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/000/0049.png
+
+Double Ironfist, 230, B, <:0230:1510729139747819611>, https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/200/0230.png
+
+Lines:
+
+Seasman First Class, 6044, BASE, C, https://static.wikia.nocookie.net/onepiece/images/9/9d/Lines_Anime_Infobox.png/revision/latest?cb=20240705174446
+
+Pudding-Pudding:
+
+Marine Commodore, 6062, BASE, B, https://static.wikia.nocookie.net/onepiece/images/c/c0/Pudding_Pudding_Anime_Infobox.png/revision/latest?cb=20220928043355
+
+Brannew:
+
+Marine Lieutenant Commander, 6063, BASE, C, https://static.wikia.nocookie.net/onepiece/images/9/98/Brannew_Anime_Pre_Timeskip_Infobox.png/revision/latest?cb=20131010211121
+
+Marine Commodore, 6064, BASE, B, https://static.wikia.nocookie.net/onepiece/images/7/71/Brannew_Anime_Post_Timeskip_Infobox.png/revision/latest?cb=20180321231621
+
+John Giant:
+
+Marine Vice Admiral, 6065, BASE, S, https://static.wikia.nocookie.net/onepiece/images/3/3c/John_Giant_Manga_Infobox.png/revision/latest?cb=20190814193141
+
+Mashikaku:
+
+Chief Petty Officer, 6075, BASE, C, https://static.wikia.nocookie.net/onepiece/images/a/aa/Mashikaku_Anime_Infobox.png/revision/latest?cb=20181110134448
+
+Monkey D. Garp:
+305, PSY, A, <:0305:1511132625576919150>, https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/300/0305.png
+
+Garp The Fist, 306, PSY, S, <:0306:1511132758645276773>, https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/0/300/0306.png
+
+Garp & Tashigi & Helmeppo - Awaiting Their Ally’s Safe Return, 4553, INT, S, <:4553:1511133189320736848>, https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/4/500/4553.png
+
+Break Into God Valley, 4409, DEX, SS, <:4409:1511134306133606480>, https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/4/400/4409.png
+Clenched Fists Againsts God Valley, attackup, itself=true
+
+Self-Training Battleship Bag, 4251, STR, S, <:4251:1511134830643904564>, https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/4/200/4251.png
+
+Fists to Save His Protege, 4240, PSY, SS, <:4240:1511135055395950824>, https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/4/200/4240.png
+Galaxy Impact, Attackup, itself=true
+
+Landing on Pirate Island, 4239, PSY, S, <:4239:1511135390785077409>, https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/4/200/4239.png
+
+Disciplining the Brats, 3848, PSY, SS, <:3848:1511135691667669122>, https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/3/800/3848.png
+
+The Fist - Grandfather of the Future King of the Pirates, 2991, PSY, UR, <:2991:1511136043380904007>, https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/2/900/2991.png
+Galaxy Impact, attackup, itself=true, effectAmount=20
+
+Garp & Coby:
+Combined Fists of Mentor and protege, 4521, QCK/DEX, SS, <:4521:1511133589339897946>, https://2shankz.github.io/optc-db.github.io/api/images/full/transparent/4/500/4521.png
+Inherited Fists of Justice, attackup, itself=true, effectAmount=20.
+count: 2, scount: 2.
+
+bogard:
+Marine Headquarters Marine Officer, BASE, S, https://static.wikia.nocookie.net/onepiece/images/4/47/Bogard_Anime_Infobox.png/revision/latest?cb=20240127015647
+
+Bogard Upscale, BASE, SS-, https://i.pinimg.com/736x/a0/27/c0/a027c09a1ef3343860e34e90a3ed19e1.jpg
+attackup, itself=true
